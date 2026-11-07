@@ -295,5 +295,55 @@ if(!pendingOrders.length)box.hidden=true;
 window.__menuxAlertKnown=idsNow;
 }
 
+// Central de pedidos: iniciar após a identificação do restaurante e manter atualizada.
+let menuxBusy=false;
+async function refreshMenuxOrders(){
+ if(menuxBusy)return;
+ const panel=document.getElementById('menuxMainOrders');
+ if(!sb||!restaurant||!restaurant.id)return;
+ menuxBusy=true;
+ try{await loadIncoming()}
+ catch(err){
+   console.error('MENUX - erro ao carregar pedidos:',err);
+   if(panel)panel.innerHTML='<div class="muted">Falha ao carregar pedidos: '+escapeHtml(err?.message||'Erro desconhecido')+'</div>';
+ }
+ finally{menuxBusy=false}
+}
+// Listener específico dos botões de status dos pedidos online.
+document.addEventListener('click',async event=>{
+ const button=event.target.closest('button[data-incoming][data-newstatus]');
+ if(!button||button.disabled||!sb||!restaurant)return;
+ const id=button.dataset.incoming;
+ const nextStatus=button.dataset.newstatus;
+ const item=onlineOrders.find(o=>o.id===id);
+ if(!item)return;
+ const transitions={pending:['accepted','cancelled'],accepted:['preparing','cancelled'],preparing:['ready','cancelled'],ready:[item.fulfillment==='delivery'?'out_for_delivery':'completed','cancelled'],out_for_delivery:['completed','cancelled']};
+ if(!transitions[item.status]?.includes(nextStatus))return;
+ if(nextStatus==='cancelled'&&!confirm('Cancelar este pedido?'))return;
+ button.disabled=true;
+ try{
+   const {data,error}=await sb.from('menux_checkout_orders')
+     .update({status:nextStatus}).eq('restaurant_id',restaurant.id)
+     .eq('id',id).eq('status',item.status).select('id');
+   if(error)throw error;
+   if(!data?.length)throw new Error('O status foi alterado em outra tela. Atualize os pedidos.');
+   await refreshMenuxOrders();
+ }catch(err){console.error('MENUX - erro ao atualizar pedido:',err);alert('Não foi possível atualizar o pedido: '+err.message)}
+ finally{button.disabled=false}
+});
+// O botão de atualização principal antes renovava só a lista legada.
+document.getElementById('refreshOrders')?.addEventListener('click',refreshMenuxOrders);
+// A aplicação autentica e define restaurant de modo assíncrono.
+const menuxStart=setInterval(()=>{
+ if(!sb||!restaurant||!restaurant.id)return;
+ clearInterval(menuxStart);
+ refreshMenuxOrders();
+},500);
+setInterval(()=>{
+ if(document.visibilityState==='visible'&&sb&&restaurant?.id)refreshMenuxOrders();
+},20000);
+document.addEventListener('visibilitychange',()=>{
+ if(document.visibilityState==='visible')refreshMenuxOrders();
+});
 })();
 </script></body></html>
