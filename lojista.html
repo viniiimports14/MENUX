@@ -509,7 +509,10 @@ $('catalogForm').addEventListener('submit',async e=>{
 <dialog id="menuxOrderDialog" aria-labelledby="menuxOrderDialogTitle"><div class="menux-detail-wrap"><div class="menux-detail-head"><h2 id="menuxOrderDialogTitle">Detalhes do pedido</h2><button class="menux-detail-close" type="button" data-close-menux-details aria-label="Fechar detalhes">×</button></div><div id="menuxOrderDialogContent"></div></div></dialog>
 <script>
 (function(){const box=document.getElementById('menux-incoming'),list=document.getElementById('menux-incoming-list'),message=document.getElementById('menux-incoming-message');document.getElementById('menux-incoming-open').onclick=()=>{box.hidden=false;loadIncoming()};document.getElementById('menux-incoming-close').onclick=()=>box.hidden=true;const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const menuxOrderNumber=o=>o&&o.daily_number!=null?'#'+String(o.daily_number).padStart(3,'0'):'#'+String(o?.id||'').slice(0,8).toUpperCase();const moneyIncoming=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);const statusNames={pending:'Recebido',accepted:'Aceito',preparing:'Preparando',ready:'Pronto',out_for_delivery:'Saiu para entrega',completed:'Concluído',cancelled:'Cancelado'};let onlineOrders=[];
-let menuxAudioCtx=null;
+// Áudio aprovado para a MENUX. O MP3 deve estar na mesma pasta de lojista.html.
+const menuxBellAudio=new Audio('./menux-alerta.mp3');
+menuxBellAudio.preload='auto';
+menuxBellAudio.volume=0.95;
 const menuxSoundButton=document.getElementById('menux-sound-toggle');
 const menuxAlertCount=document.getElementById('menux-alert-count');
 const menuxDefaultTitle=document.title;
@@ -525,59 +528,32 @@ function menuxUpdateSoundButton(){
 function playMenuxAlert(){
  if(!menuxSoundEnabled)return;
  try{
-  const C=window.AudioContext||window.webkitAudioContext;
-  if(!C)return;
-  menuxAudioCtx=menuxAudioCtx||new C();
-  if(menuxAudioCtx.state!=='running')return;
-  // Sino de balcão: dois toques ressonantes, com harmônicos e decaimento suave.
-  // O som é sintetizado no navegador, sem arquivos externos.
-  const master=menuxAudioCtx.createGain();
-  master.gain.value=.75;
-  master.connect(menuxAudioCtx.destination);
-  const now=menuxAudioCtx.currentTime+.025;
-  [0,.52].forEach((delay,strike)=>{
-   const start=now+delay;
-   const strength=strike===0?1:.83;
-   const partials=[
-    {hz:880,level:.18,decay:2.05},
-    {hz:1764,level:.065,decay:1.38},
-    {hz:2647,level:.027,decay:.92},
-    {hz:3562,level:.010,decay:.55}
-   ];
-   partials.forEach(({hz,level,decay})=>{
-    const osc=menuxAudioCtx.createOscillator();
-    const volume=menuxAudioCtx.createGain();
-    osc.type='sine';
-    osc.frequency.setValueAtTime(hz,start);
-    volume.gain.setValueAtTime(.0001,start);
-    volume.gain.linearRampToValueAtTime(level*strength,start+.009);
-    volume.gain.exponentialRampToValueAtTime(.0001,start+decay);
-    osc.connect(volume);volume.connect(master);
-    osc.start(start);osc.stop(start+decay+.025);
-   });
-  });
-  // Libera a conexão de áudio após os toques terminarem.
-  const end=now+2.65;
-  master.gain.setValueAtTime(.75,end-.025);
-  master.gain.linearRampToValueAtTime(0,end);
- }catch(e){console.warn('MENUX: áudio indisponível:',e)}
+  menuxBellAudio.pause();
+  menuxBellAudio.currentTime=0;
+  const promise=menuxBellAudio.play();
+  if(promise && typeof promise.catch==='function') promise.catch(e=>console.warn('MENUX: o navegador bloqueou o som. Clique em Ativar som novamente.',e));
+ }catch(e){console.warn('MENUX: não foi possível tocar o alerta:',e)}
 }
 menuxSoundButton.addEventListener('click',async()=>{
- if(menuxSoundEnabled){menuxSoundEnabled=false;localStorage.setItem(menuxSoundKey(),'off');menuxUpdateSoundButton();return}
+ if(menuxSoundEnabled){
+  menuxSoundEnabled=false;
+  menuxBellAudio.pause();
+  menuxBellAudio.currentTime=0;
+  localStorage.setItem(menuxSoundKey(),'off');
+  menuxUpdateSoundButton();
+  return;
+ }
  try{
-  const C=window.AudioContext||window.webkitAudioContext;
-  if(!C)throw new Error('Este navegador não suporta alertas sonoros.');
-  menuxAudioCtx=menuxAudioCtx||new C();
-  await menuxAudioCtx.resume();
-  if(menuxAudioCtx.state!=='running')throw new Error('O navegador não liberou o áudio.');
-  menuxSoundEnabled=true;localStorage.setItem(menuxSoundKey(),'on');
-  menuxUpdateSoundButton();playMenuxAlert();
- }catch(e){menuxSoundEnabled=false;menuxUpdateSoundButton();alert('Não foi possível ativar o som: '+e.message)}
-});
-// Uma interação do lojista pode liberar áudio previamente autorizado após recarregar a página.
-document.addEventListener('pointerdown',()=>{
- if(!menuxSoundEnabled)return;
- try{const C=window.AudioContext||window.webkitAudioContext;if(C){menuxAudioCtx=menuxAudioCtx||new C();menuxAudioCtx.resume().catch(()=>{})}}catch(e){}
+  // Iniciado por clique explícito para liberar a reprodução de áudio no Safari.
+  menuxSoundEnabled=true;
+  await menuxBellAudio.play();
+  localStorage.setItem(menuxSoundKey(),'on');
+  menuxUpdateSoundButton();
+ }catch(e){
+  menuxSoundEnabled=false;
+  menuxUpdateSoundButton();
+  alert('Não foi possível tocar a campainha. Verifique se o arquivo menux-alerta.mp3 está no GitHub e se o som está liberado neste navegador.');
+ }
 });
 menuxUpdateSoundButton();
 // Somente na Central de Pedidos: começa um novo dia às 00:00 no horário de Brasília.
