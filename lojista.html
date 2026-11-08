@@ -19,10 +19,10 @@
 <style>
 /* MENUX: cartões de pedidos compactos, com prévia limitada e detalhe completo no modal. */
 #menuxMainOrders .menux-orders-grid .menux-order-card{
-  height:460px;min-height:460px;display:flex;flex-direction:column;overflow:hidden;
+  height:650px;min-height:650px;display:flex;flex-direction:column;overflow:hidden;
 }
 #menuxMainOrders .menux-orders-grid .menux-order-top{flex:0 0 auto}
-#menuxMainOrders .menux-orders-grid .menux-preview{flex:0 1 auto;min-height:0;overflow:hidden;gap:6px;margin-top:12px;padding-top:11px}
+#menuxMainOrders .menux-orders-grid .menux-preview{flex:0 0 auto;min-height:0;overflow:visible;gap:6px;margin-top:12px;padding-top:11px}
 #menuxMainOrders .menux-orders-grid .menux-preview-product{border:0;padding:0}
 #menuxMainOrders .menux-orders-grid .menux-item-primary{font-size:19px;line-height:1.32;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 #menuxMainOrders .menux-orders-grid .menux-preview-options{margin-top:6px}
@@ -34,7 +34,7 @@
 }
 #menuxMainOrders .menux-orders-grid .menux-more-notice strong{font-size:14px;color:#ffe6a4}
 #menuxMainOrders .menux-orders-grid .menux-order-actions{margin-top:auto;padding-top:10px;flex:0 0 auto}
-@media(max-width:760px){#menuxMainOrders .menux-orders-grid .menux-order-card{height:auto;min-height:430px}}
+@media(max-width:760px){#menuxMainOrders .menux-orders-grid .menux-order-card{height:auto;min-height:480px}}
 </style>
 </head><body><div class="layout">
 <aside class="side"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
@@ -356,8 +356,8 @@ main.innerHTML='<div class="menux-orders-header"><b>Pedidos recebidos pelo card�
  const itemCount=orderItems.reduce((total,i)=>total+(Number(i.quantity)||0),0);
  const firstItem=orderItems[0];
  const firstOptions=firstItem&&Array.isArray(firstItem.options)?firstItem.options:[];
- const visibleOptions=firstOptions.slice(0,3);
- const hasMore=orderItems.length>1||firstOptions.length>3;
+ const visibleOptions=firstOptions.slice(0,6);
+ const hasMore=orderItems.length>1||firstOptions.length>6;
  const preview=firstItem?'<div class="menux-preview-product"><div class="menux-item-primary">'+escapeHtml(firstItem.quantity)+'× '+escapeHtml(firstItem.product_name)+'</div>'+(visibleOptions.length?'<div class="menux-preview-options"><span class="menux-options-caption">Complementos e adicionais</span>'+visibleOptions.map(x=>'<div class="menux-option-line">+ '+escapeHtml(x.name)+(Number(x.price)>0?' · '+moneyIncoming(x.price):'')+'</div>').join('')+'</div>':'')+'</div>':'<div class="menux-preview-product">Nenhum produto carregado.</div>';
  const moreNotice=hasMore?'<div class="menux-more-notice"><strong>… Tem mais no pedido!</strong><span>'+ (orderItems.length>1?'Mais de um produto ou outros complementos.':'Outros complementos e adicionais.') +' Clique em <b>Ver detalhes do pedido</b> para conferir tudo.</span></div>':'';
  const action=({pending:['accepted','Aceitar pedido'],accepted:['preparing','Iniciar preparo'],preparing:['ready','Marcar pronto'],ready:[o.fulfillment==='delivery'?'out_for_delivery':'completed',o.fulfillment==='delivery'?'Saiu para entrega':'Concluir'],out_for_delivery:['completed','Concluir']})[o.status];
