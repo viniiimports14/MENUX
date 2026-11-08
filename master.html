@@ -1,1 +1,103 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MENUX | Master</title><style>:root{--bg:#0d0e10;--panel:#17191d;--line:#2b2e34;--gold:#c9a45a;--text:#f5f3ee;--muted:#a4a6ad}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,Arial}.wrap{max-width:1050px;margin:35px auto;padding:18px}.auth{max-width:420px;margin:8vh auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:32px}h1{color:var(--gold);letter-spacing:2px}h2{font-size:19px}label{display:block;margin:14px 0 6px;color:var(--muted);font-size:13px}input,select{width:100%;padding:12px;border:1px solid var(--line);background:#111317;border-radius:9px;color:var(--text)}button,.button{background:var(--gold);color:#18140e;border:0;border-radius:9px;padding:11px 16px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}.secondary{background:#292b31;color:var(--text)}.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px;margin:16px 0}.muted{color:var(--muted)}.error{color:#ff9c91}.ok{color:#75d9a3}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line)}@media(max-width:650px){.wrap{margin:8px auto}.auth{margin:5vh 12px;padding:22px}table{font-size:12px}}</style></head><body><main class="wrap"><div class="top"><div><h1>◈ MENUX MASTER</h1><p class="muted">Central administrativa · Lojas da plataforma</p></div><button id="logout" class="secondary">Sair</button></div><p id="msg" role="status"></p><div class="grid"><div class="card"><p class="muted">Estabelecimentos</p><h1 id="count">—</h1></div><div class="card"><p class="muted">Produtos cadastrados</p><h1 id="products">—</h1></div><div class="card"><p class="muted">Pedidos registrados</p><h1 id="orders">—</h1></div></div><section class="card"><h2>Cadastrar estabelecimento</h2><p class="muted">Cria a loja. O acesso do proprietário é vinculado separadamente a uma conta Auth existente.</p><form id="newStore" class="grid"><div><label>Nome da loja</label><input id="name" required maxlength="120"></div><div><label>Link curto (slug)</label><input id="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="pizzaria-bella"></div><div style="align-self:end"><button>Criar loja</button></div></form></section><section class="card"><h2>Vincular proprietário</h2><p class="muted">Informe o UUID de um usuário já criado em Authentication → Users. Não use e-mail aqui: criar ou convidar usuários automaticamente exigirá uma Edge Function protegida.</p><form id="membership" class="grid"><div><label>Restaurante</label><select id="restaurant" required></select></div><div><label>UUID do usuário Auth</label><input id="userId" required pattern="[a-fA-F0-9-]{36}" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div><div style="align-self:end"><button>Vincular proprietário</button></div></form></section><section class="card"><h2>Estabelecimentos cadastrados</h2><div style="overflow:auto"><table><thead><tr><th>Nome</th><th>Link público planejado</th><th>ID</th><th>Cadastro</th></tr></thead><tbody id="rows"></tbody></table></div></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><script>function client(){const c=window.MENUX_CONFIG||{};if(!c.supabaseUrl?.startsWith('https://')||!c.supabaseAnonKey||c.supabaseAnonKey.startsWith('COLE_'))throw Error('Configure o arquivo config.js com a URL e a chave pública do Supabase.');return window.supabase.createClient(c.supabaseUrl,c.supabaseAnonKey)}const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));</script><script>let sb,stores=[];const $=id=>document.getElementById(id);function msg(t,bad=false){$('msg').className=bad?'error':'ok';$('msg').textContent=t}async function load(){const {data,error}=await sb.from('restaurants').select('id,name,slug,created_at').order('created_at',{ascending:false});if(error)throw error;stores=data||[];$('count').textContent=stores.length;$('rows').innerHTML=stores.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.slug||'Sem slug')} (a publicar)</td><td><small>${esc(s.id)}</small></td><td>${new Date(s.created_at).toLocaleDateString('pt-BR')}</td></tr>`).join('')||'<tr><td colspan="4">Nenhuma loja cadastrada</td></tr>';$('restaurant').innerHTML=stores.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');for(const [table,id] of [['products','products'],['orders','orders']]){const {count,error}=await sb.from(table).select('id',{count:'exact',head:true});$(id).textContent=error?'—':count}}(async()=>{try{sb=client();const {data:{user}}=await sb.auth.getUser();if(!user){location.replace('index.html');return}const {data,error}=await sb.from('platform_admins').select('user_id').eq('user_id',user.id).limit(1);if(error)throw error;if(!data?.length){location.replace('lojista.html');return}await load()}catch(e){msg(e.message,true)}})();$('newStore').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurants').insert({name:$('name').value.trim(),slug:$('slug').value.trim()});if(error)throw error;e.target.reset();await load();msg('Loja cadastrada! Agora vincule o proprietário.')}catch(err){msg(err.message,true)}});$('membership').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurant_members').insert({restaurant_id:$('restaurant').value,user_id:$('userId').value.trim(),role:'owner'});if(error)throw error;$('userId').value='';msg('Proprietário vinculado! Já pode entrar no login único.')}catch(err){msg(err.message,true)}});$('logout').onclick=async()=>{await sb?.auth.signOut();location.replace('index.html')};</script></body></html>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MENUX | Master</title><style>:root{--bg:#0d0e10;--panel:#17191d;--line:#2b2e34;--gold:#c9a45a;--text:#f5f3ee;--muted:#a4a6ad}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,Arial}.wrap{max-width:1050px;margin:35px auto;padding:18px}.auth{max-width:420px;margin:8vh auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:32px}h1{color:var(--gold);letter-spacing:2px}h2{font-size:19px}label{display:block;margin:14px 0 6px;color:var(--muted);font-size:13px}input,select{width:100%;padding:12px;border:1px solid var(--line);background:#111317;border-radius:9px;color:var(--text)}button,.button{background:var(--gold);color:#18140e;border:0;border-radius:9px;padding:11px 16px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}.secondary{background:#292b31;color:var(--text)}.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px;margin:16px 0}.muted{color:var(--muted)}.error{color:#ff9c91}.ok{color:#75d9a3}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line)}@media(max-width:650px){.wrap{margin:8px auto}.auth{margin:5vh 12px;padding:22px}table{font-size:12px}}</style><style>
+.menux-sub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.menux-sub-grid .wide{grid-column:span 2}
+.menux-sub-table{overflow-x:auto}
+.menux-sub-table table{min-width:860px}
+.menux-sub-table th,.menux-sub-table td{vertical-align:middle}
+.menux-sub-table input,.menux-sub-table select{min-width:120px;padding:9px;font-size:13px}
+.menux-sub-table input[type=date]{min-width:144px}
+.menux-sub-table button{white-space:nowrap}
+.menux-sub-status{font-size:12px;color:#dec386}
+.menux-sub-hint{color:#a4a6ad;font-size:13px}
+@media(max-width:750px){.menux-sub-grid{grid-template-columns:1fr}.menux-sub-grid .wide{grid-column:span 1}}
+</style></head><body><main class="wrap"><div class="top"><div><h1>◈ MENUX MASTER</h1><p class="muted">Central administrativa · Lojas da plataforma</p></div><button id="logout" class="secondary">Sair</button></div><p id="msg" role="status"></p><div class="grid"><div class="card"><p class="muted">Estabelecimentos</p><h1 id="count">—</h1></div><div class="card"><p class="muted">Produtos cadastrados</p><h1 id="products">—</h1></div><div class="card"><p class="muted">Pedidos registrados</p><h1 id="orders">—</h1></div></div><section class="card"><h2>Cadastrar estabelecimento</h2><p class="muted">Cria a loja. O acesso do proprietário é vinculado separadamente a uma conta Auth existente.</p><form id="newStore" class="grid"><div><label>Nome da loja</label><input id="name" required maxlength="120"></div><div><label>Link curto (slug)</label><input id="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="pizzaria-bella"></div><div style="align-self:end"><button>Criar loja</button></div></form></section><section class="card"><h2>Vincular proprietário</h2><p class="muted">Informe o UUID de um usuário já criado em Authentication → Users. Não use e-mail aqui: criar ou convidar usuários automaticamente exigirá uma Edge Function protegida.</p><form id="membership" class="grid"><div><label>Restaurante</label><select id="restaurant" required></select></div><div><label>UUID do usuário Auth</label><input id="userId" required pattern="[a-fA-F0-9-]{36}" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div><div style="align-self:end"><button>Vincular proprietário</button></div></form></section><section class="card" id="menuxSubscriptionAdmin">
+<h2>Planos e assinaturas</h2>
+<p class="menux-sub-hint">Controle administrativo manual. Os dados abaixo <strong>não</strong> cobram os lojistas nem bloqueiam suas lojas automaticamente.</p>
+<h3>1. Cadastrar plano</h3>
+<form id="menuxPlanForm" class="menux-sub-grid">
+<div><label for="menuxPlanName">Nome do plano</label><input id="menuxPlanName" maxlength="80" placeholder="Ex.: Profissional" required></div>
+<div><label for="menuxPlanPrice">Mensalidade (R$)</label><input id="menuxPlanPrice" type="number" min="0" step="0.01" placeholder="0,00" required></div>
+<div><label for="menuxPlanDesc">Descrição (opcional)</label><input id="menuxPlanDesc" maxlength="300" placeholder="Recursos incluídos"></div>
+<div class="wide"><button type="submit">Cadastrar plano</button></div>
+</form>
+<p id="menuxPlanMessage" role="status" class="menux-sub-status"></p>
+<h3>2. Assinaturas por estabelecimento</h3>
+<p class="menux-sub-hint">Escolha plano, situação e vencimento; clique em <strong>Salvar</strong> na linha da loja. O aviso de vencimento é informativo, sem bloqueio nesta etapa.</p>
+<div class="menux-sub-table"><table><thead><tr><th>Estabelecimento</th><th>Plano</th><th>Situação</th><th>Início</th><th>Vencimento</th><th>Ação</th></tr></thead><tbody id="menuxSubscriptionRows"><tr><td colspan="6">Carregando…</td></tr></tbody></table></div>
+<p id="menuxSubscriptionMessage" class="menux-sub-status" role="status"></p>
+<button type="button" id="menuxSubscriptionReload" class="secondary">Atualizar assinaturas</button>
+</section><section class="card"><h2>Estabelecimentos cadastrados</h2><div style="overflow:auto"><table><thead><tr><th>Nome</th><th>Link público planejado</th><th>ID</th><th>Cadastro</th></tr></thead><tbody id="rows"></tbody></table></div></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><script>function client(){const c=window.MENUX_CONFIG||{};if(!c.supabaseUrl?.startsWith('https://')||!c.supabaseAnonKey||c.supabaseAnonKey.startsWith('COLE_'))throw Error('Configure o arquivo config.js com a URL e a chave pública do Supabase.');return window.supabase.createClient(c.supabaseUrl,c.supabaseAnonKey)}const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));</script><script>let sb,stores=[];const $=id=>document.getElementById(id);function msg(t,bad=false){$('msg').className=bad?'error':'ok';$('msg').textContent=t}async function load(){const {data,error}=await sb.from('restaurants').select('id,name,slug,created_at').order('created_at',{ascending:false});if(error)throw error;stores=data||[];$('count').textContent=stores.length;$('rows').innerHTML=stores.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.slug||'Sem slug')} (a publicar)</td><td><small>${esc(s.id)}</small></td><td>${new Date(s.created_at).toLocaleDateString('pt-BR')}</td></tr>`).join('')||'<tr><td colspan="4">Nenhuma loja cadastrada</td></tr>';$('restaurant').innerHTML=stores.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');for(const [table,id] of [['products','products'],['orders','orders']]){const {count,error}=await sb.from(table).select('id',{count:'exact',head:true});$(id).textContent=error?'—':count}}(async()=>{try{sb=client();const {data:{user}}=await sb.auth.getUser();if(!user){location.replace('login.html');return}const {data,error}=await sb.from('platform_admins').select('user_id').eq('user_id',user.id).limit(1);if(error)throw error;if(!data?.length){location.replace('lojista.html');return}await load()}catch(e){msg(e.message,true)}})();$('newStore').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurants').insert({name:$('name').value.trim(),slug:$('slug').value.trim()});if(error)throw error;e.target.reset();await load();msg('Loja cadastrada! Agora vincule o proprietário.')}catch(err){msg(err.message,true)}});$('membership').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurant_members').insert({restaurant_id:$('restaurant').value,user_id:$('userId').value.trim(),role:'owner'});if(error)throw error;$('userId').value='';msg('Proprietário vinculado! Já pode entrar no login único.')}catch(err){msg(err.message,true)}});$('logout').onclick=async()=>{await sb?.auth.signOut();location.replace('login.html')};</script><script>
+// MENUX | Gestão manual de planos e assinaturas. Não altera o acesso das lojas.
+(() => {
+  const $s = id => document.getElementById(id);
+  const escSub = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const statuses = {trial:'Teste', active:'Ativa',past_due:'Em atraso',paused:'Pausada',cancelled:'Cancelada'};
+  let api, plans=[], subs=[];
+  const say = (id,message,failed=false) => { $s(id).textContent=message;$s(id).className=failed?'error':'ok'; };
+  async function getApi(){
+    if(!api){const c=window.MENUX_CONFIG||{}; api=window.supabase.createClient(c.supabaseUrl,c.supabaseAnonKey);}
+    const {data:{user},error:authError}=await api.auth.getUser();
+    if(authError||!user)throw Error('Faça login como administrador Master.');
+    const {data:admin,error}=await api.from('platform_admins').select('user_id').eq('user_id',user.id).limit(1);
+    if(error||!admin?.length)throw Error('Seu usuário não tem permissão de administrador Master.');
+    return api;
+  }
+  async function refresh(){
+    try{
+      const db=await getApi();
+      const [pr,sr,rr]=await Promise.all([
+        db.from('menux_subscription_plans').select('id,name,monthly_price,active').order('name'),
+        db.from('menux_restaurant_subscriptions').select('restaurant_id,plan_id,status,starts_on,expires_on'),
+        db.from('restaurants').select('id,name').order('name')
+      ]);
+      for(const result of [pr,sr,rr])if(result.error)throw result.error;
+      plans=pr.data||[];subs=sr.data||[];
+      const byRestaurant=new Map(subs.map(s=>[s.restaurant_id,s]));
+      const planChoices='<option value="">Sem plano</option>'+plans.filter(p=>p.active).map(p=>`<option value="${escSub(p.id)}">${escSub(p.name)} — R$ ${Number(p.monthly_price).toFixed(2).replace('.',',')}</option>`).join('');
+      const statusChoices=Object.entries(statuses).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+      $s('menuxSubscriptionRows').innerHTML=(rr.data||[]).map((r,i)=>{
+        const sub=byRestaurant.get(r.id)||{};
+        const overdue=sub.expires_on&&sub.expires_on<new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'})&&sub.status!=='cancelled';
+        return `<tr data-restaurant="${escSub(r.id)}"><td><strong>${escSub(r.name)}</strong>${overdue?'<div class="error">Vencimento ultrapassado</div>':''}</td><td><select data-field="plan_id">${planChoices}</select></td><td><select data-field="status">${statusChoices}</select></td><td><input data-field="starts_on" type="date"></td><td><input data-field="expires_on" type="date"></td><td><button type="button" data-sub-save>Salvar</button></td></tr>`;
+      }).join('')||'<tr><td colspan="6">Nenhum estabelecimento cadastrado.</td></tr>';
+      for(const row of $s('menuxSubscriptionRows').querySelectorAll('tr[data-restaurant]')){
+        const data=byRestaurant.get(row.dataset.restaurant)||{};
+        for(const key of ['plan_id','status','starts_on','expires_on']){
+          row.querySelector(`[data-field="${key}"]`).value=data[key]||(key==='status'?'trial':'');
+        }
+      }
+      say('menuxSubscriptionMessage','Dados carregados.');
+    }catch(e){say('menuxSubscriptionMessage','Não foi possível carregar assinaturas: '+(e.message||e),true);}
+  }
+  $s('menuxPlanForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      const db=await getApi();
+      const name=$s('menuxPlanName').value.trim();
+      const price=Number($s('menuxPlanPrice').value);
+      if(!name||!Number.isFinite(price)||price<0)throw Error('Informe nome e mensalidade válida.');
+      const {error}=await db.from('menux_subscription_plans').insert({name,monthly_price:price,description:$s('menuxPlanDesc').value.trim()});
+      if(error)throw error;
+      e.target.reset();say('menuxPlanMessage','Plano cadastrado!');await refresh();
+    }catch(err){say('menuxPlanMessage',err.message||String(err),true);}
+  });
+  $s('menuxSubscriptionRows').addEventListener('click',async e=>{
+    const button=e.target.closest('button[data-sub-save]');if(!button)return;
+    const row=button.closest('tr[data-restaurant]');if(!row)return;
+    button.disabled=true;
+    try{
+      const db=await getApi();
+      const get=k=>row.querySelector(`[data-field="${k}"]`).value||null;
+      const plan=get('plan_id'), starts=get('starts_on'), expires=get('expires_on');
+      if(starts&&expires&&expires<starts)throw Error('Vencimento não pode ser anterior ao início.');
+      const payload={restaurant_id:row.dataset.restaurant,plan_id:plan,status:get('status'),starts_on:starts,expires_on:expires};
+      const {error}=await db.from('menux_restaurant_subscriptions').upsert(payload,{onConflict:'restaurant_id'});
+      if(error)throw error;
+      say('menuxSubscriptionMessage','Assinatura de '+row.querySelector('strong').textContent+' salva.');
+      await refresh();
+    }catch(err){say('menuxSubscriptionMessage',err.message||String(err),true)}finally{button.disabled=false;}
+  });
+  $s('menuxSubscriptionReload').onclick=refresh;
+  refresh();
+})();
+</script></body></html>
