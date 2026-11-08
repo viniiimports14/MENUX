@@ -139,9 +139,71 @@ function orderHtml(o,full=false){const next={pending:['accepted','Aceitar'],acce
 function chart(el,labels,values){const target=$(el);if(!target)return;const max=Math.max(1,...values);target.innerHTML=labels.map((x,i)=>'<div class="barcol"><div class="bar" style="height:'+Math.max(2,Math.round(values[i]/max*95))+'%" title="'+values[i]+'"></div><span>'+esc(x)+'</span></div>').join('')}
 function topItems(){const count={};const valid=new Set(orders.filter(isDone).map(o=>o.id));items.filter(x=>valid.has(x.order_id)).forEach(x=>count[x.product_name]=(count[x.product_name]||0)+x.quantity);return Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,6)}
 function render(){const now=new Date(),p=$('period').value;const filtered=orders.filter(o=>{const d=new Date(o.created_at);return p==='today'?d.toDateString()===now.toDateString():p==='7'?d>=new Date(Date.now()-7*86400000):p==='month'?d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear():d.getFullYear()===now.getFullYear()});const completed=filtered.filter(isDone),revenue=completed.reduce((n,o)=>n+Number(o.total),0);$('revenue').textContent=money(revenue);$('ticket').textContent=money(completed.length?revenue/completed.length:0);$('orderCount').textContent=filtered.length;$('inProgress').textContent=filtered.filter(o=>!isDone(o)&&!isCancelled(o)).length;const hours=[10,11,12,13,14,15,16,17,18,19,20,21];chart('hourChart',hours.map(h=>h+'h'),hours.map(h=>completed.filter(o=>new Date(o.created_at).getHours()===h).reduce((n,o)=>n+Number(o.total),0)));const tops=topItems();const topHtml=tops.length?tops.map(([name,count])=>'<div><div class="item"><b>'+esc(name)+'</b><span class="muted small">'+count+' un.</span></div><div class="track"><div class="fill" style="width:'+count/tops[0][1]*100+'%"></div></div></div>').join(''):'<div class="empty">Sem vendas concluídas.</div>';$('topProducts').innerHTML=topHtml;$('recentOrders').innerHTML=orders.slice(0,5).map(o=>orderHtml(o)).join('')||'<div class="empty">Nenhum pedido.</div>';$('ordersList').innerHTML=orders.filter(o=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(o.created_at))===new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())).map(o=>orderHtml(o,true)).join('')||'<div class="empty">Nenhum outro pedido de hoje.</div>';
-refreshCategorySuggestions();$('productsBody').innerHTML=products.map(x=>'<tr><td><b>'+esc(x.name)+'</b><div class="muted small">'+esc(x.category||'Sem categoria')+'</div></td><td>'+money(x.price)+'</td><td>'+(x.active?'<span class="tag green">Disponível</span>':'<span class="tag">Oculto</span>')+'</td><td><button class="btn" data-options-product="'+x.id+'">Opções</button> <button class="btn" data-edit-product="'+x.id+'">Editar</button> <button class="btn" data-toggle-product="'+x.id+'">'+(x.active?'Pausar':'Ativar')+'</button> <button class="btn" data-delete-product="'+x.id+'">Excluir</button></td></tr>').join('')||'<tr><td colspan="4">Nenhum produto cadastrado.</td></tr>';
+void menuxRenderOverviewOnline();refreshCategorySuggestions();$('productsBody').innerHTML=products.map(x=>'<tr><td><b>'+esc(x.name)+'</b><div class="muted small">'+esc(x.category||'Sem categoria')+'</div></td><td>'+money(x.price)+'</td><td>'+(x.active?'<span class="tag green">Disponível</span>':'<span class="tag">Oculto</span>')+'</td><td><button class="btn" data-options-product="'+x.id+'">Opções</button> <button class="btn" data-edit-product="'+x.id+'">Editar</button> <button class="btn" data-toggle-product="'+x.id+'">'+(x.active?'Pausar':'Ativar')+'</button> <button class="btn" data-delete-product="'+x.id+'">Excluir</button></td></tr>').join('')||'<tr><td colspan="4">Nenhum produto cadastrado.</td></tr>';
 $('customerCount').textContent=customers.length;$('customerBuyers').textContent=new Set(orders.map(o=>o.customer_id).filter(Boolean)).size;$('linkedOrders').textContent=orders.filter(o=>o.customer_id).length;$('customerTicket').textContent=money(orders.filter(isDone).length?orders.filter(isDone).reduce((a,o)=>a+Number(o.total),0)/orders.filter(isDone).length:0);$('customersBody').innerHTML=customers.map(c=>'<tr><td>'+esc(c.name)+'</td><td>'+esc(c.phone||'—')+'</td><td>'+orders.filter(o=>o.customer_id===c.id).length+'</td><td><button class="btn" data-edit-customer="'+c.id+'">Editar</button></td></tr>').join('')||'<tr><td colspan="4">Nenhum cliente.</td></tr>';
 const allDone=orders.filter(isDone),allSum=allDone.reduce((a,o)=>a+Number(o.total),0);$('areasBody').innerHTML=areas.map(a=>'<tr><td>'+esc(a.name)+'</td><td>'+money(a.delivery_fee)+'</td><td>'+tag(a.active?'completed':'paused').replace('Finalizado','Ativa').replace('paused','Inativa')+'</td><td><button class="btn" data-edit-area="'+a.id+'">Editar</button> <button class="btn" data-delete-area="'+a.id+'">Excluir</button></td></tr>').join('')||'<tr><td colspan="4">Nenhuma região cadastrada.</td></tr>';$('storeForm').elements.name.value=restaurant.name;$('storeForm').elements.slug.value=restaurant.slug||'';$('storeName').textContent=restaurant.name;$('avatar').textContent=restaurant.name.slice(0,2).toUpperCase()}
+// MENUX: visão geral baseada nos mesmos pedidos online de Análises completas.
+let menuxOverviewRequest=0;
+const menuxBRDate=(value)=>new Intl.DateTimeFormat('en-CA',{
+  timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'
+}).format(new Date(value));
+async function menuxRenderOverviewOnline(){
+  if(!sb||!restaurant?.id)return;
+  const request=++menuxOverviewRequest;
+  const period=$('period').value;
+  const today=menuxBRDate(new Date());
+  const year=today.slice(0,4),month=today.slice(0,7);
+  const past7=new Date();past7.setUTCDate(past7.getUTCDate()-6);
+  const start7=menuxBRDate(past7);
+  const first=period==='today'?today:period==='7'?start7:period==='month'?month+'-01':year+'-01';
+  try{
+    const {data,error}=await sb.from('menux_checkout_orders')
+      .select('id,created_at,order_day,daily_number,customer_name,status,total,fulfillment')
+      .eq('restaurant_id',restaurant.id)
+      .gte('order_day',first).lte('order_day',today)
+      .order('created_at',{ascending:false}).limit(1000);
+    if(error)throw error;
+    if(request!==menuxOverviewRequest)return;
+    const all=(data||[]).filter(o=>{
+      const d=o.order_day||menuxBRDate(o.created_at);
+      return period==='today'?d===today:period==='7'?d>=start7:period==='month'?d.slice(0,7)===month:d.slice(0,4)===year;
+    });
+    const complete=all.filter(o=>o.status==='completed');
+    const total=complete.reduce((sum,o)=>sum+Number(o.total||0),0);
+    $('revenue').textContent=money(total);
+    $('ticket').textContent=money(complete.length?total/complete.length:0);
+    $('orderCount').textContent=String(all.length);
+    $('inProgress').textContent=String(all.filter(o=>!['completed','cancelled'].includes(o.status)).length);
+    const hours=[10,11,12,13,14,15,16,17,18,19,20,21];
+    const hourValues=hours.map(h=>complete.filter(o=>Number(new Intl.DateTimeFormat('en-GB',{
+      timeZone:'America/Sao_Paulo',hour:'2-digit',hourCycle:'h23'
+    }).format(new Date(o.created_at)))===h).reduce((sum,o)=>sum+Number(o.total||0),0));
+    chart('hourChart',hours.map(h=>h+'h'),hourValues);
+    $('recentOrders').innerHTML=all.slice(0,5).map(o=>'<div class="order"><div><b>Pedido #'+
+      esc(String(o.daily_number||o.id.slice(0,8)).padStart(o.daily_number?3:0,'0'))+
+      ' · '+esc(o.customer_name||'Cliente')+'</b><div class="muted small">'+
+      esc(new Date(o.created_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}))+
+      ' · '+esc(o.fulfillment==='delivery'?'Entrega':o.fulfillment==='table'?'Mesa':'Retirada')+
+      '</div></div><div style="text-align:right"><b>'+money(o.total)+'</b><div>'+tag(o.status)+'</div></div></div>').join('') || '<div class="empty">Nenhum pedido no período.</div>';
+    const counts={};
+    const ids=complete.map(o=>o.id);
+    for(let start=0;start<ids.length;start+=80){
+      const {data:parts,error:partErr}=await sb.from('menux_checkout_order_items')
+        .select('product_name,quantity').eq('restaurant_id',restaurant.id)
+        .in('order_id',ids.slice(start,start+80));
+      if(partErr)throw partErr;
+      if(request!==menuxOverviewRequest)return;
+      for(const item of parts||[])counts[item.product_name]=(counts[item.product_name]||0)+Number(item.quantity||0);
+    }
+    const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    $('topProducts').innerHTML=top.map(([name,qty])=>'<div><div class="item"><b>'+esc(name)+'</b><span class="muted small">'+qty+' un.</span></div><div class="track"><div class="fill" style="width:'+(qty/top[0][1]*100)+'%"></div></div></div>').join('')||'<div class="empty">Sem vendas concluídas.</div>';
+  }catch(err){
+    if(request!==menuxOverviewRequest)return;
+    console.error('MENUX Visão geral:',err);
+    notice('Falha ao consultar a Visão geral dos pedidos online: '+err.message,true);
+  }
+}
+
 function editor(type,obj){if(type==='product'){$('optionManager').hidden=true;optionProductId=null;refreshCategorySuggestions();}const map={product:['productEditor','productForm'],customer:['customerEditor','customerForm'],area:['areaEditor','areaForm']},[panel,form]=map[type];$(form).reset();$(form).elements.id.value=obj?.id||'';if(obj)for(const [k,v] of Object.entries(obj))if($(form).elements.namedItem(k))$(form).elements.namedItem(k).value=String(v??'');$(panel).hidden=false;$(panel).scrollIntoView({behavior:'smooth',block:'nearest'})}
 async function save(table,data,id){const q=id?sb.from(table).update(data).eq('id',id).eq('restaurant_id',restaurant.id):sb.from(table).insert({...data,restaurant_id:restaurant.id});const {error}=await q;if(error)throw Error(error.message);await load();notice('Alterações salvas com sucesso.')}
 // Sugestões baseadas nos produtos da loja atual; não cria categorias duplicadas.
