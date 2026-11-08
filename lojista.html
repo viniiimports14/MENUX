@@ -42,10 +42,10 @@
 </style>
 
 <style>
-.menux-growth-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.menux-growth-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:16px}
 .menux-growth-tip{border:1px solid var(--line,#393939);border-radius:13px;padding:16px;min-width:0;background:rgba(255,255,255,.025)}
-.menux-growth-tip h3{font-size:16px;margin:0 0 8px;line-height:1.35;color:inherit}
-.menux-growth-tip p{font-size:14px;line-height:1.5;margin:0;color:var(--muted,#acacac)}
+.menux-growth-tip h3{font-size:18px;margin:0 0 8px;line-height:1.35;color:inherit}
+.menux-growth-tip p{font-size:16px;line-height:1.5;margin:0;color:var(--muted,#acacac)}
 .menux-growth-tag{display:inline-flex;border:1px solid #b99957;color:#d5b86c;border-radius:99px;padding:6px 10px;font-size:12px;font-weight:700}
 @media(max-width:960px){.menux-growth-grid{grid-template-columns:1fr}}
 </style>
@@ -56,7 +56,7 @@
 <section class="page active" id="overview"><div class="row between"><div><h2>Visão geral</h2><div class="muted small">Indicadores dos pedidos registrados no Supabase.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div>
 <div class="card menux-growth-panel" style="margin-top:15px" aria-labelledby="menuxGrowthTitle">
   <div class="row between" style="align-items:center;gap:12px;flex-wrap:wrap">
-    <div><h2 id="menuxGrowthTitle">💡 Dicas para melhorar suas vendas</h2><p class="muted small" style="margin-top:6px">Sugestões para o estabelecimento, com base no período selecionado. Não são previsões de resultados.</p></div>
+    <div><h2 id="menuxGrowthTitle">💡 Dica de vendas de hoje</h2><p class="muted small" style="margin-top:6px">Uma recomendação por dia para sua loja, baseada nos pedidos dos últimos 28 dias. As sugestões não garantem resultados.</p></div>
     <span class="menux-growth-tag">MENUX Intelligence</span>
   </div>
   <div id="menuxGrowthTips" class="menux-growth-grid" aria-live="polite"><p class="muted">Carregando sugestões…</p></div>
@@ -159,39 +159,96 @@ void menuxRenderOverviewOnline();refreshCategorySuggestions();$('productsBody').
 $('customerCount').textContent=customers.length;$('customerBuyers').textContent=new Set(orders.map(o=>o.customer_id).filter(Boolean)).size;$('linkedOrders').textContent=orders.filter(o=>o.customer_id).length;$('customerTicket').textContent=money(orders.filter(isDone).length?orders.filter(isDone).reduce((a,o)=>a+Number(o.total),0)/orders.filter(isDone).length:0);$('customersBody').innerHTML=customers.map(c=>'<tr><td>'+esc(c.name)+'</td><td>'+esc(c.phone||'—')+'</td><td>'+orders.filter(o=>o.customer_id===c.id).length+'</td><td><button class="btn" data-edit-customer="'+c.id+'">Editar</button></td></tr>').join('')||'<tr><td colspan="4">Nenhum cliente.</td></tr>';
 const allDone=orders.filter(isDone),allSum=allDone.reduce((a,o)=>a+Number(o.total),0);$('areasBody').innerHTML=areas.map(a=>'<tr><td>'+esc(a.name)+'</td><td>'+money(a.delivery_fee)+'</td><td>'+tag(a.active?'completed':'paused').replace('Finalizado','Ativa').replace('paused','Inativa')+'</td><td><button class="btn" data-edit-area="'+a.id+'">Editar</button> <button class="btn" data-delete-area="'+a.id+'">Excluir</button></td></tr>').join('')||'<tr><td colspan="4">Nenhuma região cadastrada.</td></tr>';$('storeForm').elements.name.value=restaurant.name;$('storeForm').elements.slug.value=restaurant.slug||'';$('storeName').textContent=restaurant.name;$('avatar').textContent=restaurant.name.slice(0,2).toUpperCase()}
 
-// MENUX: dicas de gestão somente para o estabelecimento autenticado.
-// A interpretação evita tratar pedidos de teste ou amostras pequenas como tendências.
-function menuxRenderGrowthTips(all,complete,top){
+// MENUX Intelligence: uma recomendação diária por estabelecimento, nunca misturando lojas.
+// Os pedidos de teste e cancelados não entram nas análises de vendas.
+let menuxDailyTipRequest=0;
+let menuxDailyTipCacheKey='';
+const menuxDailyHour=value=>Number(new Intl.DateTimeFormat('en-GB',{timeZone:'America/Sao_Paulo',hour:'2-digit',hourCycle:'h23'}).format(new Date(value)));
+const menuxDailyDay=value=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));
+function menuxShowDailyTip(title,body,detail){
   const root=$('menuxGrowthTips');if(!root)return;
-  const tips=[];
-  const totalCompleted=complete.reduce((sum,o)=>sum+Number(o.total||0),0);
-  const avg=complete.length?totalCompleted/complete.length:0;
-  const cancelledCount=all.filter(o=>String(o.status).toLowerCase()==='cancelled').length;
-  const pendingCount=all.filter(o=>!['completed','cancelled'].includes(String(o.status).toLowerCase())).length;
-  if(all.length===0){
-    tips.push(['📣 Divulgue seu cardápio','Compartilhe o link da loja nas redes sociais e no WhatsApp do estabelecimento para atrair os primeiros pedidos.']);
-    tips.push(['📷 Capriche nas fotos','Use fotos nítidas, descrições objetivas e preços atualizados para facilitar a escolha dos clientes.']);
-    tips.push(['🧩 Ofereça combinações','Cadastre adicionais e acompanhamentos que façam sentido para seus produtos.']);
-  }else{
-    if(complete.length>=5 && top.length){
-      tips.push(['⭐ Valorize o mais vendido', '“'+top[0][0]+'” foi o produto mais vendido entre os pedidos concluídos deste período. Considere destacá-lo no cardápio.']);
-    }else{
-      tips.push(['📷 Melhore a apresentação','Mantenha fotos, nomes e descrições claros. Isso ajuda o cliente a escolher sem precisar perguntar.']);
+  root.innerHTML='<div class="menux-growth-tip"><h3>'+esc(title)+'</h3><p>'+esc(body)+'</p>'+(detail?'<p class="muted small" style="margin-top:10px">'+esc(detail)+'</p>':'')+'</div>';
+}
+async function menuxRenderDailyTip(){
+  if(!sb||!restaurant?.id)return;
+  const root=$('menuxGrowthTips');if(!root)return;
+  const id=restaurant.id;
+  const today=menuxDailyDay(new Date());
+  const cacheKey=id+'|'+today;
+  if(menuxDailyTipCacheKey===cacheKey)return;
+  const request=++menuxDailyTipRequest;
+  const startDate=new Date();startDate.setUTCDate(startDate.getUTCDate()-28);
+  const start=menuxDailyDay(startDate);
+  try{
+    const {data,error}=await sb.from('menux_checkout_orders')
+      .select('id,created_at,status,total')
+      .eq('restaurant_id',id).gte('created_at',start+'T00:00:00-03:00')
+      .lt('created_at',today+'T00:00:00-03:00')
+      .order('created_at',{ascending:false}).limit(1000);
+    if(error)throw error;
+    if(request!==menuxDailyTipRequest)return;
+    const completed=(data||[]).filter(x=>x.status==='completed');
+    const candidates=[];
+    const dayIndex=Math.floor(Date.parse(today+'T12:00:00Z')/86400000);
+    const pickIndex=Math.abs(dayIndex+Array.from(id).reduce((a,c)=>a+c.charCodeAt(0),0));
+    if(completed.length>=12){
+      // Horários analisados somente entre horas em que houve vendas, nunca como horário de abertura.
+      const byHour=Array(24).fill(0);
+      const activeDays=new Set();
+      completed.forEach(o=>{byHour[menuxDailyHour(o.created_at)]++;activeDays.add(menuxDailyDay(o.created_at));});
+      if(activeDays.size>=5){
+        const occupied=byHour.map((v,h)=>({h,v})).filter(x=>x.v>0);
+        const max=Math.max(...occupied.map(x=>x.v));
+        const low=occupied.filter(x=>x.v<=max*.45).sort((a,b)=>a.v-b.v)[0];
+        const high=occupied.sort((a,b)=>b.v-a.v)[0];
+        if(low&&high&&low.h!==high.h&&max>=4){
+          candidates.push({title:'⏰ Teste uma ação em um horário de menor movimento',body:'Nos últimos 28 dias, '+String(low.h).padStart(2,'0')+'h teve '+low.v+' pedido(s) concluído(s), enquanto '+String(high.h).padStart(2,'0')+'h teve '+high.v+'. Experimente divulgar uma oferta no Stories perto das '+String(low.h).padStart(2,'0')+'h e acompanhe se os pedidos aumentam.',detail:'Comparação entre horários com vendas registradas; confirme se o estabelecimento está aberto nesse horário.'});
+        }
+        const storyHour=Math.max(0,high.h-1);
+        if(max>=4)candidates.push({title:'📱 Hora de publicar um Stories',body:'O maior número de pedidos concluídos por horário, nos últimos 28 dias, ocorreu por volta das '+String(high.h).padStart(2,'0')+'h. Experimente publicar um Stories perto das '+String(storyHour).padStart(2,'0')+'h, mostrando um produto disponível e o link do cardápio.',detail:'Sugestão de teste baseada no horário de pedidos; não garante aumento de vendas.'});
+      }
+      const ids=completed.map(o=>o.id);
+      const counts={};
+      for(let i=0;i<ids.length;i+=80){
+        const response=await sb.from('menux_checkout_order_items')
+          .select('product_id,product_name,quantity')
+          .eq('restaurant_id',id).in('order_id',ids.slice(i,i+80));
+        if(response.error)throw response.error;
+        if(request!==menuxDailyTipRequest)return;
+        for(const row of response.data||[]){
+          const key=String(row.product_id||row.product_name||'');
+          if(!key)continue;
+          if(!counts[key])counts[key]={name:row.product_name||'Produto',qty:0};
+          counts[key].qty+=Number(row.quantity||0);
+        }
+      }
+      const ranked=Object.values(counts).sort((a,b)=>b.qty-a.qty);
+      if(ranked.length>=2&&ranked[0].qty>=4){
+        candidates.push({title:'⭐ Divulgue um produto com boa saída',body:'“'+ranked[0].name+'” teve '+ranked[0].qty+' unidade(s) nos pedidos concluídos dos últimos 28 dias. Experimente destacá-lo em um Stories e incluir o link do cardápio.',detail:'Dados de volume, não de margem de lucro ou estoque.'});
+      }
+      // Produtos menos vendidos só são citados quando tiveram ao menos uma venda.
+      if(ranked.length>=3&&ranked[0].qty>=6){
+        const slow=ranked[ranked.length-1];
+        if(slow.qty<=ranked[0].qty/3){
+          candidates.push({title:'🏷️ Teste destacar um produto com menor saída',body:'“'+slow.name+'” teve '+slow.qty+' unidade(s) vendida(s) nos últimos 28 dias, menos que os itens de maior saída. Teste melhorar sua apresentação ou avaliar uma oferta por tempo limitado, conferindo antes custos e margem.',detail:'Menor saída não significa necessariamente baixa procura; considere disponibilidade e estoque.'});
+        }
+      }
     }
-    if(complete.length>=5 && avg>0){
-      tips.push(['🛍️ Teste combinações','O ticket médio dos pedidos concluídos foi '+money(avg)+'. Você pode testar combos e adicionais relevantes e acompanhar o resultado.']);
-    }else{
-      tips.push(['🍟 Facilite os adicionais','Mostre opções de complementos e adicionais úteis, com preços claros, para incentivar compras completas.']);
-    }
-    if(pendingCount>0){
-      tips.push(['🔔 Atenção aos pedidos','Há '+pendingCount+' pedido(s) em andamento no período. Confira a Central de Pedidos para manter o atendimento em dia.']);
-    }else if(all.length>=10 && cancelledCount/all.length>=.3){
-      tips.push(['📋 Revise os cancelamentos','Há uma proporção elevada de cancelamentos no período. Verifique os motivos, mas desconsidere pedidos feitos apenas para testes.']);
-    }else{
-      tips.push(['⏰ Revise horários e disponibilidade','Mantenha horários de funcionamento, itens disponíveis e regiões de entrega sempre atualizados.']);
-    }
+    // A recomendação diária é estável durante o dia, mesmo com o período da Visão geral alterado.
+    const evergreen=[
+      {title:'📷 Capriche na apresentação do cardápio',body:'Revise a foto e a descrição de um produto importante hoje. Uma descrição clara dos itens e adicionais ajuda o cliente a escolher com mais segurança.',detail:'Dica geral: ainda não há histórico suficiente para identificar tendências confiáveis.'},
+      {title:'📣 Convide seus clientes a voltar',body:'Publique um Stories com o link do seu cardápio e destaque um produto disponível. Experimente horários diferentes e compare os resultados ao longo das semanas.',detail:'Dica geral: ainda não há histórico suficiente para sugerir um horário com confiança.'},
+      {title:'🛍️ Facilite uma compra completa',body:'Confira se os acompanhamentos e adicionais mais úteis estão visíveis, com preços claros. Avalie montar combinações adequadas ao seu tipo de negócio.',detail:'Dica geral: resultados dependem do seu público e dos custos do estabelecimento.'}
+    ];
+    const list=candidates.length?candidates:evergreen;
+    const chosen=list[pickIndex%list.length];
+    menuxShowDailyTip(chosen.title,chosen.body,chosen.detail);
+    menuxDailyTipCacheKey=cacheKey;
+  }catch(err){
+    if(request!==menuxDailyTipRequest)return;
+    console.warn('MENUX: dica diária não pôde consultar dados',err);
+    menuxShowDailyTip('💡 Mantenha seu cardápio atualizado', 'Revise os itens disponíveis, as fotos e os horários de funcionamento para facilitar novos pedidos.', 'Dica geral: não foi possível analisar os pedidos neste momento.');
   }
-  root.innerHTML=tips.map(([heading,description])=>'<div class="menux-growth-tip"><h3>'+esc(heading)+'</h3><p>'+esc(description)+'</p></div>').join('');
 }
 // MENUX: visão geral baseada nos mesmos pedidos online de Análises completas.
 let menuxOverviewRequest=0;
@@ -248,7 +305,7 @@ async function menuxRenderOverviewOnline(){
     }
     const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
     $('topProducts').innerHTML=top.map(([name,qty])=>'<div><div class="item"><b>'+esc(name)+'</b><span class="muted small">'+qty+' un.</span></div><div class="track"><div class="fill" style="width:'+(qty/top[0][1]*100)+'%"></div></div></div>').join('')||'<div class="empty">Sem vendas concluídas.</div>';
-    menuxRenderGrowthTips(all,complete,top);
+    void menuxRenderDailyTip();
 
   }catch(err){
     if(request!==menuxOverviewRequest)return;
