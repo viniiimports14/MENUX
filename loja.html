@@ -46,10 +46,93 @@
 .menu-category-products{display:grid;gap:14px;}
 .menu-category-products .card{margin:0;}
 @media(max-width:600px){.category-navigation{gap:7px;margin-bottom:22px}.category-navigation a{padding:8px 12px;font-size:14px}.menu-category{margin-bottom:30px;}}
+
+/* MENUX - Checkout reformulado. Usa as cores definidas por cada estabelecimento. */
+#cart-modal.checkout-backdrop{background:rgba(14,14,20,.75);padding:18px;backdrop-filter:blur(5px)}
+#cart-modal .menux-checkout-modern{width:min(760px,100%);max-height:min(94dvh,1080px);border-radius:24px;padding:0;overflow:auto;box-shadow:0 28px 90px #0006;border:1px solid color-mix(in srgb,var(--store-text) 10%,transparent)}
+#cart-modal .menux-checkout-header{display:flex;align-items:start;justify-content:space-between;gap:16px;padding:26px 30px 22px;border-bottom:1px solid color-mix(in srgb,var(--store-text) 12%,transparent);background:color-mix(in srgb,var(--store-card) 95%,var(--accent))}
+#cart-modal .menux-checkout-eyebrow{color:var(--accent);font-size:11px;font-weight:850;letter-spacing:.13em}
+#cart-modal .menux-checkout-header h2{font-size:clamp(25px,3.3vw,32px);letter-spacing:-.035em;margin:4px 0 2px}
+#cart-modal .menux-checkout-header p{margin:0;color:var(--store-muted);font-size:14px}
+#cart-modal .menux-checkout-close{background:color-mix(in srgb,var(--store-text) 7%,var(--store-card));color:var(--store-text);border-radius:12px;width:42px;height:42px;flex:0 0 42px;font-size:17px;padding:0;transition:background .15s}
+#cart-modal .menux-checkout-close:hover{background:color-mix(in srgb,var(--store-text) 15%,var(--store-card))}
+#cart-modal .menux-checkout-content{padding:24px 30px 28px}
+#cart-modal .menux-checkout-section{padding:0 0 22px;margin:0 0 23px;border-bottom:1px solid color-mix(in srgb,var(--store-text) 12%,transparent)}
+#cart-modal .menux-section-head{display:flex;align-items:center;gap:10px;margin:0 0 17px}
+#cart-modal .menux-step{width:29px;height:29px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;background:color-mix(in srgb,var(--accent) 13%,var(--store-card));color:var(--accent);font-size:12px;font-weight:850}
+#cart-modal .menux-section-head h3{font-size:17px;margin:0;font-weight:800;letter-spacing:-.02em}
+#cart-modal .menux-optional{margin-left:auto;color:var(--store-muted);font-size:12px}
+#cart-modal .menux-checkout-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#cart-modal .checkout-box label{font-size:13px;font-weight:750;margin:11px 0 6px}
+#cart-modal .checkout-box label em{color:var(--accent);font-style:normal}
+#cart-modal .checkout-box input,#cart-modal .checkout-box select,#cart-modal .checkout-box textarea{width:100%;border:1.5px solid color-mix(in srgb,var(--store-text) 20%,var(--store-card));border-radius:12px;background:var(--store-card);color:var(--store-text);padding:13px 14px;min-height:49px;font:inherit;outline:none;transition:border-color .14s,box-shadow .14s}
+#cart-modal .checkout-box textarea{resize:vertical;min-height:76px}
+#cart-modal .checkout-box input:focus,#cart-modal .checkout-box select:focus,#cart-modal .checkout-box textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent)}
+#cart-modal .checkout-box input::placeholder,#cart-modal .checkout-box textarea::placeholder{color:var(--store-muted);opacity:.74}
+#cart-modal .checkout-item{padding:13px 15px;margin-bottom:10px;border:1px solid color-mix(in srgb,var(--store-text) 12%,transparent);border-radius:14px;background:color-mix(in srgb,var(--store-card) 97%,var(--store-text))}
+#cart-modal .menux-item-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+#cart-modal .menux-item-top strong{font-size:15px}
+#cart-modal .menux-item-top b{font-size:15px;white-space:nowrap}
+#cart-modal .checkout-item small{color:var(--store-muted);font-size:12px;line-height:1.5;margin:4px 0 10px;opacity:1}
+#cart-modal .menux-qty-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
+#cart-modal .menux-qty{display:flex;align-items:center;gap:5px;border:1px solid color-mix(in srgb,var(--store-text) 18%,transparent);padding:3px;border-radius:11px}
+#cart-modal .menux-qty button{width:32px;height:32px;padding:0;border-radius:8px;background:color-mix(in srgb,var(--store-text) 8%,var(--store-card));color:var(--store-text);font-size:18px;line-height:1}
+#cart-modal .menux-qty output{min-width:25px;text-align:center;font-weight:800;font-size:14px}
+#cart-modal button.menux-remove{background:transparent;color:var(--store-muted);font-size:12px;padding:7px}
+#cart-modal .menux-items-total{text-align:right;font-size:14px;font-weight:800;margin-top:12px}
+#cart-modal .menux-checkout-final{background:color-mix(in srgb,var(--accent) 6%,var(--store-card));border:1px solid color-mix(in srgb,var(--accent) 17%,var(--store-card));border-radius:17px;padding:20px;margin:8px 0 0}
+#cart-modal .menux-checkout-final h3{font-size:18px;margin:0 0 12px}
+#cart-modal #checkout-summary{border:none!important;border-radius:0!important;padding:0!important;margin:0!important;font-size:14px}
+#cart-modal #checkout-submit{width:100%;padding:17px;font-size:16px;border-radius:12px;margin-top:13px;display:flex;align-items:center;justify-content:center;gap:12px}
+#cart-modal #checkout-submit:disabled{opacity:.6;cursor:not-allowed}
+#cart-modal .menux-checkout-secure{text-align:center;font-size:12px;line-height:1.5;color:var(--store-muted);margin:12px 0 0}
+#cart-modal .checkout-error:not(:empty){background:#dc262612;padding:10px;border-radius:8px;margin:12px 0;color:#c32929}
+.menux-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:640px){#cart-modal.checkout-backdrop{padding:0;align-items:stretch}#cart-modal .menux-checkout-modern{width:100%;height:100dvh;max-height:100dvh;border-radius:0}#cart-modal .menux-checkout-header{padding:22px 18px 18px}#cart-modal .menux-checkout-content{padding:20px 18px 32px}#cart-modal .menux-checkout-fields{grid-template-columns:1fr;gap:5px}#cart-modal .menux-checkout-final{padding:16px}#cart-modal .menux-checkout-header h2{font-size:27px}}
 </style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><h2>Nosso cardápio</h2><div id="products">Aguarde...</div></main><div class="product-detail" id="product-detail" role="dialog" aria-modal="true" aria-label="Personalizar produto" hidden>
 <div class="detail-panel"><div class="detail-top"><b>Detalhe do produto</b><button id="close-detail" type="button" aria-label="Fechar detalhes">×</button></div><div id="detail-body"></div>
 <div class="detail-footer"><div><strong id="detail-total"></strong><div class="detail-note">Escolha suas opções e adicione ao carrinho</div></div><button type="button" id="detail-confirm">Adicionar ao carrinho</button></div></div></div><button class="tracking-shortcut" id="tracking-shortcut" type="button" hidden aria-label="Acompanhar meu último pedido">📦 Acompanhar pedido</button><button class="checkout-fab" id="open-cart" type="button">🛒 Carrinho (0)</button>
-<div id="cart-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Carrinho e finalização"><div class="checkout-box"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Seu pedido</h2><button id="cart-close" type="button">✕</button></div><div id="cart-items"></div><strong id="cart-total"></strong><form id="checkout-form"><label>Nome completo *</label><input name="customer_name" required minlength="2" maxlength="120" autocomplete="name"><label>WhatsApp / telefone *</label><input name="customer_phone" required minlength="8" maxlength="25" inputmode="tel" autocomplete="tel"><label>Recebimento *</label><select name="fulfillment"><option value="pickup">Retirada no estabelecimento</option><option value="delivery">Entrega</option></select><div id="address-block" hidden><label>Bairro / região de entrega *</label><select name="delivery_area_id" id="delivery-area" required disabled><option value="">Carregando regiões...</option></select><p id="delivery-area-info" class="muted" role="status" style="font-size:13px;margin:6px 0"></p><label>Endereço completo *</label><textarea name="delivery_address" maxlength="500" placeholder="Rua, número, bairro e referência"></textarea></div><label>Forma de pagamento *</label><select name="payment_method" id="payment-method" required><option value="">Selecione</option><option value="pix">Pix (pagamento no estabelecimento)</option><option value="cash">Dinheiro</option><option value="debit_card">Cartão de débito</option><option value="credit_card">Cartão de crédito</option></select><div id="change-block" hidden><label>Troco para quanto? (opcional)</label><input name="change_for" id="change-for" type="number" min="0" max="100000" step="0.01" inputmode="decimal" placeholder="Ex.: 50,00"><small class="muted">Deixe vazio se não precisar de troco.</small></div><div id="checkout-summary" style="border:1px solid #8885;border-radius:12px;padding:12px;margin-top:16px" aria-live="polite"></div><label>Observações</label><textarea name="notes" maxlength="1000" placeholder="Alguma observação?"></textarea><p class="checkout-error" id="checkout-error" role="alert"></p><button class="checkout-primary" id="checkout-submit" type="submit" style="width:100%">Confirmar pedido na MENUX</button></form></div></div>
+<div id="cart-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Carrinho e finalização">
+  <div class="checkout-box menux-checkout-modern">
+    <div class="menux-checkout-header">
+      <div><span class="menux-checkout-eyebrow">FINALIZAÇÃO DO PEDIDO</span><h2>Seu pedido</h2><p>Confira os itens e preencha seus dados para concluir.</p></div>
+      <button id="cart-close" type="button" aria-label="Fechar carrinho" class="menux-checkout-close">✕</button>
+    </div>
+    <div class="menux-checkout-content">
+      <section class="menux-checkout-section" aria-label="Itens do carrinho">
+        <div class="menux-section-head"><span class="menux-step">01</span><h3>Itens do carrinho</h3></div>
+        <div id="cart-items"></div>
+        <div id="cart-total" class="menux-items-total"></div>
+      </section>
+      <form id="checkout-form">
+        <section class="menux-checkout-section">
+          <div class="menux-section-head"><span class="menux-step">02</span><h3>Seus dados</h3></div>
+          <div class="menux-checkout-fields"><div><label for="menux-customer-name">Nome completo <em>*</em></label><input id="menux-customer-name" name="customer_name" required minlength="2" maxlength="120" autocomplete="name" placeholder="Como podemos chamar você?"></div><div><label for="menux-customer-phone">WhatsApp / telefone <em>*</em></label><input id="menux-customer-phone" name="customer_phone" required minlength="8" maxlength="25" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000"></div></div>
+        </section>
+        <section class="menux-checkout-section">
+          <div class="menux-section-head"><span class="menux-step">03</span><h3>Entrega ou retirada</h3></div>
+          <label for="menux-fulfillment">Como deseja receber? <em>*</em></label><select id="menux-fulfillment" name="fulfillment"><option value="pickup">🏬 Retirar no estabelecimento</option><option value="delivery">🚚 Receber no endereço</option></select>
+          <div id="address-block" hidden><label for="delivery-area">Bairro / região de entrega <em>*</em></label><select name="delivery_area_id" id="delivery-area" required disabled><option value="">Carregando regiões...</option></select><p id="delivery-area-info" class="muted" role="status" style="font-size:13px;margin:6px 0"></p><label for="menux-delivery-address">Endereço completo <em>*</em></label><textarea id="menux-delivery-address" name="delivery_address" maxlength="500" placeholder="Rua, número, complemento e referência" rows="3"></textarea></div>
+        </section>
+        <section class="menux-checkout-section">
+          <div class="menux-section-head"><span class="menux-step">04</span><h3>Pagamento</h3></div>
+          <label for="payment-method">Forma de pagamento <em>*</em></label><select name="payment_method" id="payment-method" required><option value="">Selecione a forma de pagamento</option><option value="pix">Pix (pagamento no estabelecimento)</option><option value="cash">Dinheiro</option><option value="debit_card">Cartão de débito</option><option value="credit_card">Cartão de crédito</option></select>
+          <div id="change-block" hidden><label for="change-for">Troco para quanto? (opcional)</label><input name="change_for" id="change-for" type="number" min="0" max="100000" step="0.01" inputmode="decimal" placeholder="Ex.: 50,00"><small class="muted">Deixe vazio se não precisar de troco.</small></div>
+        </section>
+        <section class="menux-checkout-section">
+          <div class="menux-section-head"><span class="menux-step">05</span><h3>Observações</h3><span class="menux-optional">Opcional</span></div>
+          <label for="menux-checkout-notes" class="menux-visually-hidden">Observações para o estabelecimento</label><textarea id="menux-checkout-notes" name="notes" maxlength="1000" rows="2" placeholder="Ex.: retirar cebola, ponto da carne, informações úteis..."></textarea>
+        </section>
+        <div class="menux-checkout-final">
+          <h3>Resumo do pedido</h3><div id="checkout-summary" aria-live="polite"></div>
+          <p class="checkout-error" id="checkout-error" role="alert"></p>
+          <button class="checkout-primary" id="checkout-submit" type="submit">Confirmar pedido na MENUX <span aria-hidden="true">→</span></button>
+          <p class="menux-checkout-secure">🔒 Pedido registrado diretamente no estabelecimento. WhatsApp opcional após a confirmação.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <div id="success-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Pedido confirmado"><div class="checkout-box"><h2>✓ Pedido recebido!</h2><p>Seu pedido já foi registrado na MENUX e enviado ao painel do estabelecimento.</p><p><b id="success-number"></b></p><p id="success-total"></p><p>O WhatsApp é opcional: seu pedido já foi realizado.</p><button type="button" id="open-tracking" class="checkout-primary" style="width:100%;margin-bottom:10px">Acompanhar meu pedido</button><div class="checkout-actions"><button class="checkout-primary" id="share-whatsapp" type="button">Enviar cópia pelo WhatsApp</button><button id="success-close" type="button">Fechar</button></div><p id="whatsapp-info" class="checkout-error"></p></div></div>
 <div id="image-modal" class="image-modal" role="dialog" aria-modal="true" aria-label="Foto ampliada do produto" hidden><button type="button" class="close-image" aria-label="Fechar imagem">×</button><img id="expanded-image" alt=""></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><div id="tracking-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Acompanhar pedido"><div class="checkout-box"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Acompanhe seu pedido</h2><button type="button" id="tracking-close">✕</button></div><p style="font-weight:700">✓ Pedido confirmado na MENUX!</p><p id="tracking-number"></p><div id="tracking-status" role="status" aria-live="polite">Carregando...</div><p class="muted">Esta página consulta automaticamente o andamento do pedido.</p><div class="checkout-actions" style="margin-top:12px"><button type="button" id="tracking-refresh">Atualizar agora</button><button type="button" id="tracking-whatsapp" class="checkout-primary">Enviar cópia pelo WhatsApp</button></div><p id="tracking-whatsapp-info" class="checkout-error" role="status"></p></div></div><script>
 let publicProducts=[];let checkoutSb=null,checkoutSlug=null,storeWhatsapp="",cart=[];let menuxDeliveryAreas=[];let menuxAreasReady=false;const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -88,7 +171,13 @@ detail.addEventListener('click',e=>{if(e.target===detail)closeDetail();});
 document.addEventListener('keydown',e=>{if(detail.hidden)return;if(e.key==='Escape')closeDetail();if(e.key==='Tab'){const focusable=[...detail.querySelectorAll('button:not([disabled]),input:not([disabled])')];if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 
 const cartModal=$('cart-modal');const totalCart=()=>cart.reduce((s,x)=>s+x.unit_price*x.quantity,0);
-function refreshCart(){ $('open-cart').textContent='🛒 Carrinho ('+cart.reduce((s,x)=>s+x.quantity,0)+')';$('cart-items').innerHTML=cart.length?cart.map((x,i)=>'<div class="checkout-item"><b>'+esc(x.name)+'</b> · '+brl(x.unit_price)+'<small>'+x.options.map(o=>esc(o.name)).join(', ')+'</small><div class="checkout-actions"><button type="button" data-cart-minus="'+i+'">−</button><span style="align-self:center">'+x.quantity+'</span><button type="button" data-cart-plus="'+i+'">+</button><button type="button" data-cart-remove="'+i+'">Remover</button></div></div>').join(''):'Seu carrinho está vazio.';$('cart-total').textContent='Total dos produtos: '+brl(totalCart());$('checkout-submit').disabled=!cart.length;refreshMenuxCheckoutSummary();}
+function refreshCart(){
+ $('open-cart').textContent='🛒 Carrinho ('+cart.reduce((s,x)=>s+x.quantity,0)+')';
+ $('cart-items').innerHTML=cart.length?cart.map((x,i)=>'<div class="checkout-item"><div class="menux-item-top"><strong>'+esc(x.name)+'</strong><b>'+brl(x.unit_price*x.quantity)+'</b></div>'+(x.options.length?'<small>'+x.options.map(o=>'+ '+esc(o.name)).join(' · ')+'</small>':'')+'<div class="menux-qty-row"><div class="menux-qty"><button type="button" aria-label="Diminuir quantidade" data-cart-minus="'+i+'">−</button><output aria-label="Quantidade">'+x.quantity+'</output><button type="button" aria-label="Aumentar quantidade" data-cart-plus="'+i+'">+</button></div><button class="menux-remove" type="button" data-cart-remove="'+i+'">Remover item</button></div></div>').join(''):'Seu carrinho está vazio.';
+ $('cart-total').textContent='Subtotal dos produtos: '+brl(totalCart());
+ $('checkout-submit').disabled=!cart.length;
+ refreshMenuxCheckoutSummary();
+}
 $('open-cart').onclick=()=>{refreshCart();cartModal.hidden=false};$('cart-close').onclick=()=>cartModal.hidden=true;cartModal.addEventListener('click',e=>{if(e.target===cartModal)cartModal.hidden=true;const b=e.target.closest('button');if(!b)return;const k=['cartMinus','cartPlus','cartRemove'].find(k=>b.dataset[k]!==undefined);if(!k)return;const i=Number(b.dataset[k]);if(!cart[i])return;if(k==='cartMinus'){cart[i].quantity--;if(cart[i].quantity<1)cart.splice(i,1)}if(k==='cartPlus')cart[i].quantity=Math.min(99,cart[i].quantity+1);if(k==='cartRemove')cart.splice(i,1);refreshCart()});
 const checkoutForm=$('checkout-form');function menuxSelectedArea(){const id=checkoutForm.elements.delivery_area_id.value;return menuxDeliveryAreas.find(a=>String(a.id)===id)||null;}
 function refreshMenuxCheckoutSummary(){
