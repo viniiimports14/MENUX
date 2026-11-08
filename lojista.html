@@ -54,10 +54,26 @@
 <div class="formgroup"><label>Opções (uma por linha) *</label><textarea name="options_text" class="field" style="width:100%;min-height:150px" required placeholder="Leite em pó | 0\nPaçoca | 0\nNutella | 8,00"></textarea><small class="muted">Formato: Nome | preço. Use 0 para gratuito.</small></div>
 </div><div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn primary" type="submit">Salvar grupo</button><button class="btn" type="button" id="resetOptionGroup">Novo grupo</button><button class="btn" type="button" id="closeOptionManager">Fechar</button></div>
 </form></div></section>
-<section class="page" id="catalog"><div class="row between" style="flex-wrap:wrap"><div><h2>Central de Opções e Adicionais</h2><p class="muted small">Cadastre uma vez, aplique a vários produtos. Desativados desaparecem da loja.</p></div><button class="btn primary" id="catalogNew">＋ Novo grupo</button></div>
+<section class="page" id="catalog"><div class="row between" style="flex-wrap:wrap"><div><h2>Central de Opções e Adicionais</h2><p class="muted small">Cadastre uma vez, aplique a vários produtos. Use as setas ao lado dos nomes abaixo para ordenar os grupos cadastrados. Dentro de Editar, também é possível ordenar as opções. Desativados desaparecem da loja.</p></div><button class="btn primary" id="catalogNew">＋ Novo grupo</button></div>
+<style id="menux-group-order-layout">
+/* Ordenação dos grupos cadastrados: controles visíveis ao lado do título */
+#catalogGroups .menux-cat-group-row{display:flex;gap:16px;align-items:flex-start;padding:18px 2px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+#catalogGroups .menux-cat-group-row:last-child{border-bottom:0}
+#catalogGroups .menux-cat-order{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+#catalogGroups .menux-cat-position{display:grid;place-items:center;min-width:34px;font-size:15px;font-weight:800;color:var(--gold2)}
+#catalogGroups .menux-cat-arrow{font-size:24px;font-weight:900;line-height:1;min-width:42px;min-height:43px;padding:5px 9px;border:1px solid var(--gold);color:var(--gold2);background:#2b281f;border-radius:9px;cursor:pointer}
+#catalogGroups .menux-cat-arrow:disabled{opacity:.3;cursor:not-allowed}
+#catalogGroups .menux-cat-info{flex:1 1 260px;min-width:0;overflow-wrap:anywhere}
+#catalogGroups .menux-cat-title{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:5px}
+#catalogGroups .menux-cat-title b{font-size:19px}
+#catalogGroups .menux-cat-snippet{margin-top:4px;line-height:1.5}
+#catalogGroups .menux-cat-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-left:auto}
+#catalogGroups .menux-cat-actions .btn{padding:9px 12px}
+@media(max-width:760px){#catalogGroups .menux-cat-group-row{gap:9px}#catalogGroups .menux-cat-info{flex-basis:calc(100% - 150px)}#catalogGroups .menux-cat-actions{margin-left:0;width:100%}}
+</style>
 <div class="card" id="catalogGroups"></div>
 <div class="card" id="catalogEditor" hidden style="margin-top:16px"><h2 id="catalogEditorTitle">Novo grupo</h2><form id="catalogForm"><input type="hidden" name="id"><div class="formgrid"><div class="formgroup"><label>Nome do grupo *</label><input name="title" required maxlength="100" placeholder="Ex.: Molhos, coberturas, acompanhamentos"></div><div class="formgroup"><label>Mínimo de escolhas</label><input name="min_select" type="number" min="0" max="50" value="0" required></div><div class="formgroup"><label>Máximo de escolhas</label><input name="max_select" type="number" min="1" max="50" value="5" required></div></div>
-<h2 style="margin-top:20px">Opções e adicionais</h2><p class="muted small">Digite o nome e o preço, depois clique em Adicionar. Use R$ 0,00 para opções gratuitas.</p><div class="row" style="flex-wrap:wrap;align-items:end"><div class="formgroup" style="flex:2;min-width:170px"><label>Nome</label><input id="catalogItemName" placeholder="Ex.: Queijo extra"></div><div class="formgroup" style="flex:1;min-width:110px"><label>Preço (R$)</label><input id="catalogItemPrice" type="number" min="0" step="0.01" value="0"></div><button class="btn" type="button" id="catalogAddItem">＋ Adicionar</button></div><div id="catalogItems" style="margin-top:12px"></div>
+<h2 style="margin-top:20px">Opções e adicionais</h2><p class="muted small">Digite o nome e o preço, depois clique em Adicionar. Use R$ 0,00 para opções gratuitas. Organize com ↑ e ↓ e clique em Salvar grupo para guardar a ordem.</p><div class="row" style="flex-wrap:wrap;align-items:end"><div class="formgroup" style="flex:2;min-width:170px"><label>Nome</label><input id="catalogItemName" placeholder="Ex.: Queijo extra"></div><div class="formgroup" style="flex:1;min-width:110px"><label>Preço (R$)</label><input id="catalogItemPrice" type="number" min="0" step="0.01" value="0"></div><button class="btn" type="button" id="catalogAddItem">＋ Adicionar</button></div><div id="catalogItems" style="margin-top:12px"></div>
 <h2 style="margin-top:22px">Aplicar aos produtos</h2><div class="row" style="flex-wrap:wrap"><button class="btn" type="button" id="catalogSelectAll">Selecionar todos</button><button class="btn" type="button" id="catalogClearAll">Limpar seleção</button></div><div id="catalogProducts" style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px"></div>
 <div class="row" style="margin-top:20px;flex-wrap:wrap"><button class="btn primary" type="submit">Salvar grupo</button><button class="btn" type="button" id="catalogCancel">Cancelar</button></div></form></div></section>
 <section class="page" id="customers"><h2>Clientes</h2><div class="grid stats"><div class="card"><div class="statlabel">Clientes cadastrados</div><div class="statvalue" id="customerCount">0</div></div><div class="card"><div class="statlabel">Clientes com pedidos</div><div class="statvalue" id="customerBuyers">0</div></div><div class="card"><div class="statlabel">Pedidos com cliente</div><div class="statvalue" id="linkedOrders">0</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue" id="customerTicket">R$ 0,00</div></div></div><div class="row between" style="margin-bottom:12px"><h2>Cadastro de clientes</h2><button class="btn primary" id="newCustomer">＋ Novo cliente</button></div><div class="card" id="customerEditor" hidden><form id="customerForm"><input type="hidden" name="id"><div class="formgrid"><div class="formgroup"><label>Nome *</label><input name="name" required></div><div class="formgroup"><label>Telefone</label><input name="phone"></div><div class="formgroup"><label>Endereço</label><input name="address"></div></div><div class="row" style="margin-top:15px"><button class="btn primary">Salvar cliente</button><button type="button" class="btn" id="cancelCustomer">Cancelar</button></div></form></div><div class="card" style="overflow-x:auto;margin-top:15px"><table class="table"><thead><tr><th>CLIENTE</th><th>TELEFONE</th><th>PEDIDOS</th><th>AÇÕES</th></tr></thead><tbody id="customersBody"></tbody></table></div></section>
@@ -227,13 +243,25 @@ async function loadCatalog(){
  catalogGroups=g.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)||a.title.localeCompare(b.title));catalogItems=i;catalogLinks=l;renderCatalog();
 }
 function renderCatalog(){
- $('catalogGroups').innerHTML=catalogGroups.map(g=>{
-  const count=catalogLinks.filter(l=>l.group_id===g.id).length,its=catalogItems.filter(i=>i.group_id===g.id);
-  return '<div class="order" style="flex-wrap:wrap"><div style="flex:1;min-width:180px"><b>'+esc(g.title)+'</b> '+(g.active?'<span class="tag green">Ativo</span>':'<span class="tag">Oculto</span>')+'<div class="muted small">'+its.length+' opções · '+count+' produtos · até '+g.max_select+' escolhas</div><div class="muted small">'+esc(its.filter(x=>x.active).map(x=>x.name).join(' · '))+'</div></div><div class="row" style="flex-wrap:wrap"><button class="btn" data-cat-edit="'+g.id+'">Editar</button><button class="btn" data-cat-toggle="'+g.id+'">'+(g.active?'Desativar':'Ativar')+'</button><button class="btn" data-cat-delete="'+g.id+'">Excluir</button></div></div>';
+ $('catalogGroups').innerHTML=catalogGroups.map((g,index)=>{
+  const count=catalogLinks.filter(l=>l.group_id===g.id).length;
+  const its=catalogItems.filter(i=>i.group_id===g.id).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+  const displayed=its.filter(x=>x.active).map(x=>x.name);
+  const snippet=displayed.slice(0,5).join(' · ')+(displayed.length>5?' · +'+(displayed.length-5)+' opções':'');
+  return '<div class="menux-cat-group-row">'
+    +'<div class="menux-cat-order" aria-label="Ordenação do grupo">'
+    +'<span class="menux-cat-position" title="Posição na lista">'+(index+1)+'º</span>'
+    +'<button type="button" class="btn menux-cat-arrow" data-cat-group-up="'+g.id+'" '+(index===0?'disabled':'')+' title="Subir '+esc(g.title)+'" aria-label="Subir '+esc(g.title)+'">↑</button>'
+    +'<button type="button" class="btn menux-cat-arrow" data-cat-group-down="'+g.id+'" '+(index===catalogGroups.length-1?'disabled':'')+' title="Descer '+esc(g.title)+'" aria-label="Descer '+esc(g.title)+'">↓</button>'
+    +'</div>'
+    +'<div class="menux-cat-info"><div class="menux-cat-title"><b>'+esc(g.title)+'</b> '+(g.active?'<span class="tag green">Ativo</span>':'<span class="tag">Oculto</span>')+'</div>'
+    +'<div class="muted small">'+its.length+' opções · '+count+' produtos · até '+g.max_select+' escolhas</div>'
+    +'<div class="muted small menux-cat-snippet">'+esc(snippet)+'</div></div>'
+    +'<div class="menux-cat-actions"><button class="btn" type="button" data-cat-edit="'+g.id+'">Editar</button><button class="btn" type="button" data-cat-toggle="'+g.id+'">'+(g.active?'Desativar':'Ativar')+'</button><button class="btn" type="button" data-cat-delete="'+g.id+'">Excluir</button></div></div>';
  }).join('')||'<p class="muted small">Nenhum grupo compartilhado cadastrado. Clique em Novo grupo para começar.</p>';
 }
 function renderDraftItems(){
- $('catalogItems').innerHTML=draftItems.map((x,j)=>'<div class="switchrow" style="gap:10px;flex-wrap:wrap"><div style="flex:1;min-width:140px"><b>'+esc(x.name)+'</b><div class="muted small">'+money(x.price)+'</div></div><label class="muted small">Disponível <input type="checkbox" class="switch" data-cat-item-toggle="'+j+'" '+(x.active?'checked':'')+'></label><button class="btn" type="button" data-cat-item-edit="'+j+'">Editar</button><button class="btn" type="button" data-cat-item-remove="'+j+'">Remover</button></div>').join('')||'<p class="muted small">Adicione pelo menos uma opção.</p>';
+ $('catalogItems').innerHTML=draftItems.map((x,j)=>'<div class="switchrow" style="gap:10px;flex-wrap:wrap"><div style="flex:1;min-width:140px"><b>'+esc(x.name)+'</b><div class="muted small">'+money(x.price)+'</div></div><div class="row" style="gap:5px"><button class="btn" type="button" data-cat-item-up="'+j+'" '+(j===0?'disabled':'')+' title="Subir opção" aria-label="Subir opção">↑</button><button class="btn" type="button" data-cat-item-down="'+j+'" '+(j===draftItems.length-1?'disabled':'')+' title="Descer opção" aria-label="Descer opção">↓</button></div><label class="muted small">Disponível <input type="checkbox" class="switch" data-cat-item-toggle="'+j+'" '+(x.active?'checked':'')+'></label><button class="btn" type="button" data-cat-item-edit="'+j+'">Editar</button><button class="btn" type="button" data-cat-item-remove="'+j+'">Remover</button></div>').join('')||'<p class="muted small">Adicione pelo menos uma opção.</p>';
 }
 function renderCatalogProducts(selected){
  $('catalogProducts').innerHTML=products.map(p=>'<label class="row menux-product-choice"><input type="checkbox" class="menux-check" data-cat-product="'+p.id+'" '+(selected.includes(p.id)?'checked':'')+'><span>'+esc(p.name)+'</span></label>').join('')||'<p class="muted small">Cadastre produtos primeiro no Cardápio.</p>';
@@ -243,6 +271,25 @@ function openCatalog(id){
  draftItems=g?catalogItems.filter(x=>x.group_id===g.id).sort((a,b)=>a.sort_order-b.sort_order).map(x=>({...x})):[];
  renderDraftItems();renderCatalogProducts(g?catalogLinks.filter(l=>l.group_id===g.id).map(l=>l.product_id):[]);
  $('catalogEditorTitle').textContent=g?'Editar: '+g.title:'Novo grupo';$('catalogEditor').hidden=false;$('catalogEditor').scrollIntoView({behavior:'smooth',block:'start'});
+}
+// Ordem dos grupos: salva tanto no catálogo quanto nos vínculos usados pelo cardápio público.
+async function moveCatalogGroup(id,direction){
+ const from=catalogGroups.findIndex(g=>g.id===id),to=from+direction;
+ if(from<0||to<0||to>=catalogGroups.length)return;
+ const reordered=[...catalogGroups];[reordered[from],reordered[to]]=[reordered[to],reordered[from]];
+ for(let idx=0;idx<reordered.length;idx++){
+  const g=reordered[idx];
+  const {error}=await sb.from(catTable.groups).update({sort_order:idx}).eq('id',g.id).eq('restaurant_id',restaurant.id);
+  if(error)throw error;
+  const {error:linkError}=await sb.from(catTable.links).update({sort_order:idx}).eq('group_id',g.id).eq('restaurant_id',restaurant.id);
+  if(linkError)throw linkError;
+ }
+ await loadCatalog();notice('Ordem dos grupos salva.');
+}
+function moveDraftItem(index,direction){
+ const next=index+direction;if(next<0||next>=draftItems.length)return;
+ [draftItems[index],draftItems[next]]=[draftItems[next],draftItems[index]];
+ renderDraftItems();
 }
 $('catalogNew').addEventListener('click',()=>openCatalog());
 $('catalogCancel').addEventListener('click',()=>{$('catalogEditor').hidden=true});
@@ -255,6 +302,10 @@ document.addEventListener('change',e=>{if(e.target.matches('[data-cat-item-toggl
 document.addEventListener('click',async e=>{
  const b=e.target.closest('button');if(!b||!restaurant)return;
  try{
+  if(b.dataset.catGroupUp){await moveCatalogGroup(b.dataset.catGroupUp,-1);return}
+  if(b.dataset.catGroupDown){await moveCatalogGroup(b.dataset.catGroupDown,1);return}
+  if(b.dataset.catItemUp!==undefined){moveDraftItem(Number(b.dataset.catItemUp),-1);return}
+  if(b.dataset.catItemDown!==undefined){moveDraftItem(Number(b.dataset.catItemDown),1);return}
   if(b.dataset.catItemRemove!==undefined){draftItems.splice(Number(b.dataset.catItemRemove),1);renderDraftItems();return}
   if(b.dataset.catItemEdit!==undefined){const j=Number(b.dataset.catItemEdit),x=draftItems[j];const name=prompt('Nome da opção:',x.name);if(name===null)return;if(!name.trim())throw Error('Nome obrigatório.');const price=prompt('Preço (R$):',String(x.price));if(price===null)return;const value=Number(price.replace(',','.'));if(!Number.isFinite(value)||value<0)throw Error('Preço inválido.');draftItems[j]={...x,name:name.trim(),price:value};renderDraftItems();return}
   if(b.dataset.catEdit){openCatalog(b.dataset.catEdit);return}
