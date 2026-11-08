@@ -40,11 +40,27 @@
 <style id="menux-report-style">
 .menux-report-filters{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:14px 0}.menux-report-filters .formgroup{flex:1 1 160px}.menux-report-filters input,.menux-report-filters select{min-height:45px;width:100%;background:#111317;border:1px solid #444;color:#fff;border-radius:9px;padding:9px;font-size:15px}.menux-report-stats{grid-template-columns:repeat(3,minmax(0,1fr));margin:15px 0}.menux-report-days{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow:auto}.menux-report-day{display:grid;grid-template-columns:86px 1fr 105px;gap:10px;align-items:center;font-size:13px}.menux-report-day .track{margin:0;height:12px}.menux-report-table th,.menux-report-table td{white-space:nowrap}.menux-report-table td:nth-child(3){white-space:normal;min-width:120px}.menux-report-columns{align-items:start}@media(max-width:980px){.menux-report-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.menux-report-columns{grid-template-columns:1fr}}@media(max-width:560px){.menux-report-stats{grid-template-columns:1fr 1fr}.menux-report-stats .statvalue{font-size:21px}.menux-report-day{grid-template-columns:75px 1fr 90px}}
 </style>
+
+<style>
+.menux-growth-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.menux-growth-tip{border:1px solid var(--line,#393939);border-radius:13px;padding:16px;min-width:0;background:rgba(255,255,255,.025)}
+.menux-growth-tip h3{font-size:16px;margin:0 0 8px;line-height:1.35;color:inherit}
+.menux-growth-tip p{font-size:14px;line-height:1.5;margin:0;color:var(--muted,#acacac)}
+.menux-growth-tag{display:inline-flex;border:1px solid #b99957;color:#d5b86c;border-radius:99px;padding:6px 10px;font-size:12px;font-weight:700}
+@media(max-width:960px){.menux-growth-grid{grid-template-columns:1fr}}
+</style>
 </head><body><div class="layout">
 <aside class="side"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <main class="main"><header class="top"><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button class="btn" id="logout" title="Sair">Sair</button></div></header>
 <div id="feedback" role="status" aria-live="polite"></div>
-<section class="page active" id="overview"><div class="row between"><div><h2>Visão geral</h2><div class="muted small">Indicadores dos pedidos registrados no Supabase.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div></section>
+<section class="page active" id="overview"><div class="row between"><div><h2>Visão geral</h2><div class="muted small">Indicadores dos pedidos registrados no Supabase.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div>
+<div class="card menux-growth-panel" style="margin-top:15px" aria-labelledby="menuxGrowthTitle">
+  <div class="row between" style="align-items:center;gap:12px;flex-wrap:wrap">
+    <div><h2 id="menuxGrowthTitle">💡 Dicas para melhorar suas vendas</h2><p class="muted small" style="margin-top:6px">Sugestões para o estabelecimento, com base no período selecionado. Não são previsões de resultados.</p></div>
+    <span class="menux-growth-tag">MENUX Intelligence</span>
+  </div>
+  <div id="menuxGrowthTips" class="menux-growth-grid" aria-live="polite"><p class="muted">Carregando sugestões…</p></div>
+</div></section>
 <section class="page" id="orders"><div class="row between"><h2>Central de pedidos</h2><button class="btn" id="refreshOrders">Atualizar</button></div><p class="muted small">Pedidos de hoje, atualizados automaticamente a cada 20 segundos. À meia-noite, a lista reinicia sem apagar o histórico.</p><div class="card" id="menuxMainOrders"><div class="muted small">Carregando pedidos online...</div></div><div style="margin-top:16px"><h3>Outros pedidos de hoje</h3><div class="card" id="ordersList"></div></div></section>
 <section class="page" id="menu"><div class="row between"><h2>Cardápio</h2><button class="btn primary" id="newProduct">＋ Novo produto</button></div><div class="card" style="overflow-x:auto"><table class="table"><thead><tr><th>PRODUTO</th><th>PREÇO</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody id="productsBody"></tbody></table></div><div class="card" id="productEditor" hidden style="margin-top:15px"><h2 id="productEditorTitle">Novo produto</h2><form id="productForm"><input type="hidden" name="id"><div class="formgrid"><div class="formgroup"><label>Nome *</label><input name="name" required maxlength="150"></div><div class="formgroup"><label>Preço (R$) *</label><input name="price" type="number" min="0" step="0.01" required></div><div class="formgroup"><label>Categoria</label><input name="category" list="menuxCategorySuggestions" autocomplete="off" placeholder="Selecione uma categoria ou digite uma nova" maxlength="100"><datalist id="menuxCategorySuggestions"></datalist><small class="muted">Escolha uma categoria já cadastrada ou digite uma nova.</small></div><div class="formgroup"><label>Foto do produto</label><input type="file" id="productImageFile" accept="image/jpeg,image/png,image/webp" class="field"><small class="muted">Até 5 MB. O envio acontece ao salvar o produto.</small><label>Ou URL pública da imagem (https://)</label><input name="image_url" type="url"></div><div class="formgroup"><label>Descrição</label><textarea name="description" class="field" style="width:100%;min-height:80px"></textarea></div><div class="formgroup"><label>Disponibilidade</label><select name="active"><option value="true">Disponível</option><option value="false">Pausado</option></select></div></div><div class="row" style="margin-top:16px"><button class="btn primary" type="submit">Salvar produto</button><button class="btn" type="button" id="cancelProduct">Cancelar</button></div></form></div><div class="card" id="optionManager" hidden style="margin-top:15px">
 <h2 id="optionManagerTitle">Opções do produto</h2>
@@ -142,6 +158,41 @@ function render(){const now=new Date(),p=$('period').value;const filtered=orders
 void menuxRenderOverviewOnline();refreshCategorySuggestions();$('productsBody').innerHTML=products.map(x=>'<tr><td><b>'+esc(x.name)+'</b><div class="muted small">'+esc(x.category||'Sem categoria')+'</div></td><td>'+money(x.price)+'</td><td>'+(x.active?'<span class="tag green">Disponível</span>':'<span class="tag">Oculto</span>')+'</td><td><button class="btn" data-options-product="'+x.id+'">Opções</button> <button class="btn" data-edit-product="'+x.id+'">Editar</button> <button class="btn" data-toggle-product="'+x.id+'">'+(x.active?'Pausar':'Ativar')+'</button> <button class="btn" data-delete-product="'+x.id+'">Excluir</button></td></tr>').join('')||'<tr><td colspan="4">Nenhum produto cadastrado.</td></tr>';
 $('customerCount').textContent=customers.length;$('customerBuyers').textContent=new Set(orders.map(o=>o.customer_id).filter(Boolean)).size;$('linkedOrders').textContent=orders.filter(o=>o.customer_id).length;$('customerTicket').textContent=money(orders.filter(isDone).length?orders.filter(isDone).reduce((a,o)=>a+Number(o.total),0)/orders.filter(isDone).length:0);$('customersBody').innerHTML=customers.map(c=>'<tr><td>'+esc(c.name)+'</td><td>'+esc(c.phone||'—')+'</td><td>'+orders.filter(o=>o.customer_id===c.id).length+'</td><td><button class="btn" data-edit-customer="'+c.id+'">Editar</button></td></tr>').join('')||'<tr><td colspan="4">Nenhum cliente.</td></tr>';
 const allDone=orders.filter(isDone),allSum=allDone.reduce((a,o)=>a+Number(o.total),0);$('areasBody').innerHTML=areas.map(a=>'<tr><td>'+esc(a.name)+'</td><td>'+money(a.delivery_fee)+'</td><td>'+tag(a.active?'completed':'paused').replace('Finalizado','Ativa').replace('paused','Inativa')+'</td><td><button class="btn" data-edit-area="'+a.id+'">Editar</button> <button class="btn" data-delete-area="'+a.id+'">Excluir</button></td></tr>').join('')||'<tr><td colspan="4">Nenhuma região cadastrada.</td></tr>';$('storeForm').elements.name.value=restaurant.name;$('storeForm').elements.slug.value=restaurant.slug||'';$('storeName').textContent=restaurant.name;$('avatar').textContent=restaurant.name.slice(0,2).toUpperCase()}
+
+// MENUX: dicas de gestão somente para o estabelecimento autenticado.
+// A interpretação evita tratar pedidos de teste ou amostras pequenas como tendências.
+function menuxRenderGrowthTips(all,complete,top){
+  const root=$('menuxGrowthTips');if(!root)return;
+  const tips=[];
+  const totalCompleted=complete.reduce((sum,o)=>sum+Number(o.total||0),0);
+  const avg=complete.length?totalCompleted/complete.length:0;
+  const cancelledCount=all.filter(o=>String(o.status).toLowerCase()==='cancelled').length;
+  const pendingCount=all.filter(o=>!['completed','cancelled'].includes(String(o.status).toLowerCase())).length;
+  if(all.length===0){
+    tips.push(['📣 Divulgue seu cardápio','Compartilhe o link da loja nas redes sociais e no WhatsApp do estabelecimento para atrair os primeiros pedidos.']);
+    tips.push(['📷 Capriche nas fotos','Use fotos nítidas, descrições objetivas e preços atualizados para facilitar a escolha dos clientes.']);
+    tips.push(['🧩 Ofereça combinações','Cadastre adicionais e acompanhamentos que façam sentido para seus produtos.']);
+  }else{
+    if(complete.length>=5 && top.length){
+      tips.push(['⭐ Valorize o mais vendido', '“'+top[0][0]+'” foi o produto mais vendido entre os pedidos concluídos deste período. Considere destacá-lo no cardápio.']);
+    }else{
+      tips.push(['📷 Melhore a apresentação','Mantenha fotos, nomes e descrições claros. Isso ajuda o cliente a escolher sem precisar perguntar.']);
+    }
+    if(complete.length>=5 && avg>0){
+      tips.push(['🛍️ Teste combinações','O ticket médio dos pedidos concluídos foi '+money(avg)+'. Você pode testar combos e adicionais relevantes e acompanhar o resultado.']);
+    }else{
+      tips.push(['🍟 Facilite os adicionais','Mostre opções de complementos e adicionais úteis, com preços claros, para incentivar compras completas.']);
+    }
+    if(pendingCount>0){
+      tips.push(['🔔 Atenção aos pedidos','Há '+pendingCount+' pedido(s) em andamento no período. Confira a Central de Pedidos para manter o atendimento em dia.']);
+    }else if(all.length>=10 && cancelledCount/all.length>=.3){
+      tips.push(['📋 Revise os cancelamentos','Há uma proporção elevada de cancelamentos no período. Verifique os motivos, mas desconsidere pedidos feitos apenas para testes.']);
+    }else{
+      tips.push(['⏰ Revise horários e disponibilidade','Mantenha horários de funcionamento, itens disponíveis e regiões de entrega sempre atualizados.']);
+    }
+  }
+  root.innerHTML=tips.map(([heading,description])=>'<div class="menux-growth-tip"><h3>'+esc(heading)+'</h3><p>'+esc(description)+'</p></div>').join('');
+}
 // MENUX: visão geral baseada nos mesmos pedidos online de Análises completas.
 let menuxOverviewRequest=0;
 const menuxBRDate=(value)=>new Intl.DateTimeFormat('en-CA',{
@@ -197,8 +248,11 @@ async function menuxRenderOverviewOnline(){
     }
     const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
     $('topProducts').innerHTML=top.map(([name,qty])=>'<div><div class="item"><b>'+esc(name)+'</b><span class="muted small">'+qty+' un.</span></div><div class="track"><div class="fill" style="width:'+(qty/top[0][1]*100)+'%"></div></div></div>').join('')||'<div class="empty">Sem vendas concluídas.</div>';
+    menuxRenderGrowthTips(all,complete,top);
+
   }catch(err){
     if(request!==menuxOverviewRequest)return;
+    if($('menuxGrowthTips'))$('menuxGrowthTips').innerHTML='<p class="muted">As sugestões serão exibidas quando os dados puderem ser consultados.</p>';
     console.error('MENUX Visão geral:',err);
     notice('Falha ao consultar a Visão geral dos pedidos online: '+err.message,true);
   }
