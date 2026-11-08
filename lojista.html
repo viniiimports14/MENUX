@@ -15,7 +15,28 @@
 #catalogProducts input.menux-check:checked:after{content:'✓';font-size:17px;font-weight:900;color:#111;line-height:1}
 #catalogProducts .menux-product-choice span{font-size:13px;font-weight:600;line-height:1.35}
 #catalogProducts input.menux-check:focus-visible{outline:2px solid white;outline-offset:3px}
-</style></head><body><div class="layout">
+</style>
+<style>
+/* MENUX: cartões de pedidos compactos, com prévia limitada e detalhe completo no modal. */
+#menuxMainOrders .menux-orders-grid .menux-order-card{
+  height:460px;min-height:460px;display:flex;flex-direction:column;overflow:hidden;
+}
+#menuxMainOrders .menux-orders-grid .menux-order-top{flex:0 0 auto}
+#menuxMainOrders .menux-orders-grid .menux-preview{flex:0 1 auto;min-height:0;overflow:hidden;gap:6px;margin-top:12px;padding-top:11px}
+#menuxMainOrders .menux-orders-grid .menux-preview-product{border:0;padding:0}
+#menuxMainOrders .menux-orders-grid .menux-item-primary{font-size:19px;line-height:1.32;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+#menuxMainOrders .menux-orders-grid .menux-preview-options{margin-top:6px}
+#menuxMainOrders .menux-orders-grid .menux-option-line{font-size:15px;line-height:1.25;padding:2px 0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
+#menuxMainOrders .menux-orders-grid .menux-more-notice{
+  font-size:13px;line-height:1.34;color:#f1d992;background:#302c28;
+  border:1px solid #706047;border-radius:9px;padding:9px 10px;
+  margin-top:9px;display:flex;flex-direction:column;gap:3px;flex:0 0 auto;
+}
+#menuxMainOrders .menux-orders-grid .menux-more-notice strong{font-size:14px;color:#ffe6a4}
+#menuxMainOrders .menux-orders-grid .menux-order-actions{margin-top:auto;padding-top:10px;flex:0 0 auto}
+@media(max-width:760px){#menuxMainOrders .menux-orders-grid .menux-order-card{height:auto;min-height:430px}}
+</style>
+</head><body><div class="layout">
 <aside class="side"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <main class="main"><header class="top"><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button class="btn" id="logout" title="Sair">Sair</button></div></header>
 <div id="feedback" role="status" aria-live="polite"></div>
@@ -333,10 +354,15 @@ main.innerHTML='<div class="menux-orders-header"><b>Pedidos recebidos pelo card�
 '<div class="menux-orders-grid">'+(ordered.map(o=>{
  const orderItems=items.filter(i=>i.order_id===o.id);
  const itemCount=orderItems.reduce((total,i)=>total+(Number(i.quantity)||0),0);
- const preview=orderItems.map(i=>{const opts=Array.isArray(i.options)?i.options:[];return '<div class="menux-preview-product"><div class="menux-item-primary">'+escapeHtml(i.quantity)+'× '+escapeHtml(i.product_name)+'</div>'+(opts.length?'<div class="menux-preview-options"><span class="menux-options-caption">Complementos e adicionais</span>'+opts.map(x=>'<div class="menux-option-line">+ '+escapeHtml(x.name)+(Number(x.price)>0?' · '+moneyIncoming(x.price):'')+'</div>').join('')+'</div>':'')+'</div>'}).join('');
+ const firstItem=orderItems[0];
+ const firstOptions=firstItem&&Array.isArray(firstItem.options)?firstItem.options:[];
+ const visibleOptions=firstOptions.slice(0,3);
+ const hasMore=orderItems.length>1||firstOptions.length>3;
+ const preview=firstItem?'<div class="menux-preview-product"><div class="menux-item-primary">'+escapeHtml(firstItem.quantity)+'× '+escapeHtml(firstItem.product_name)+'</div>'+(visibleOptions.length?'<div class="menux-preview-options"><span class="menux-options-caption">Complementos e adicionais</span>'+visibleOptions.map(x=>'<div class="menux-option-line">+ '+escapeHtml(x.name)+(Number(x.price)>0?' · '+moneyIncoming(x.price):'')+'</div>').join('')+'</div>':'')+'</div>':'<div class="menux-preview-product">Nenhum produto carregado.</div>';
+ const moreNotice=hasMore?'<div class="menux-more-notice"><strong>… Tem mais no pedido!</strong><span>'+ (orderItems.length>1?'Mais de um produto ou outros complementos.':'Outros complementos e adicionais.') +' Clique em <b>Ver detalhes do pedido</b> para conferir tudo.</span></div>':'';
  const action=({pending:['accepted','Aceitar pedido'],accepted:['preparing','Iniciar preparo'],preparing:['ready','Marcar pronto'],ready:[o.fulfillment==='delivery'?'out_for_delivery':'completed',o.fulfillment==='delivery'?'Saiu para entrega':'Concluir'],out_for_delivery:['completed','Concluir']})[o.status];
  const fulfillmentLabel=o.fulfillment==='delivery'?'🚚 ENTREGA':o.fulfillment==='pickup'?'🏪 RETIRADA':o.fulfillment==='table'||o.fulfillment==='dine_in'?'🍽️ MESA'+(o.table_number?' '+escapeHtml(o.table_number):''):'📋 '+escapeHtml(o.fulfillment||'Atendimento');
- return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div><div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div><div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div><div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button>'+
+ return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div><div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div><div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div>'+moreNotice+'<div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button>'+
 (action?'<button type="button" class="btn primary" data-incoming="'+o.id+'" data-newstatus="'+action[0]+'">'+action[1]+'</button> <button type="button" class="btn" data-incoming="'+o.id+'" data-newstatus="cancelled">Cancelar</button>':'')+'</div></article>';
  }).join('')||'<div class="empty">Nenhum pedido online encontrado.</div>')+'</div>';
 // Guardar os itens do último carregamento para o modal de detalhes.
