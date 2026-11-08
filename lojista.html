@@ -529,16 +529,37 @@ function playMenuxAlert(){
   if(!C)return;
   menuxAudioCtx=menuxAudioCtx||new C();
   if(menuxAudioCtx.state!=='running')return;
-  for(const [i,f] of [784,988,1175].entries()){
-   const osc=menuxAudioCtx.createOscillator(),gain=menuxAudioCtx.createGain();
-   const t=menuxAudioCtx.currentTime+i*.17;
-   osc.type='sine';osc.frequency.value=f;
-   gain.gain.setValueAtTime(.0001,t);
-   gain.gain.exponentialRampToValueAtTime(.16,t+.02);
-   gain.gain.exponentialRampToValueAtTime(.0001,t+.14);
-   osc.connect(gain);gain.connect(menuxAudioCtx.destination);
-   osc.start(t);osc.stop(t+.15);
-  }
+  // Sino de balcão: dois toques ressonantes, com harmônicos e decaimento suave.
+  // O som é sintetizado no navegador, sem arquivos externos.
+  const master=menuxAudioCtx.createGain();
+  master.gain.value=.75;
+  master.connect(menuxAudioCtx.destination);
+  const now=menuxAudioCtx.currentTime+.025;
+  [0,.52].forEach((delay,strike)=>{
+   const start=now+delay;
+   const strength=strike===0?1:.83;
+   const partials=[
+    {hz:880,level:.18,decay:2.05},
+    {hz:1764,level:.065,decay:1.38},
+    {hz:2647,level:.027,decay:.92},
+    {hz:3562,level:.010,decay:.55}
+   ];
+   partials.forEach(({hz,level,decay})=>{
+    const osc=menuxAudioCtx.createOscillator();
+    const volume=menuxAudioCtx.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(hz,start);
+    volume.gain.setValueAtTime(.0001,start);
+    volume.gain.linearRampToValueAtTime(level*strength,start+.009);
+    volume.gain.exponentialRampToValueAtTime(.0001,start+decay);
+    osc.connect(volume);volume.connect(master);
+    osc.start(start);osc.stop(start+decay+.025);
+   });
+  });
+  // Libera a conexão de áudio após os toques terminarem.
+  const end=now+2.65;
+  master.gain.setValueAtTime(.75,end-.025);
+  master.gain.linearRampToValueAtTime(0,end);
  }catch(e){console.warn('MENUX: áudio indisponível:',e)}
 }
 menuxSoundButton.addEventListener('click',async()=>{
