@@ -100,7 +100,7 @@
  <div id="menuxHoursMsg" role="status" style="margin:12px 0;color:#e3c77f"></div>
  <button type="submit" class="btn primary">Salvar horários</button>
  </form></div></section>
-<section class="page" id="printing"><h2>Impressão de pedidos</h2><div class="grid two"><div class="card"><h2>Impressão pelo navegador</h2><p class="muted">Selecione um pedido na Central de pedidos e clique em Imprimir. A janela de impressão do navegador será aberta.</p><button class="btn primary" data-go="orders">Ir para pedidos</button></div><div class="card"><h2>Impressora térmica</h2><span class="tag">Integração automática pendente</span><p class="muted small">Impressão silenciosa USB/Bluetooth requer integração específica; esta versão usa o navegador.</p></div></div></section>
+<section class="page" id="printing"><h2>Impressão de pedidos</h2><div class="grid two"><div class="card"><h2>Formato da comanda</h2><p class="muted">Escolha a largura da bobina usada pela impressora. A configuração fica salva neste navegador.</p><label for="menuxPrintWidth">Largura da bobina</label><select class="field" id="menuxPrintWidth"><option value="80">80 mm — térmica maior</option><option value="58">58 mm — térmica compacta</option></select><p class="muted small">Na Central de Pedidos, clique em <b>Imprimir</b> ou <b>Ver detalhes → Imprimir comanda</b>.</p><button class="btn primary" data-go="orders">Ir para pedidos</button></div><div class="card"><h2>Como imprimir</h2><p class="muted">A MENUX abre a impressão do navegador. Escolha sua impressora e configure papel de 58 mm ou 80 mm no driver, conforme o modelo.</p><p class="muted small">A impressão automática sem confirmação depende de um aplicativo/serviço específico e ainda não está disponível. Para reimprimir, use o mesmo botão.</p></div></div></section>
 <section class="page" id="settings"><h2>Minha loja</h2><div class="card"><form id="storeForm"><div class="formgrid"><div class="formgroup"><label>Nome do restaurante</label><input name="name" required></div><div class="formgroup"><label>Slug (endereço curto)</label><input name="slug" placeholder="minha-loja" pattern="[a-z0-9-]+" title="Use letras minúsculas, números e hífens"></div></div><p class="muted small">WhatsApp, endereço, horários e outras configurações exigem novas colunas no banco. O slug não publica o cardápio sozinho.</p><button class="btn primary" style="margin-top:15px">Salvar alterações</button></form></div></section>
 <div class="muted small" style="padding-top:25px">MENUX · Painel do lojista · Dados reais por restaurante.</div></main></div>
 <div id="authOverlay"><div class="authCard"><h2>Acesso à loja</h2><p>Verificando sua sessão...</p><p id="authError" style="color:#ffaaa0"></p><a href="index.html" style="color:#e3c77f">Ir para login</a></div></div>
@@ -472,6 +472,29 @@ $('catalogForm').addEventListener('submit',async e=>{
 @media(max-width:1150px){#menuxMainOrders .menux-orders-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){#menuxMainOrders .menux-orders-grid{grid-template-columns:1fr}}
 </style>
+<style id="menux-thermal-print-style">
+@media print {
+ @page { margin: 2mm; }
+ html,body {margin:0!important;padding:0!important;background:white!important;color:#000!important;}
+ body * {visibility:hidden!important;}
+ #printSheet, #printSheet * {visibility:visible!important;}
+ #printSheet {display:block!important;position:absolute!important;top:0!important;left:0!important;background:white!important;color:black!important;margin:0!important;padding:0!important;width:var(--menux-thermal-width,76mm)!important;max-width:none!important;box-shadow:none!important;}
+ body[data-menux-paper="58"] #printSheet {--menux-thermal-width:54mm;}
+ body[data-menux-paper="80"] #printSheet {--menux-thermal-width:76mm;}
+ #printSheet .m-thermal {font:normal 12px/1.36 Arial,Helvetica,sans-serif;color:#000!important;overflow-wrap:anywhere;}
+ #printSheet .m-heading {font-size:17px;font-weight:800;}
+ #printSheet .m-order {font-size:23px;font-weight:900;margin:6px 0;}
+ #printSheet .m-center{text-align:center;}
+ #printSheet hr{border:0;border-top:1px dashed #000;margin:9px 0;}
+ #printSheet .m-label{font-weight:800;text-align:center;margin-bottom:7px;}
+ #printSheet .m-pitem{padding:7px 0;border-bottom:1px dotted #666;break-inside:avoid;}
+ #printSheet .m-pname{font-weight:900;font-size:15px;}
+ #printSheet .m-poption{padding-left:9px;font-size:12px;}
+ #printSheet .m-pprice{text-align:right;font-weight:700;}
+ #printSheet .m-flex{display:flex;justify-content:space-between;gap:5px;}
+ #printSheet .m-total{font-size:16px;font-weight:900;margin:5px 0;}
+}
+</style>
 <dialog id="menuxOrderDialog" aria-labelledby="menuxOrderDialogTitle"><div class="menux-detail-wrap"><div class="menux-detail-head"><h2 id="menuxOrderDialogTitle">Detalhes do pedido</h2><button class="menux-detail-close" type="button" data-close-menux-details aria-label="Fechar detalhes">×</button></div><div id="menuxOrderDialogContent"></div></div></dialog>
 <script>
 (function(){const box=document.getElementById('menux-incoming'),list=document.getElementById('menux-incoming-list'),message=document.getElementById('menux-incoming-message');document.getElementById('menux-incoming-open').onclick=()=>{box.hidden=false;loadIncoming()};document.getElementById('menux-incoming-close').onclick=()=>box.hidden=true;const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const menuxOrderNumber=o=>o&&o.daily_number!=null?'#'+String(o.daily_number).padStart(3,'0'):'#'+String(o?.id||'').slice(0,8).toUpperCase();const moneyIncoming=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);const statusNames={pending:'Recebido',accepted:'Aceito',preparing:'Preparando',ready:'Pronto',out_for_delivery:'Saiu para entrega',completed:'Concluído',cancelled:'Cancelado'};let onlineOrders=[];
@@ -496,7 +519,7 @@ main.innerHTML='<div class="menux-orders-header"><b>Pedidos recebidos pelo card�
  const moreNotice=hasMore?'<div class="menux-more-notice"><strong>… Tem mais no pedido!</strong><span>'+ (orderItems.length>1?'Mais de um produto ou outros complementos.':'Outros complementos e adicionais.') +' Clique em <b>Ver detalhes do pedido</b> para conferir tudo.</span></div>':'';
  const action=({pending:['accepted','Aceitar pedido'],accepted:['preparing','Iniciar preparo'],preparing:['ready','Marcar pronto'],ready:[o.fulfillment==='delivery'?'out_for_delivery':'completed',o.fulfillment==='delivery'?'Saiu para entrega':'Concluir'],out_for_delivery:['completed','Concluir']})[o.status];
  const fulfillmentLabel=o.fulfillment==='delivery'?'🚚 ENTREGA':o.fulfillment==='pickup'?'🏪 RETIRADA':o.fulfillment==='table'||o.fulfillment==='dine_in'?'🍽️ MESA'+(o.table_number?' '+escapeHtml(o.table_number):''):'📋 '+escapeHtml(o.fulfillment||'Atendimento');
- return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div><div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div><div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div>'+moreNotice+'<div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button>'+
+ return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div><div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div><div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div>'+moreNotice+'<div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button><button type="button" class="btn" data-print-online="'+o.id+'">🖨 Imprimir</button>'+
 (action?'<button type="button" class="btn primary" data-incoming="'+o.id+'" data-newstatus="'+action[0]+'">'+action[1]+'</button> <button type="button" class="btn" data-incoming="'+o.id+'" data-newstatus="cancelled">Cancelar</button>':'')+'</div></article>';
  }).join('')||'<div class="empty">Nenhum pedido online encontrado.</div>')+'</div>';
 // Guardar os itens do último carregamento para o modal de detalhes.
@@ -547,10 +570,60 @@ document.addEventListener('click',event=>{
  '<div>Produtos: '+moneyIncoming(order.subtotal)+'</div></div></section>'+ 
  '<section class="menux-detail-section"><h3>Produtos e complementos</h3>'+(productHtml||'<p>Nenhum item encontrado.</p>')+'</section>'+
   '<section class="menux-detail-section"><h3>Observações</h3><div class="menux-detail-text">'+escapeHtml(order.notes||'Nenhuma observação')+'</div></section>'+
-  '<div class="menux-detail-total">Total: '+moneyIncoming(order.total)+'</div>';
+  '<div class="menux-detail-total">Total: '+moneyIncoming(order.total)+'</div><button type="button" class="btn primary" style="width:100%;margin-top:16px" data-print-online="'+escapeHtml(order.id)+'">🖨 Imprimir comanda</button>';
  dialog.showModal();
 });
 document.getElementById('menuxOrderDialog')?.addEventListener('click',event=>{if(event.target.id==='menuxOrderDialog')event.target.close()});
+
+
+// Comanda térmica dos pedidos online (impressão manual pelo navegador).
+const printWidthSelect=document.getElementById('menuxPrintWidth');
+try{const saved=localStorage.getItem('menux_print_width');if(['58','80'].includes(saved))printWidthSelect.value=saved;}catch(e){}
+printWidthSelect?.addEventListener('change',()=>{try{localStorage.setItem('menux_print_width',printWidthSelect.value)}catch(e){}});
+function printOnlineOrder(order){
+ const details=(window.__menuxOrderDetailItems||[]).filter(i=>i.order_id===order.id);
+ if(!details.length){alert('Os itens deste pedido ainda não foram carregados. Clique em Atualizar pedidos e tente novamente.');return;}
+ const width=printWidthSelect?.value==='58'?58:80;
+ const isDelivery=order.fulfillment==='delivery';
+ const kind=isDelivery?'ENTREGA':order.fulfillment==='table'?'MESA '+String(order.table_number||''):'RETIRADA';
+ const pay=({pix:'PIX',cash:'Dinheiro',credit_card:'Cartão de crédito',debit_card:'Cartão de débito'})[order.payment_method]||'Não informado';
+ const safe=escapeHtml;
+ const rows=details.map(i=>{
+  const opts=Array.isArray(i.options)?i.options:[];
+  return '<section class="m-pitem"><div class="m-pname">'+safe(i.quantity)+'x '+safe(i.product_name)+'</div>'+
+   opts.map(x=>'<div class="m-poption">+ '+safe(x.name)+(Number(x.price)>0?' ('+moneyIncoming(x.price)+')':'')+'</div>').join('')+
+   '<div class="m-pprice">'+moneyIncoming(Number(i.quantity)*Number(i.unit_price))+'</div></section>';
+ }).join('');
+ const sheet=document.getElementById('printSheet');
+ sheet.innerHTML='<div class="m-thermal"><div class="m-center m-heading">'+safe(restaurant.name||'MENUX')+'</div>'+
+ '<div class="m-center m-order">PEDIDO '+safe(menuxOrderNumber(order))+'</div>'+
+ '<div class="m-center">'+safe(kind)+'</div><div class="m-center">'+safe(new Date(order.created_at).toLocaleString('pt-BR'))+'</div><hr>'+
+ '<div><b>Cliente:</b> '+safe(order.customer_name)+'</div><div><b>Telefone:</b> '+safe(order.customer_phone||'—')+'</div>'+
+ (isDelivery?'<div><b>Região:</b> '+safe(order.delivery_area_name||'—')+'</div><div><b>Endereço:</b> '+safe(order.delivery_address||'—')+'</div>':'')+
+ '<hr><div class="m-label">ITENS PARA PREPARAR</div>'+rows+'<hr>'+
+ '<div><b>Observações:</b> '+safe(order.notes||'Nenhuma')+'</div><hr>'+
+ '<div class="m-flex"><span>Produtos:</span><b>'+moneyIncoming(order.subtotal)+'</b></div>'+
+ (isDelivery?'<div class="m-flex"><span>Entrega:</span><b>'+moneyIncoming(order.delivery_fee||0)+'</b></div>':'')+
+ '<div class="m-flex m-total"><span>TOTAL</span><b>'+moneyIncoming(order.total)+'</b></div>'+
+ '<div><b>Pagamento:</b> '+safe(pay)+'</div>'+
+ (order.change_for!=null?'<div><b>Troco para:</b> '+moneyIncoming(order.change_for)+'</div>':'')+
+ '<div><b>Status:</b> '+safe(statusNames[order.status]||order.status)+'</div><hr><div class="m-center">MENUX • COMANDA</div></div>';
+ document.body.dataset.menuxPaper=String(width);
+ sheet.hidden=false;
+ const cleanup=()=>{sheet.hidden=true;delete document.body.dataset.menuxPaper;};
+ window.addEventListener('afterprint',cleanup,{once:true});
+ window.print();
+ // Evita deixar a comanda visível em navegadores que não disparam afterprint.
+ setTimeout(cleanup,1500);
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest('button[data-print-online]');
+ if(!button)return;
+ const order=onlineOrders.find(o=>o.id===button.dataset.printOnline);
+ if(!order)return;
+ event.preventDefault();
+ printOnlineOrder(order);
+});
 
 // Central de pedidos: iniciar após a identificação do restaurante e manter atualizada.
 let menuxBusy=false;
