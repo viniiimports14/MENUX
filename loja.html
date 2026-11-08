@@ -89,9 +89,31 @@
 #cart-modal .checkout-error:not(:empty){background:#dc262612;padding:10px;border-radius:8px;margin:12px 0;color:#c32929}
 .menux-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 @media(max-width:640px){#cart-modal.checkout-backdrop{padding:0;align-items:stretch}#cart-modal .menux-checkout-modern{width:100%;height:100dvh;max-height:100dvh;border-radius:0}#cart-modal .menux-checkout-header{padding:22px 18px 18px}#cart-modal .menux-checkout-content{padding:20px 18px 32px}#cart-modal .menux-checkout-fields{grid-template-columns:1fr;gap:5px}#cart-modal .menux-checkout-final{padding:16px}#cart-modal .menux-checkout-header h2{font-size:27px}}
+
+/* MENUX — escolha depois de adicionar ao carrinho. Respeita a cor da loja. */
+.menux-add-choice[hidden]{display:none!important}
+.menux-add-choice{position:fixed;inset:0;z-index:9600;background:rgba(17,17,23,.62);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
+.menux-add-card{width:min(430px,100%);padding:29px 24px;background:var(--store-card);color:var(--store-text);border-radius:22px;box-shadow:0 24px 60px #0005;text-align:center;position:relative}
+.menux-add-icon{width:58px;height:58px;margin:0 auto 16px;display:grid;place-items:center;border-radius:50%;background:color-mix(in srgb,var(--accent) 12%,var(--store-card));color:var(--accent);font-size:30px;font-weight:bold}
+.menux-add-card h2{font-size:24px;margin:0 0 8px;line-height:1.25}
+.menux-add-card p{font-size:15px;color:var(--store-muted);margin:0 0 23px;line-height:1.5}
+.menux-add-actions{display:grid;gap:10px}
+.menux-add-actions button{width:100%;min-height:52px;font:inherit;font-weight:800;border-radius:13px;cursor:pointer;border:2px solid var(--accent);padding:13px 16px}
+#menux-go-cart{background:var(--accent);color:#fff}
+#menux-keep-shopping{background:var(--store-card);color:var(--accent)}
+.menux-add-actions button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.menux-fly-item{position:fixed;z-index:9700;pointer-events:none;display:grid;place-items:center;border:2px solid var(--accent);background:var(--store-card);color:var(--accent);border-radius:16px;box-shadow:0 8px 24px #0004;font-size:26px;overflow:hidden}
+.menux-fly-item img{width:100%;height:100%;object-fit:cover}
+@media(max-width:480px){.menux-add-card{padding:24px 18px}.menux-add-card h2{font-size:22px}}
+@media(prefers-reduced-motion:reduce){.menux-fly-item{display:none!important}}
 </style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><h2>Nosso cardápio</h2><div id="products">Aguarde...</div></main><div class="product-detail" id="product-detail" role="dialog" aria-modal="true" aria-label="Personalizar produto" hidden>
 <div class="detail-panel"><div class="detail-top"><b>Detalhe do produto</b><button id="close-detail" type="button" aria-label="Fechar detalhes">×</button></div><div id="detail-body"></div>
 <div class="detail-footer"><div><strong id="detail-total"></strong><div class="detail-note">Escolha suas opções e adicione ao carrinho</div></div><button type="button" id="detail-confirm">Adicionar ao carrinho</button></div></div></div><button class="tracking-shortcut" id="tracking-shortcut" type="button" hidden aria-label="Acompanhar meu último pedido">📦 Acompanhar pedido</button><button class="checkout-fab" id="open-cart" type="button">🛒 Carrinho (0)</button>
+<div id="menux-add-choice" class="menux-add-choice" role="dialog" aria-modal="true" aria-labelledby="menux-add-title" aria-describedby="menux-add-description" hidden>
+ <div class="menux-add-card"><div class="menux-add-icon" aria-hidden="true">✓</div><h2 id="menux-add-title">Adicionado ao carrinho!</h2>
+ <p id="menux-add-description">Quer finalizar seu pedido agora ou escolher mais alguma coisa?</p>
+ <div class="menux-add-actions"><button type="button" id="menux-go-cart">🛒 Ir para o carrinho</button><button type="button" id="menux-keep-shopping">＋ Escolher mais um item</button></div></div>
+</div>
 <div id="cart-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Carrinho e finalização">
   <div class="checkout-box menux-checkout-modern">
     <div class="menux-checkout-header">
@@ -165,7 +187,58 @@ function closeDetail(){detail.hidden=true;document.body.classList.remove('modal-
 $('products').addEventListener('click',e=>{if(e.target.closest('.product-photo'))return;const card=e.target.closest('[data-product]');if(!card)return;const p=publicProducts.find(x=>String(x.id)===card.dataset.product);if(p)openDetail(p,card);});
 $('products').addEventListener('keydown',e=>{if(e.target.closest('.product-photo'))return;if(e.key==='Enter'||e.key===' '){const card=e.target.closest('[data-product]');if(card){e.preventDefault();card.click();}}});
 detailBody.addEventListener('change',e=>{const input=e.target.closest('[data-option]');if(!input)return;selectedOptions[input.dataset.option]=input.checked;updateDetail();});
-$('detail-confirm').addEventListener('click',()=>{if(!activeProduct)return;const groups=activeProduct.option_groups||[];for(let gi=0;gi<groups.length;gi++){const g=groups[gi];const count=(g.items||[]).filter((_,oi)=>selectedOptions[gi+'-'+oi]).length;if(count<Number(g.min_select||0)){alert('Selecione pelo menos '+g.min_select+' em '+g.title);return;}}const options=[];let price=Number(activeProduct.price)||0;groups.forEach((g,gi)=>(g.items||[]).forEach((o,oi)=>{if(selectedOptions[gi+'-'+oi]){options.push({group_id:g.id,item_id:o.id,group:g.title,name:o.name,price:Number(o.price)||0});price+=Number(o.price)||0;}}));cart.push({product_id:activeProduct.id,name:activeProduct.name,quantity:1,unit_price:price,options});refreshCart();closeDetail();$('cart-modal').hidden=false;});
+$('detail-confirm').addEventListener('click',()=>{if(!activeProduct)return;const groups=activeProduct.option_groups||[];for(let gi=0;gi<groups.length;gi++){const g=groups[gi];const count=(g.items||[]).filter((_,oi)=>selectedOptions[gi+'-'+oi]).length;if(count<Number(g.min_select||0)){alert('Selecione pelo menos '+g.min_select+' em '+g.title);return;}}const options=[];let price=Number(activeProduct.price)||0;groups.forEach((g,gi)=>(g.items||[]).forEach((o,oi)=>{if(selectedOptions[gi+'-'+oi]){options.push({group_id:g.id,item_id:o.id,group:g.title,name:o.name,price:Number(o.price)||0});price+=Number(o.price)||0;}}));cart.push({product_id:activeProduct.id,name:activeProduct.name,quantity:1,unit_price:price,options});menuxLastAddedImage=activeProduct.image_url||'';refreshCart();closeDetail();menuxOpenAddChoice();});
+
+// MENUX: oferecer dois caminhos após incluir no carrinho, sem finalizar o pedido.
+let menuxLastAddedImage='';
+const menuxAddChoice=$('menux-add-choice');
+let menuxChoicePreviousFocus=null;
+function menuxOpenAddChoice(){
+ menuxChoicePreviousFocus=document.activeElement;
+ menuxAddChoice.hidden=false;
+ $('menux-keep-shopping').focus();
+}
+function menuxCloseAddChoice(){
+ menuxAddChoice.hidden=true;
+ if(menuxChoicePreviousFocus?.isConnected)menuxChoicePreviousFocus.focus();
+}
+$('menux-go-cart').addEventListener('click',()=>{
+ menuxCloseAddChoice();refreshCart();$('cart-modal').hidden=false;$('cart-close').focus();
+});
+$('menux-keep-shopping').addEventListener('click',()=>{
+ const source=$('menux-keep-shopping').getBoundingClientRect();
+ menuxCloseAddChoice();
+ const destination=$('open-cart').getBoundingClientRect();
+ const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ if(!reduced&&typeof Element.prototype.animate==='function'){
+   const fly=document.createElement('div');fly.className='menux-fly-item';
+   if(menuxLastAddedImage&&/^https:\/\//i.test(menuxLastAddedImage)){
+     const img=document.createElement('img');img.src=menuxLastAddedImage;img.alt='';fly.appendChild(img);
+   }else fly.textContent='🛍️';
+   const size=64;
+   const x=source.left+source.width/2-size/2;
+   const y=source.top+source.height/2-size/2;
+   fly.style.cssText+=';left:'+x+'px;top:'+y+'px;width:'+size+'px;height:'+size+'px';
+   document.body.appendChild(fly);
+   const dx=destination.left+destination.width/2-(x+size/2),dy=destination.top+destination.height/2-(y+size/2);
+   const animation=fly.animate([
+     {transform:'translate(0,0) scale(1)',opacity:1,offset:0},
+     {transform:'translate('+dx*.35+'px,'+(dy*.35-65)+'px) scale(.82)',opacity:1,offset:.5},
+     {transform:'translate('+dx+'px,'+dy+'px) scale(.25)',opacity:.15,offset:1}
+   ],{duration:700,easing:'cubic-bezier(.25,.8,.25,1)'});
+   animation.finished.catch(()=>{}).finally(()=>fly.remove());
+ }
+ const menu=$('products');if(menu){menu.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'});}
+});
+menuxAddChoice.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){e.preventDefault();$('menux-keep-shopping').click();return;}
+ if(e.key==='Tab'){
+   const first=$('menux-go-cart'),last=$('menux-keep-shopping');
+   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+ }
+});
+
 $('close-detail').addEventListener('click',closeDetail);
 detail.addEventListener('click',e=>{if(e.target===detail)closeDetail();});
 document.addEventListener('keydown',e=>{if(detail.hidden)return;if(e.key==='Escape')closeDetail();if(e.key==='Tab'){const focusable=[...detail.querySelectorAll('button:not([disabled]),input:not([disabled])')];if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
