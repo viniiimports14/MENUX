@@ -442,4 +442,42 @@ document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='visible')refreshMenuxOrders();
 });
 })();
-</script></body></html>
+</script>
+<style id="menux-legibilidade-ampliada">
+/* MENUX — legibilidade ampliada do painel. Apenas visual; não altera pedidos. */
+body{font-size:17px;line-height:1.55}
+.nav button{font-size:15px;line-height:1.45;min-height:48px;font-weight:600}
+.label{font-size:11px}.sidefoot{font-size:12px}
+.top h1{font-size:31px}.eyebrow{font-size:13px}.user{font-size:15px}
+h2{font-size:21px}.small,.statlabel,.formgroup label{font-size:15px}
+.muted{line-height:1.5}.statvalue{font-size:28px}
+.btn,.field,.formgroup input,.formgroup select{font-size:16px;line-height:1.4;min-height:44px}
+.table{font-size:15px}.table th{font-size:13px}.table td{line-height:1.5}
+#menuxMainOrders{font-size:17px;line-height:1.5}
+#menuxMainOrders .menux-orders-header{font-size:19px}
+#menuxMainOrders .menux-orders-grid{gap:16px}
+#menuxMainOrders .menux-order-card{padding:20px;min-width:0;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:3px}
+#menuxMainOrders .menux-order-id{font-size:24px;line-height:1.25}
+#menuxMainOrders .menux-order-customer{font-size:19px;font-weight:650}
+#menuxMainOrders .menux-order-meta{font-size:16px;line-height:1.5;color:#d1cdd5}
+#menuxMainOrders .menux-order-summary{font-size:23px;line-height:1.35}
+#menuxMainOrders .menux-order-status{font-size:15px;padding:7px 11px}
+#menuxMainOrders .menux-preview{font-size:18px;line-height:1.55;gap:12px}
+#menuxMainOrders .menux-preview-product{font-size:18px;line-height:1.5}
+#menuxMainOrders .menux-preview-options{font-size:16px;line-height:1.55;color:#ded8e3;margin-left:8px}
+#menuxMainOrders .menux-order-actions{margin-top:auto;padding-top:18px;gap:9px}
+#menuxMainOrders .menux-order-actions button{font-size:16px;min-height:48px;white-space:normal}
+#menuxMainOrders .menux-view-details{font-size:16px;min-height:48px}
+#menuxOrderDialog{max-width:min(880px,calc(100vw - 28px));font-size:19px}
+#menuxOrderDialog .menux-detail-head h2{font-size:31px}
+#menuxOrderDialog .menux-detail-section h3{font-size:22px}
+#menuxOrderDialog .menux-detail-text{font-size:19px;line-height:1.7}
+#menuxOrderDialog .menux-detail-option{font-size:18px;line-height:1.6;color:#eee9f2}
+#menuxOrderDialog .menux-detail-product{font-size:20px;line-height:1.55}
+#menuxOrderDialog .menux-detail-total{font-size:29px}
+#menuxOrderDialog a.menux-map-link{font-size:18px;min-height:48px}
+@media(max-width:1300px){#menuxMainOrders .menux-orders-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){#menuxMainOrders .menux-orders-grid{grid-template-columns:1fr}.top h1{font-size:26px}}
+@media(max-width:580px){body{font-size:16px}#menuxMainOrders .menux-order-card{padding:17px}#menuxMainOrders .menux-order-id{font-size:22px}#menuxOrderDialog .menux-detail-text{font-size:17px}}
+</style>
+</body></html>
