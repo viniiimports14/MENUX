@@ -268,6 +268,35 @@ $('catalogForm').addEventListener('submit',async e=>{
 });
 </script><style>#menux-incoming{position:fixed;right:16px;bottom:16px;z-index:1200;background:#17151d;color:white;border:1px solid #a88d4b;border-radius:15px;width:min(320px,calc(100vw - 32px));max-height:180px;overflow:auto;box-shadow:0 12px 38px #0007;padding:16px}#menux-incoming button{margin:3px;padding:7px 9px;border:1px solid #bca66c;border-radius:7px;cursor:pointer}#menux-incoming .incoming-entry{border-top:1px solid #7777;padding:10px 0}#menux-incoming[hidden]{display:none}</style>
 <div id="menux-incoming" hidden><div style="display:flex;align-items:center;justify-content:space-between"><b>🔔 Novos pedidos</b><button id="menux-incoming-close" type="button">✕</button></div><p id="menux-incoming-message" style="font-size:12px;opacity:.8">Carregando...</p><div id="menux-incoming-list"></div></div><button id="menux-incoming-open" type="button" style="position:fixed;bottom:16px;right:16px;z-index:1199;background:#19171d;color:#f4d68e;border:1px solid #a88d4b;border-radius:30px;padding:13px 16px;cursor:pointer;font-weight:800">🔔 Pedidos online</button>
+
+<style>
+#menuxMainOrders .menux-orders-header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px;font-size:17px}
+#menuxMainOrders .menux-order-card{padding:22px;margin:16px 0;background:#202126;border:1px solid #484650;border-radius:16px}
+#menuxMainOrders .menux-order-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+#menuxMainOrders .menux-order-id{font-size:20px;font-weight:800;color:#f5f3f6}
+#menuxMainOrders .menux-order-customer{font-size:18px;margin-top:5px}
+#menuxMainOrders .menux-order-meta{color:#c1bdc7;margin-top:8px;font-size:14px}
+#menuxMainOrders .menux-order-summary{display:flex;flex-direction:column;gap:7px;align-items:flex-end;font-size:21px}
+#menuxMainOrders .menux-order-status{color:#f2d58d;background:#3a3425;border-radius:50px;padding:6px 12px;font-size:14px;font-weight:700}
+#menuxMainOrders .menux-order-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+#menuxMainOrders .menux-order-actions button{min-height:43px;font-size:14px}
+#menuxMainOrders .menux-view-details{border-color:#bca05b;color:#f0d390;font-weight:800}
+#menuxOrderDialog{border:1px solid #b49b64;border-radius:20px;max-width:min(760px,calc(100vw - 28px));width:100%;max-height:90vh;overflow:auto;background:#18181c;color:#f8f6f3;padding:0;box-shadow:0 20px 85px #0009}
+#menuxOrderDialog::backdrop{background:#000b}
+#menuxOrderDialog .menux-detail-wrap{padding:clamp(18px,4vw,36px)}
+#menuxOrderDialog .menux-detail-head{display:flex;align-items:start;justify-content:space-between;gap:12px}
+#menuxOrderDialog .menux-detail-head h2{margin:0;font-size:26px;color:#fff}
+#menuxOrderDialog .menux-detail-close{font-size:24px;border-radius:10px;border:1px solid #777;color:white;background:#323238;width:42px;height:42px;cursor:pointer}
+#menuxOrderDialog .menux-detail-section{border-top:1px solid #54515b;margin-top:22px;padding-top:20px}
+#menuxOrderDialog .menux-detail-section h3{font-size:18px;margin:0 0 10px;color:#efd28f}
+#menuxOrderDialog .menux-detail-text{font-size:17px;line-height:1.6;overflow-wrap:anywhere}
+#menuxOrderDialog .menux-detail-product{padding:14px 0;border-bottom:1px solid #38383f}
+#menuxOrderDialog .menux-detail-option{margin:6px 0 0 15px;color:#e4dfe8;font-size:16px}
+#menuxOrderDialog .menux-detail-total{font-size:24px;font-weight:800;margin-top:22px;text-align:right}
+#menuxOrderDialog a.menux-map-link{display:inline-flex;align-items:center;gap:8px;margin-top:12px;text-decoration:none;border:1px solid #bfa567;border-radius:9px;padding:12px 16px;color:#f8db96;font-weight:800;font-size:16px}
+@media(max-width:580px){#menuxMainOrders .menux-order-summary{align-items:flex-start}#menuxMainOrders .menux-order-card{padding:16px}#menuxMainOrders .menux-order-actions button{flex:1 1 100%}}
+</style>
+<dialog id="menuxOrderDialog" aria-labelledby="menuxOrderDialogTitle"><div class="menux-detail-wrap"><div class="menux-detail-head"><h2 id="menuxOrderDialogTitle">Detalhes do pedido</h2><button class="menux-detail-close" type="button" data-close-menux-details aria-label="Fechar detalhes">×</button></div><div id="menuxOrderDialogContent"></div></div></dialog>
 <script>
 (function(){const box=document.getElementById('menux-incoming'),list=document.getElementById('menux-incoming-list'),message=document.getElementById('menux-incoming-message');document.getElementById('menux-incoming-open').onclick=()=>{box.hidden=false;loadIncoming()};document.getElementById('menux-incoming-close').onclick=()=>box.hidden=true;const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const moneyIncoming=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);const statusNames={pending:'Recebido',accepted:'Aceito',preparing:'Preparando',ready:'Pronto',out_for_delivery:'Saiu para entrega',completed:'Concluído',cancelled:'Cancelado'};let onlineOrders=[];
 let menuxAudioCtx=null;
@@ -277,7 +306,16 @@ async function loadIncoming(){if(typeof sb==='undefined'||!sb||typeof restaurant
 const main=document.getElementById('menuxMainOrders');
 if(main){
 const ordered=onlineOrders.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-main.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px"><b>Pedidos recebidos pelo cardápio ('+ordered.length+')</b><button type="button" class="btn" id="menuxMainRefresh">Atualizar pedidos</button></div>'+(ordered.map(o=>'<div class="order" style="display:flex;gap:16px;justify-content:space-between;flex-wrap:wrap;border-top:1px solid #5555;padding:16px 0"><div style="flex:1;min-width:220px"><b>#'+escapeHtml(o.id.slice(0,8).toUpperCase())+' · '+escapeHtml(o.customer_name)+'</b><div class="muted small">'+escapeHtml(o.customer_phone)+' · '+(o.fulfillment==='delivery'?'Entrega':'Retirada')+' · '+new Date(o.created_at).toLocaleString('pt-BR')+'</div>'+(o.delivery_address?'<div class="muted small">Endereço: '+escapeHtml(o.delivery_address)+'</div>':'')+items.filter(i=>i.order_id===o.id).map(i=>'<div style="margin-top:7px">'+Number(i.quantity)+'× '+escapeHtml(i.product_name)+' · '+moneyIncoming(Number(i.unit_price)*Number(i.quantity))+(Array.isArray(i.options)&&i.options.length?'<div class="muted small">'+i.options.map(x=>escapeHtml(x.name)+(Number(x.price)?' (+'+moneyIncoming(x.price)+')':'')).join(', ')+'</div>':'')+'</div>').join('')+(o.notes?'<div class="muted small">Observações: '+escapeHtml(o.notes)+'</div>':'')+'</div><div style="min-width:170px"><b>'+moneyIncoming(o.total)+'</b><div style="margin:8px 0">'+escapeHtml(statusNames[o.status]||o.status)+'</div>'+(['pending','accepted','preparing','ready','out_for_delivery'].includes(o.status)?'<button type="button" class="btn primary" data-incoming="'+o.id+'" data-newstatus="'+({pending:'accepted',accepted:'preparing',preparing:'ready',ready:o.fulfillment==='delivery'?'out_for_delivery':'completed',out_for_delivery:'completed'}[o.status])+'">'+escapeHtml(({pending:'Aceitar',accepted:'Iniciar preparo',preparing:'Marcar pronto',ready:o.fulfillment==='delivery'?'Saiu para entrega':'Concluir',out_for_delivery:'Concluir'}[o.status]))+'</button> <button type="button" class="btn" data-incoming="'+o.id+'" data-newstatus="cancelled">Cancelar</button>':'')+'</div></div>').join('')||'<div class="empty">Nenhum pedido online encontrado.</div>');
+main.innerHTML='<div class="menux-orders-header"><b>Pedidos recebidos pelo cardápio ('+ordered.length+')</b><button type="button" class="btn" id="menuxMainRefresh">Atualizar pedidos</button></div>'+
+(ordered.map(o=>{
+ const orderItems=items.filter(i=>i.order_id===o.id);
+ const itemCount=orderItems.reduce((total,i)=>total+(Number(i.quantity)||0),0);
+ const action=({pending:['accepted','Aceitar pedido'],accepted:['preparing','Iniciar preparo'],preparing:['ready','Marcar pronto'],ready:[o.fulfillment==='delivery'?'out_for_delivery':'completed',o.fulfillment==='delivery'?'Saiu para entrega':'Concluir'],out_for_delivery:['completed','Concluir']})[o.status];
+ return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-order-id">Pedido #'+escapeHtml(o.id.slice(0,8).toUpperCase())+'</div><div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">'+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+(o.fulfillment==='delivery'?'Entrega':'Retirada')+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div><div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button>'+
+(action?'<button type="button" class="btn primary" data-incoming="'+o.id+'" data-newstatus="'+action[0]+'">'+action[1]+'</button> <button type="button" class="btn" data-incoming="'+o.id+'" data-newstatus="cancelled">Cancelar</button>':'')+'</div></article>';
+ }).join('')||'<div class="empty">Nenhum pedido online encontrado.</div>');
+// Guardar os itens do último carregamento para o modal de detalhes.
+window.__menuxOrderDetailItems=items;
 main.querySelector('#menuxMainRefresh').onclick=loadIncoming;
 }
 const pendingOrders=onlineOrders.filter(o=>o.status==='pending');
@@ -294,6 +332,35 @@ if(pendingOrders.length&&!window.__menuxAlertKnown)box.hidden=false;
 if(!pendingOrders.length)box.hidden=true;
 window.__menuxAlertKnown=idsNow;
 }
+
+// Detalhes grandes e legíveis; endereço enviado somente ao Google Maps após clique explícito.
+document.addEventListener('click',event=>{
+ const close=event.target.closest('[data-close-menux-details]');
+ const dialog=document.getElementById('menuxOrderDialog');
+ if(close){dialog?.close();return}
+ const open=event.target.closest('[data-view-order]');
+ if(!open)return;
+ const order=onlineOrders.find(o=>o.id===open.dataset.viewOrder);
+ if(!order||!dialog)return;
+ const orderItems=(window.__menuxOrderDetailItems||[]).filter(i=>i.order_id===order.id);
+ const isDelivery=order.fulfillment==='delivery';
+ const address=String(order.delivery_address||'').trim();
+ const mapUrl='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(address);
+ const productHtml=orderItems.map(i=>{
+   const opts=Array.isArray(i.options)?i.options:[];
+   return '<div class="menux-detail-product"><div class="menux-detail-text"><strong>'+Number(i.quantity)+'× '+escapeHtml(i.product_name)+'</strong> · '+moneyIncoming(Number(i.unit_price)*Number(i.quantity))+'</div>'+
+      (opts.length?'<div style="margin-top:9px;font-weight:700;color:#efd28f">Opções e adicionais:</div>'+opts.map(x=>'<div class="menux-detail-option">• '+escapeHtml(x.name)+(Number(x.price)?' (+'+moneyIncoming(x.price)+')':'')+'</div>').join(''):'')+'</div>';
+ }).join('');
+ document.getElementById('menuxOrderDialogContent').innerHTML=
+  '<div class="menux-detail-section"><div class="menux-detail-text"><strong>Pedido #'+escapeHtml(order.id.slice(0,8).toUpperCase())+'</strong><div>Status: '+escapeHtml(statusNames[order.status]||order.status)+'</div><div>Data: '+escapeHtml(new Date(order.created_at).toLocaleString('pt-BR'))+'</div></div></div>'+
+  '<section class="menux-detail-section"><h3>Cliente</h3><div class="menux-detail-text">'+escapeHtml(order.customer_name)+'<div>Telefone: '+escapeHtml(order.customer_phone)+'</div><div>Modalidade: '+(isDelivery?'Entrega':'Retirada')+'</div></div></section>'+
+  (isDelivery?'<section class="menux-detail-section"><h3>Endereço de entrega</h3><div class="menux-detail-text">'+escapeHtml(address||'Endereço não informado')+'</div>'+(address?'<a class="menux-map-link" href="'+escapeHtml(mapUrl)+'" target="_blank" rel="noopener noreferrer">📍 Abrir no Google Maps ↗</a>':'')+'</section>':'')+
+  '<section class="menux-detail-section"><h3>Produtos e complementos</h3>'+(productHtml||'<p>Nenhum item encontrado.</p>')+'</section>'+
+  '<section class="menux-detail-section"><h3>Observações</h3><div class="menux-detail-text">'+escapeHtml(order.notes||'Nenhuma observação')+'</div></section>'+
+  '<div class="menux-detail-total">Total: '+moneyIncoming(order.total)+'</div>';
+ dialog.showModal();
+});
+document.getElementById('menuxOrderDialog')?.addEventListener('click',event=>{if(event.target.id==='menuxOrderDialog')event.target.close()});
 
 // Central de pedidos: iniciar após a identificação do restaurante e manter atualizada.
 let menuxBusy=false;
