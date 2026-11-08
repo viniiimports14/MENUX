@@ -420,7 +420,18 @@ $('catalogForm').addEventListener('submit',async e=>{
  }catch(err){notice('Erro ao salvar: '+err.message,true)}finally{btn.disabled=false}
 });
 </script><style>#menux-incoming{position:fixed;right:16px;bottom:16px;z-index:1200;background:#17151d;color:white;border:1px solid #a88d4b;border-radius:15px;width:min(320px,calc(100vw - 32px));max-height:180px;overflow:auto;box-shadow:0 12px 38px #0007;padding:16px}#menux-incoming button{margin:3px;padding:7px 9px;border:1px solid #bca66c;border-radius:7px;cursor:pointer}#menux-incoming .incoming-entry{border-top:1px solid #7777;padding:10px 0}#menux-incoming[hidden]{display:none}</style>
-<div id="menux-incoming" hidden><div style="display:flex;align-items:center;justify-content:space-between"><b>🔔 Novos pedidos</b><button id="menux-incoming-close" type="button">✕</button></div><p id="menux-incoming-message" style="font-size:12px;opacity:.8">Carregando...</p><div id="menux-incoming-list"></div></div><button id="menux-incoming-open" type="button" style="position:fixed;bottom:16px;right:16px;z-index:1199;background:#19171d;color:#f4d68e;border:1px solid #a88d4b;border-radius:30px;padding:13px 16px;cursor:pointer;font-weight:800">🔔 Pedidos online</button>
+<div id="menux-incoming" hidden><div style="display:flex;align-items:center;justify-content:space-between"><b>🔔 Pedidos aguardando aceite</b><button id="menux-incoming-close" type="button" aria-label="Fechar alerta">✕</button></div><p id="menux-incoming-message" style="font-size:13px;opacity:.9">Carregando...</p><div id="menux-incoming-list"></div></div>
+<div id="menux-alert-controls" role="group" aria-label="Alertas dos pedidos"><button id="menux-sound-toggle" type="button" aria-pressed="false" title="Ativar ou silenciar o alerta de novos pedidos">🔇 Ativar som</button><button id="menux-incoming-open" type="button" hidden>🔔 Novos pedidos <span id="menux-alert-count"></span></button></div>
+<style id="menux-alert-styles">
+#menux-alert-controls{position:fixed;right:16px;bottom:16px;z-index:1199;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100vw - 32px)}
+#menux-alert-controls button{border:1px solid #a88d4b;border-radius:24px;background:#19171d;color:#f4d68e;padding:11px 14px;cursor:pointer;font-size:13px;font-weight:750;box-shadow:0 5px 22px #0005}
+#menux-alert-controls #menux-incoming-open{background:#594018;color:#fff2cd}
+#menux-alert-controls #menux-incoming-open[hidden]{display:none!important}
+#menux-incoming{bottom:76px!important;max-height:180px;overflow:auto}
+#menux-alert-count{display:inline-block;min-width:20px;font-weight:800}
+@media(max-width:460px){#menux-alert-controls{left:8px;right:8px;bottom:10px}#menux-alert-controls button{font-size:12px;padding:10px 12px}#menux-incoming{bottom:70px!important}}
+</style>
+
 
 <style>
 #menuxMainOrders .menux-orders-header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px;font-size:17px}
@@ -499,8 +510,55 @@ $('catalogForm').addEventListener('submit',async e=>{
 <script>
 (function(){const box=document.getElementById('menux-incoming'),list=document.getElementById('menux-incoming-list'),message=document.getElementById('menux-incoming-message');document.getElementById('menux-incoming-open').onclick=()=>{box.hidden=false;loadIncoming()};document.getElementById('menux-incoming-close').onclick=()=>box.hidden=true;const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const menuxOrderNumber=o=>o&&o.daily_number!=null?'#'+String(o.daily_number).padStart(3,'0'):'#'+String(o?.id||'').slice(0,8).toUpperCase();const moneyIncoming=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);const statusNames={pending:'Recebido',accepted:'Aceito',preparing:'Preparando',ready:'Pronto',out_for_delivery:'Saiu para entrega',completed:'Concluído',cancelled:'Cancelado'};let onlineOrders=[];
 let menuxAudioCtx=null;
-function playMenuxAlert(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;menuxAudioCtx=menuxAudioCtx||new C();if(menuxAudioCtx.state!=='running')return;for(const [i,f] of [660,880].entries()){const osc=menuxAudioCtx.createOscillator(),gain=menuxAudioCtx.createGain(),t=menuxAudioCtx.currentTime+i*.19;osc.type='sine';osc.frequency.value=f;gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(.13,t+.02);gain.gain.exponentialRampToValueAtTime(.0001,t+.16);osc.connect(gain);gain.connect(menuxAudioCtx.destination);osc.start(t);osc.stop(t+.18)}}catch(e){console.warn('Som indisponível',e)}}
-document.addEventListener('pointerdown',()=>{try{const C=window.AudioContext||window.webkitAudioContext;if(C){menuxAudioCtx=menuxAudioCtx||new C();menuxAudioCtx.resume()}}catch(e){}},{once:true});
+const menuxSoundButton=document.getElementById('menux-sound-toggle');
+const menuxAlertCount=document.getElementById('menux-alert-count');
+const menuxDefaultTitle=document.title;
+let menuxSoundEnabled=false;
+let menuxKnownPending=null;
+let menuxAlertRestaurant=null;
+function menuxSoundKey(){return 'menux_alert_sound_'+String(restaurant?.id||'unknown')}
+function menuxUpdateSoundButton(){
+ menuxSoundButton.textContent=menuxSoundEnabled?'🔊 Som ligado':'🔇 Ativar som';
+ menuxSoundButton.setAttribute('aria-pressed',String(menuxSoundEnabled));
+ menuxSoundButton.title=menuxSoundEnabled?'Clique para silenciar':'Clique para habilitar avisos sonoros';
+}
+function playMenuxAlert(){
+ if(!menuxSoundEnabled)return;
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;
+  if(!C)return;
+  menuxAudioCtx=menuxAudioCtx||new C();
+  if(menuxAudioCtx.state!=='running')return;
+  for(const [i,f] of [784,988,1175].entries()){
+   const osc=menuxAudioCtx.createOscillator(),gain=menuxAudioCtx.createGain();
+   const t=menuxAudioCtx.currentTime+i*.17;
+   osc.type='sine';osc.frequency.value=f;
+   gain.gain.setValueAtTime(.0001,t);
+   gain.gain.exponentialRampToValueAtTime(.16,t+.02);
+   gain.gain.exponentialRampToValueAtTime(.0001,t+.14);
+   osc.connect(gain);gain.connect(menuxAudioCtx.destination);
+   osc.start(t);osc.stop(t+.15);
+  }
+ }catch(e){console.warn('MENUX: áudio indisponível:',e)}
+}
+menuxSoundButton.addEventListener('click',async()=>{
+ if(menuxSoundEnabled){menuxSoundEnabled=false;localStorage.setItem(menuxSoundKey(),'off');menuxUpdateSoundButton();return}
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;
+  if(!C)throw new Error('Este navegador não suporta alertas sonoros.');
+  menuxAudioCtx=menuxAudioCtx||new C();
+  await menuxAudioCtx.resume();
+  if(menuxAudioCtx.state!=='running')throw new Error('O navegador não liberou o áudio.');
+  menuxSoundEnabled=true;localStorage.setItem(menuxSoundKey(),'on');
+  menuxUpdateSoundButton();playMenuxAlert();
+ }catch(e){menuxSoundEnabled=false;menuxUpdateSoundButton();alert('Não foi possível ativar o som: '+e.message)}
+});
+// Uma interação do lojista pode liberar áudio previamente autorizado após recarregar a página.
+document.addEventListener('pointerdown',()=>{
+ if(!menuxSoundEnabled)return;
+ try{const C=window.AudioContext||window.webkitAudioContext;if(C){menuxAudioCtx=menuxAudioCtx||new C();menuxAudioCtx.resume().catch(()=>{})}}catch(e){}
+});
+menuxUpdateSoundButton();
 // Somente na Central de Pedidos: começa um novo dia às 00:00 no horário de Brasília.
 function menuxToday(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=t=>parts.find(p=>p.type===t)?.value;return `${get('year')}-${get('month')}-${get('day')}`;}
 async function loadIncoming(){if(typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant){message.textContent='Aguarde o carregamento da loja e tente novamente.';return;}const day=menuxToday();const {data,error}=await sb.from('menux_checkout_orders').select('*').eq('restaurant_id',restaurant.id).eq('order_day',day).order('created_at',{ascending:false}).limit(100);if(error){message.textContent='Não foi possível consultar pedidos online: '+error.message;return;}onlineOrders=data||[];const ids=onlineOrders.map(o=>o.id);let items=[];if(ids.length){const r=await sb.from('menux_checkout_order_items').select('*').eq('restaurant_id',restaurant.id).in('order_id',ids);if(r.error){message.textContent='Erro ao carregar itens: '+r.error.message;return;}items=r.data||[];}message.textContent=onlineOrders.length+' pedido(s) online · Atualizar para consultar novos pedidos';
@@ -528,17 +586,28 @@ main.querySelector('#menuxMainRefresh').onclick=loadIncoming;
 }
 const pendingOrders=onlineOrders.filter(o=>o.status==='pending');
 const alertButton=document.getElementById('menux-incoming-open');
-alertButton.textContent='🔔 '+(pendingOrders.length?'Novo(s) pedido(s): '+pendingOrders.length:'Pedidos online');
-alertButton.style.display=pendingOrders.length?'block':'none';
+alertButton.hidden=!pendingOrders.length;
+alertButton.textContent='🔔 '+(pendingOrders.length===1?'1 pedido novo':pendingOrders.length+' pedidos novos');
+menuxAlertCount.textContent='';
+document.title=pendingOrders.length?'('+pendingOrders.length+') '+menuxDefaultTitle:menuxDefaultTitle;
 message.textContent=pendingOrders.length?'Você tem '+pendingOrders.length+' pedido(s) aguardando aceite. Acesse a aba Pedidos.':'Nenhum pedido novo aguardando aceite.';
 list.innerHTML=pendingOrders.length?'<button type="button" id="menux-go-orders" style="background:#bfa366;color:#17151d;font-weight:700">Abrir Central de Pedidos</button>':'';
 const go=document.getElementById('menux-go-orders');if(go)go.onclick=()=>{box.hidden=true;document.querySelector('[data-go="orders"]')?.click();loadIncoming()};
-// Som apenas para pedidos que surgiram após a primeira consulta; exige interação prévia com a página.
+// Mostra pendentes já existentes, mas só toca para pedidos que chegam depois do primeiro carregamento.
+// Mantém o alerta enquanto houver pedidos ainda não aceitos.
+if(menuxAlertRestaurant!==restaurant.id){
+ menuxAlertRestaurant=restaurant.id;
+ menuxKnownPending=null;
+ menuxSoundEnabled=localStorage.getItem(menuxSoundKey())==='on';
+ menuxUpdateSoundButton();
+}
 const idsNow=new Set(pendingOrders.map(o=>o.id));
-if(window.__menuxAlertKnown){const newIds=[...idsNow].filter(id=>!window.__menuxAlertKnown.has(id));if(newIds.length){box.hidden=false;playMenuxAlert()}}
-if(pendingOrders.length&&!window.__menuxAlertKnown)box.hidden=false;
+if(menuxKnownPending!==null){
+ const newIds=[...idsNow].filter(id=>!menuxKnownPending.has(id));
+ if(newIds.length){box.hidden=false;playMenuxAlert()}
+}else if(pendingOrders.length){box.hidden=false}
 if(!pendingOrders.length)box.hidden=true;
-window.__menuxAlertKnown=idsNow;
+menuxKnownPending=idsNow;
 }
 
 // Detalhes grandes e legíveis; endereço enviado somente ao Google Maps após clique explícito.
