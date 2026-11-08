@@ -359,7 +359,12 @@ document.addEventListener('click',event=>{
   '<div class="menux-detail-section"><div class="menux-detail-text"><strong>Pedido '+escapeHtml(menuxOrderNumber(order))+'</strong><div>Status: '+escapeHtml(statusNames[order.status]||order.status)+'</div><div>Data: '+escapeHtml(new Date(order.created_at).toLocaleString('pt-BR'))+'</div></div></div>'+
   '<section class="menux-detail-section"><h3>Cliente</h3><div class="menux-detail-text">'+escapeHtml(order.customer_name)+'<div>Telefone: '+escapeHtml(order.customer_phone)+'</div><div>Modalidade: '+(isDelivery?'Entrega':'Retirada')+'</div></div></section>'+
   (isDelivery?'<section class="menux-detail-section"><h3>Endereço de entrega</h3><div class="menux-detail-text">'+escapeHtml(address||'Endereço não informado')+'</div>'+(address?'<a class="menux-map-link" href="'+escapeHtml(mapUrl)+'" target="_blank" rel="noopener noreferrer">📍 Abrir no Google Maps ↗</a>':'')+'</section>':'')+
-  '<section class="menux-detail-section"><h3>Produtos e complementos</h3>'+(productHtml||'<p>Nenhum item encontrado.</p>')+'</section>'+
+  '<section class="menux-detail-section"><h3>Pagamento e entrega</h3><div class="menux-detail-text">'+
+ '<div>Forma de pagamento: '+escapeHtml(({pix:'Pix',cash:'Dinheiro',credit_card:'Cartão de crédito',debit_card:'Cartão de débito'})[order.payment_method]||'Não informado')+'</div>'+
+ (order.change_for!=null?'<div>Troco para: '+moneyIncoming(order.change_for)+'</div>':'')+
+ (isDelivery?'<div>Região: '+escapeHtml(order.delivery_area_name||'Não informada')+'</div><div>Taxa de entrega: '+moneyIncoming(order.delivery_fee||0)+'</div>':'<div>Retirada: sem taxa de entrega</div>')+
+ '<div>Produtos: '+moneyIncoming(order.subtotal)+'</div></div></section>'+ 
+ '<section class="menux-detail-section"><h3>Produtos e complementos</h3>'+(productHtml||'<p>Nenhum item encontrado.</p>')+'</section>'+
   '<section class="menux-detail-section"><h3>Observações</h3><div class="menux-detail-text">'+escapeHtml(order.notes||'Nenhuma observação')+'</div></section>'+
   '<div class="menux-detail-total">Total: '+moneyIncoming(order.total)+'</div>';
  dialog.showModal();
