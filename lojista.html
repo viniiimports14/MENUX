@@ -333,9 +333,10 @@ main.innerHTML='<div class="menux-orders-header"><b>Pedidos recebidos pelo card�
 '<div class="menux-orders-grid">'+(ordered.map(o=>{
  const orderItems=items.filter(i=>i.order_id===o.id);
  const itemCount=orderItems.reduce((total,i)=>total+(Number(i.quantity)||0),0);
- const preview=orderItems.map(i=>{const opts=Array.isArray(i.options)?i.options:[];return '<div class="menux-preview-product">'+escapeHtml(i.quantity)+'× '+escapeHtml(i.product_name)+(opts.length?'<div class="menux-preview-options">'+escapeHtml(opts.map(x=>x.name).join(', '))+'</div>':'')+'</div>'}).join('');
+ const preview=orderItems.map(i=>{const opts=Array.isArray(i.options)?i.options:[];return '<div class="menux-preview-product"><div class="menux-item-primary">'+escapeHtml(i.quantity)+'× '+escapeHtml(i.product_name)+'</div>'+(opts.length?'<div class="menux-preview-options"><span class="menux-options-caption">Complementos e adicionais</span>'+opts.map(x=>'<div class="menux-option-line">+ '+escapeHtml(x.name)+(Number(x.price)>0?' · '+moneyIncoming(x.price):'')+'</div>').join('')+'</div>':'')+'</div>'}).join('');
  const action=({pending:['accepted','Aceitar pedido'],accepted:['preparing','Iniciar preparo'],preparing:['ready','Marcar pronto'],ready:[o.fulfillment==='delivery'?'out_for_delivery':'completed',o.fulfillment==='delivery'?'Saiu para entrega':'Concluir'],out_for_delivery:['completed','Concluir']})[o.status];
- return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-order-id">Pedido '+escapeHtml(menuxOrderNumber(o))+'</div><div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">'+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+(o.fulfillment==='delivery'?'Entrega':'Retirada')+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div><div class="menux-preview">'+preview+'</div><div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button>'+
+ const fulfillmentLabel=o.fulfillment==='delivery'?'🚚 ENTREGA':o.fulfillment==='pickup'?'🏪 RETIRADA':o.fulfillment==='table'||o.fulfillment==='dine_in'?'🍽️ MESA'+(o.table_number?' '+escapeHtml(o.table_number):''):'📋 '+escapeHtml(o.fulfillment||'Atendimento');
+ return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div><div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div><div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div><div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button>'+
 (action?'<button type="button" class="btn primary" data-incoming="'+o.id+'" data-newstatus="'+action[0]+'">'+action[1]+'</button> <button type="button" class="btn" data-incoming="'+o.id+'" data-newstatus="cancelled">Cancelar</button>':'')+'</div></article>';
  }).join('')||'<div class="empty">Nenhum pedido online encontrado.</div>')+'</div>';
 // Guardar os itens do último carregamento para o modal de detalhes.
@@ -479,5 +480,30 @@ h2{font-size:21px}.small,.statlabel,.formgroup label{font-size:15px}
 @media(max-width:1300px){#menuxMainOrders .menux-orders-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){#menuxMainOrders .menux-orders-grid{grid-template-columns:1fr}.top h1{font-size:26px}}
 @media(max-width:580px){body{font-size:16px}#menuxMainOrders .menux-order-card{padding:17px}#menuxMainOrders .menux-order-id{font-size:22px}#menuxOrderDialog .menux-detail-text{font-size:17px}}
+</style>
+
+<style id="menux-hierarquia-pedidos">
+/* Prioridade operacional: modalidade > cliente > itens e complementos. */
+#menuxMainOrders .menux-orders-grid .menux-order-card{padding:19px;gap:0}
+#menuxMainOrders .menux-orders-grid .menux-order-top{display:flex;align-items:flex-start;gap:9px}
+#menuxMainOrders .menux-orders-grid .menux-fulfillment{display:inline-block;color:#171310;background:#edd18a;border:1px solid #dfb963;border-radius:9px;font-size:17px;font-weight:850;letter-spacing:.03em;line-height:1.3;padding:7px 10px;margin-bottom:10px}
+#menuxMainOrders .menux-orders-grid .menux-order-customer{font-size:23px;line-height:1.28;font-weight:800;color:#fff;overflow-wrap:anywhere;margin-bottom:6px}
+#menuxMainOrders .menux-orders-grid .menux-order-meta{font-size:12px;line-height:1.4;color:#a9a7b0;margin-top:0}
+#menuxMainOrders .menux-orders-grid .menux-order-summary{font-size:17px;gap:8px;max-width:40%;font-weight:700}
+#menuxMainOrders .menux-orders-grid .menux-order-status{font-size:12px;padding:5px 8px}
+#menuxMainOrders .menux-orders-grid .menux-preview{border-top:1px solid #4e4a55;margin-top:17px;padding-top:15px;display:grid;gap:14px}
+#menuxMainOrders .menux-orders-grid .menux-products-title{font-size:12px;font-weight:800;letter-spacing:.13em;color:#e6c777;margin-bottom:-5px}
+#menuxMainOrders .menux-orders-grid .menux-preview-product{padding:0 0 12px;border-bottom:1px solid #39363d;font-weight:400;line-height:1.4}
+#menuxMainOrders .menux-orders-grid .menux-preview-product:last-child{border-bottom:0;padding-bottom:0}
+#menuxMainOrders .menux-orders-grid .menux-item-primary{font-size:21px;line-height:1.35;color:#fff;font-weight:850;overflow-wrap:anywhere}
+#menuxMainOrders .menux-orders-grid .menux-preview-options{margin:9px 0 0 0;font-size:17px;color:#f3eaf7;line-height:1.45}
+#menuxMainOrders .menux-orders-grid .menux-options-caption{display:block;font-size:12px;letter-spacing:.025em;font-weight:800;color:#d8b96e;margin-bottom:5px}
+#menuxMainOrders .menux-orders-grid .menux-option-line{font-size:17px;font-weight:650;line-height:1.42;overflow-wrap:anywhere;padding:2px 0 2px 6px}
+#menuxMainOrders .menux-orders-grid .menux-order-actions button{font-size:14px;min-height:44px}
+#menuxMainOrders .menux-orders-grid .menux-view-details{font-size:14px}
+@media(min-width:1500px){#menuxMainOrders .menux-orders-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1300px){#menuxMainOrders .menux-orders-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){#menuxMainOrders .menux-orders-grid{grid-template-columns:1fr}}
+@media(max-width:520px){#menuxMainOrders .menux-orders-grid .menux-order-customer{font-size:21px}#menuxMainOrders .menux-orders-grid .menux-item-primary{font-size:20px}}
 </style>
 </body></html>
