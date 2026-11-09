@@ -38,6 +38,15 @@
 <h3>2. Assinaturas por estabelecimento</h3>
 <p class="menux-sub-hint">Escolha plano, situação e vencimento; clique em <strong>Salvar</strong> na linha da loja. O aviso de vencimento é informativo, sem bloqueio nesta etapa. O botão Renovar +30 dias estende a partir do vencimento atual, se ainda estiver no futuro; caso contrário, conta a partir de hoje.</p>
 <div class="menux-sub-table"><table><thead><tr><th>Estabelecimento</th><th>Plano</th><th>Situação</th><th>Início</th><th>Vencimento</th><th>Ação</th></tr></thead><tbody id="menuxSubscriptionRows"><tr><td colspan="6">Carregando…</td></tr></tbody></table></div>
+<div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--line)">
+<h3>3. Registrar pagamento confirmado</h3><p class="menux-sub-hint">Registre aqui apenas pagamentos que você já conferiu no extrato bancário. Copiar a chave Pix não registra pagamento automaticamente.</p>
+<form id="menuxPaymentForm" class="menux-sub-grid">
+<div><label for="menuxPaymentStore">Estabelecimento</label><select id="menuxPaymentStore" required></select></div>
+<div><label for="menuxPaymentAmount">Valor recebido (R$)</label><input id="menuxPaymentAmount" type="number" min="0.01" step="0.01" value="199.90" required></div>
+<div><label for="menuxPaymentDate">Data do recebimento</label><input id="menuxPaymentDate" type="date" required></div>
+<div class="wide"><label for="menuxPaymentRef">Referência (opcional)</label><input id="menuxPaymentRef" maxlength="120" placeholder="Ex.: comprovante conferido ou identificação interna"></div>
+<div class="wide"><button type="submit">Confirmar pagamento recebido</button></div>
+</form><p id="menuxPaymentMessage" role="status" class="menux-sub-status"></p></div>
 <p id="menuxSubscriptionMessage" class="menux-sub-status" role="status"></p>
 <button type="button" id="menuxSubscriptionReload" class="secondary">Atualizar assinaturas</button>
 </section><section class="card"><h2>Estabelecimentos cadastrados</h2><div style="overflow:auto"><table><thead><tr><th>Nome</th><th>Link público planejado</th><th>ID</th><th>Cadastro</th></tr></thead><tbody id="rows"></tbody></table></div></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><script>function client(){const c=window.MENUX_CONFIG||{};if(!c.supabaseUrl?.startsWith('https://')||!c.supabaseAnonKey||c.supabaseAnonKey.startsWith('COLE_'))throw Error('Configure o arquivo config.js com a URL e a chave pública do Supabase.');return window.supabase.createClient(c.supabaseUrl,c.supabaseAnonKey)}const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));</script><script>let sb,stores=[];const $=id=>document.getElementById(id);function msg(t,bad=false){$('msg').className=bad?'error':'ok';$('msg').textContent=t}async function load(){const {data,error}=await sb.from('restaurants').select('id,name,slug,created_at').order('created_at',{ascending:false});if(error)throw error;stores=data||[];$('count').textContent=stores.length;$('rows').innerHTML=stores.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.slug||'Sem slug')} (a publicar)</td><td><small>${esc(s.id)}</small></td><td>${new Date(s.created_at).toLocaleDateString('pt-BR')}</td></tr>`).join('')||'<tr><td colspan="4">Nenhuma loja cadastrada</td></tr>';$('restaurant').innerHTML=stores.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');for(const [table,id] of [['products','products'],['orders','orders']]){const {count,error}=await sb.from(table).select('id',{count:'exact',head:true});$(id).textContent=error?'—':count}}(async()=>{try{sb=client();const {data:{user}}=await sb.auth.getUser();if(!user){location.replace('./');return}const {data,error}=await sb.from('platform_admins').select('user_id').eq('user_id',user.id).limit(1);if(error)throw error;if(!data?.length){location.replace('lojista.html');return}await load()}catch(e){msg(e.message,true)}})();$('newStore').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurants').insert({name:$('name').value.trim(),slug:$('slug').value.trim()});if(error)throw error;e.target.reset();await load();msg('Loja cadastrada! Agora vincule o proprietário.')}catch(err){msg(err.message,true)}});$('membership').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurant_members').insert({restaurant_id:$('restaurant').value,user_id:$('userId').value.trim(),role:'owner'});if(error)throw error;$('userId').value='';msg('Proprietário vinculado! Já pode entrar no login único.')}catch(err){msg(err.message,true)}});$('logout').onclick=async()=>{await sb?.auth.signOut();location.replace('./')};</script><script>
@@ -142,5 +151,40 @@
   });
   $s('menuxSubscriptionReload').onclick=refresh;
   refresh();
+})();
+</script><script id="menux-master-payment-script">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id), say=(t,error)=>{$('menuxPaymentMessage').textContent=t;$('menuxPaymentMessage').style.color=error?'#ffaaa0':'#96e5ba'};
+ const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ let client;
+ async function api(){
+  if(!client){const c=window.MENUX_CONFIG||{};client=window.supabase.createClient(c.supabaseUrl,c.supabaseAnonKey)}
+  const {data:{user},error}=await client.auth.getUser();if(error||!user)throw Error('Entre na conta Master.');
+  const admin=await client.from('platform_admins').select('user_id').eq('user_id',user.id).limit(1);
+  if(admin.error||!admin.data?.length)throw Error('Somente o Master pode confirmar pagamentos.');
+  return client;
+ }
+ async function loadStores(){
+  const db=await api(),q=await db.from('restaurants').select('id,name').order('name');if(q.error)throw q.error;
+  const sel=$('menuxPaymentStore');const value=sel.value;
+  sel.replaceChildren(...(q.data||[]).map(r=>{const o=document.createElement('option');o.value=r.id;o.textContent=r.name;return o}));
+  if([...sel.options].some(o=>o.value===value))sel.value=value;
+ }
+ $('menuxPaymentDate').value=today();
+ const wrap=$('menuxPaymentForm');
+ wrap.addEventListener('submit',async e=>{
+  e.preventDefault();const button=wrap.querySelector('button[type="submit"]');button.disabled=true;
+  try{
+   const db=await api(),restaurant_id=$('menuxPaymentStore').value,amount=Number($('menuxPaymentAmount').value),paid_on=$('menuxPaymentDate').value;
+   if(!restaurant_id||!Number.isFinite(amount)||amount<=0||!paid_on)throw Error('Preencha os campos obrigatórios.');
+   if(!confirm('Você conferiu o dinheiro recebido no banco e deseja registrar este pagamento?'))return;
+   const result=await db.from('menux_subscription_payments').insert({restaurant_id,amount,paid_on,method:'pix',reference:$('menuxPaymentRef').value.trim()});
+   if(result.error)throw result.error;
+   say('Pagamento registrado! O lojista já poderá visualizar no painel.');wrap.elements['menuxPaymentRef'].value='';
+  }catch(e){say('Erro ao registrar pagamento: '+(e.message||e),true)}finally{button.disabled=false}
+ });
+ const origin=$('menuxSubscriptionReload');origin.addEventListener('click',()=>loadStores().catch(e=>say(e.message,true)));
+ let attempts=0;const timer=setInterval(()=>{if(++attempts>80)clearInterval(timer);if(typeof window.supabase!=='undefined'&&window.MENUX_CONFIG){clearInterval(timer);loadStores().catch(e=>say(e.message,true))}},250);
 })();
 </script></body></html>

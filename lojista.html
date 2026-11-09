@@ -49,11 +49,22 @@
 .menux-growth-tag{display:inline-flex;border:1px solid #b99957;color:#d5b86c;border-radius:99px;padding:6px 10px;font-size:12px;font-weight:700}
 @media(max-width:960px){.menux-growth-grid{grid-template-columns:1fr}}
 </style>
-</head><body><div class="layout">
-<aside class="side"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
+<style id="menux-subscription-style">
+.menux-sub-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+.menux-sub-cards .card{min-width:0}.menux-sub-cards h2{font-size:25px;margin:9px 0;overflow-wrap:anywhere}
+.menux-sub-pix-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}
+.menux-sub-pix-grid>div{background:#202024;border:1px solid #49443a;border-radius:12px;padding:17px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.menux-sub-pix-grid strong{font-size:22px;color:#e4c576;overflow-wrap:anywhere}
+.menux-sub-notice{padding:16px;border:1px solid #aa8547;background:#2e291d;color:#ffe0a0;border-radius:13px;margin:14px 0;font-size:17px;font-weight:650}
+.menux-sub-notice.danger{border-color:#c26c6c;background:#332124;color:#ffcbcb}
+#menuxSubPayments .menux-payrow{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #3a3a3d;padding:13px 0}
+@media(max-width:950px){.menux-sub-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.menux-sub-cards,.menux-sub-pix-grid{grid-template-columns:1fr}}
+</style></head><body><div class="layout">
+<aside class="side"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <main class="main"><header class="top"><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button class="btn" id="logout" title="Sair">Sair</button></div></header>
 <div id="feedback" role="status" aria-live="polite"></div>
-<section class="page active" id="overview"><div class="row between"><div><h2>Visão geral</h2><div class="muted small">Indicadores dos pedidos registrados no Supabase.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div>
+<section class="page active" id="overview"><div id="menuxSubscriptionAlert" hidden role="status" aria-live="polite"></div><div class="row between"><div><h2>Visão geral</h2><div class="muted small">Indicadores dos pedidos registrados no Supabase.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div>
 <div class="card menux-growth-panel" style="margin-top:15px" aria-labelledby="menuxGrowthTitle">
   <div class="row between" style="align-items:center;gap:12px;flex-wrap:wrap">
     <div><h2 id="menuxGrowthTitle">💡 Dica de vendas de hoje</h2><p class="muted small" style="margin-top:6px">Uma recomendação por dia para sua loja, baseada nos pedidos dos últimos 28 dias. As sugestões não garantem resultados.</p></div>
@@ -143,6 +154,22 @@
 <p class="muted small">Imprime <b>novos pedidos recebidos</b> enquanto o painel e o programa Windows estiverem abertos. Pedidos que já estavam pendentes ao ativar não são impressos automaticamente; use o botão manual nesses casos. Cada pedido novo é enviado uma única vez, mesmo após atualizar a página.</p>
 </div></section>
 <section class="page" id="settings"><h2>Minha loja</h2><div class="card"><form id="storeForm"><div class="formgrid"><div class="formgroup"><label>Nome do restaurante</label><input name="name" required></div><div class="formgroup"><label>Slug (endereço curto)</label><input name="slug" placeholder="minha-loja" pattern="[a-z0-9-]+" title="Use letras minúsculas, números e hífens"></div></div><p class="muted small">WhatsApp, endereço, horários e outras configurações exigem novas colunas no banco. O slug não publica o cardápio sozinho.</p><button class="btn primary" style="margin-top:15px">Salvar alterações</button></form></div></section>
+<section class="page" id="subscription">
+<div class="row between" style="align-items:center;flex-wrap:wrap;gap:12px"><div><h2>Minha assinatura</h2><p class="muted">Consulte seu plano, pagamentos registrados e a data da próxima renovação.</p></div><button class="btn" id="menuxSubRefresh" type="button">Atualizar</button></div>
+<div id="menuxSubFeedback" role="status" aria-live="polite" class="muted" style="margin:14px 0">Carregando assinatura…</div>
+<div class="menux-sub-cards">
+<div class="card"><div class="muted small">Plano contratado</div><h2 id="menuxSubPlan">—</h2><div class="muted" id="menuxSubDescription"></div></div>
+<div class="card"><div class="muted small">Situação</div><h2 id="menuxSubStatus">—</h2><div id="menuxSubDays" class="muted"></div></div>
+<div class="card"><div class="muted small">Mensalidade do plano</div><h2 id="menuxSubMonthly">—</h2><div class="muted small">Valor contratado. Pagamento não é automático.</div></div>
+<div class="card"><div class="muted small">Último pagamento confirmado</div><h2 id="menuxSubPaid">—</h2><div class="muted small" id="menuxSubPaidDate">Ainda não há confirmação registrada.</div></div>
+<div class="card"><div class="muted small">Início do plano</div><h2 id="menuxSubStart">—</h2></div>
+<div class="card"><div class="muted small">Vencimento</div><h2 id="menuxSubEnd">—</h2></div>
+</div>
+<div class="card" style="margin-top:16px"><h2>💠 Pagar mensalidade por Pix</h2><p class="muted">Para pagamentos à MENUX. Abra o aplicativo do seu banco e use a chave Pix abaixo. A confirmação será feita pela administração da MENUX.</p>
+<div class="menux-sub-pix-grid"><div><span class="muted small">Chave Pix (celular)</span><strong id="menuxSubPixKey">22996228992</strong><button class="btn" type="button" id="menuxSubCopyKey">Copiar chave Pix</button></div><div><span class="muted small">Valor solicitado</span><strong>R$ 199,90</strong><button class="btn" type="button" id="menuxSubCopyAmount">Copiar valor</button></div></div>
+<p class="muted small">O Pix não é processado pelo site. Copiar a chave não confirma pagamento. Se o valor do seu plano for diferente de R$ 199,90, confirme com a MENUX antes de transferir.</p></div>
+<div class="card" style="margin-top:16px"><h2>Histórico de pagamentos confirmados</h2><div id="menuxSubPayments" class="muted">Nenhum pagamento confirmado.</div></div>
+</section>
 <div class="muted small" style="padding-top:25px">MENUX · Painel do lojista · Dados reais por restaurante.</div></main></div>
 <div id="authOverlay"><div class="authCard"><h2>Acesso à loja</h2><p>Verificando sua sessão...</p><p id="authError" style="color:#ffaaa0"></p><a href="index.html" style="color:#e3c77f">Ir para login</a></div></div>
 <style>
@@ -152,7 +179,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script>
 <script>
 'use strict';
-const titles={overview:'Visão geral',orders:'Pedidos',menu:'Cardápio',catalog:'Central de opções e adicionais',customers:'Clientes',analytics:'Menux Intelligence',delivery:'Entregas e regiões',storefront:'Site da loja',hours:'Horário de funcionamento',printing:'Impressão',settings:'Minha loja'};
+const titles={overview:'Visão geral',orders:'Pedidos',menu:'Cardápio',catalog:'Central de opções e adicionais',customers:'Clientes',analytics:'Menux Intelligence',delivery:'Entregas e regiões',storefront:'Site da loja',hours:'Horário de funcionamento',printing:'Impressão',settings:'Minha loja',subscription:'Minha assinatura'};
 let sb=null,restaurant=null,restaurants=[],products=[],orders=[],items=[],customers=[],areas=[],user=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const done=['completed','delivered','finished','finalizado','concluido','concluído'];const cancelled=['cancelled','canceled','cancelado'];const isDone=o=>done.includes(String(o.status).toLowerCase()),isCancelled=o=>cancelled.includes(String(o.status).toLowerCase());
@@ -1301,4 +1328,60 @@ window.menuxAutoPrintPoll=async(orders,items,rest)=>{
 };
 })();
 </script>
-</body></html>
+<script id="menux-subscription-script">
+(function(){
+'use strict';
+const by=id=>document.getElementById(id);
+const money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);
+const dateBR=s=>s?String(s).slice(0,10).split('-').reverse().join('/'):'Não informado';
+const todayBR=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const days=(a,b)=>Math.round((Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z'))/86400000);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let lastStore='',loadedAt=0,busy=false;
+const statusNames={trial:'Em teste',active:'Ativa',past_due:'Em atraso',paused:'Pausada',cancelled:'Cancelada'};
+async function load(){
+ if(busy||typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant?.id)return;
+ busy=true;const id=restaurant.id;by('menuxSubFeedback').textContent='Consultando sua assinatura…';
+ try{
+  const [sr,pr,hr]=await Promise.all([
+   sb.from('menux_restaurant_subscriptions').select('plan_id,status,starts_on,expires_on').eq('restaurant_id',id).maybeSingle(),
+   sb.from('menux_subscription_plans').select('id,name,monthly_price,description').limit(100),
+   sb.from('menux_subscription_payments').select('amount,paid_on').eq('restaurant_id',id).order('paid_on',{ascending:false}).limit(24)
+  ]);
+  for(const x of [sr,pr,hr])if(x.error)throw x.error;
+  if(restaurant?.id!==id)return;
+  const s=sr.data||{},plan=(pr.data||[]).find(p=>p.id===s.plan_id),payments=hr.data||[];
+  by('menuxSubPlan').textContent=plan?.name||'Sem plano definido';
+  by('menuxSubDescription').textContent=plan?.description||'';
+  by('menuxSubMonthly').textContent=plan?money(plan.monthly_price):'Não informado';
+  by('menuxSubStart').textContent=dateBR(s.starts_on);
+  by('menuxSubEnd').textContent=dateBR(s.expires_on);
+  const today=todayBR(),left=s.expires_on?days(today,s.expires_on):null;
+  const expired=left!==null&&left<0,paused=['paused','cancelled'].includes(s.status);
+  by('menuxSubStatus').textContent=paused?(statusNames[s.status]||'Indisponível'):expired?'Vencida':(statusNames[s.status]||'Não definida');
+  by('menuxSubDays').textContent=left===null?'Sem vencimento definido':left<0?`Vencida há ${-left} dia(s)` :left===0?'Vence hoje':`Faltam ${left} dia(s)`;
+  by('menuxSubPaid').textContent=payments.length?money(payments[0].amount):'Não registrado';
+  by('menuxSubPaidDate').textContent=payments.length?`Confirmado em ${dateBR(payments[0].paid_on)} · Total registrado: ${money(payments.reduce((sum,p)=>sum+Number(p.amount),0))}`:'Nenhum pagamento registrado pela administração.';
+  by('menuxSubPayments').innerHTML=payments.length?payments.map(p=>`<div class="menux-payrow"><span>${esc(dateBR(p.paid_on))}</span><strong>${esc(money(p.amount))}</strong></div>`).join(''):'Nenhum pagamento confirmado pela administração.';
+  const alert=by('menuxSubscriptionAlert'); let note='',danger=false;
+  if(paused){note='Sua assinatura está '+(s.status==='cancelled'?'cancelada':'pausada')+'. Consulte a administração MENUX.';danger=true;}
+  else if(expired){note=`Sua assinatura venceu em ${dateBR(s.expires_on)}. Regularize a renovação com a MENUX.`;danger=true;}
+  else if(left===0){note='Sua assinatura vence HOJE. Organize a renovação para evitar interrupções.';danger=true;}
+  else if(left!==null&&left>=1&&left<=3)note=`Atenção: faltam ${left} dia(s) para o vencimento da sua assinatura em ${dateBR(s.expires_on)}.`;
+  else if(left!==null&&left>=4&&left<=7)note=`Sua assinatura vence em ${left} dias (${dateBR(s.expires_on)}). Programe a renovação.`;
+  alert.hidden=!note;alert.className='menux-sub-notice'+(danger?' danger':'');alert.textContent=note;
+  by('menuxSubFeedback').textContent='Dados atualizados. Pagamentos são confirmados manualmente pela MENUX.';
+  loadedAt=Date.now();lastStore=id;
+ }catch(e){by('menuxSubFeedback').textContent='Não foi possível carregar a assinatura: '+(e.message||e);}
+ finally{busy=false}
+}
+async function copy(value){try{await navigator.clipboard.writeText(value);by('menuxSubFeedback').textContent='Copiado! Abra o aplicativo do banco para fazer o Pix.';}catch{by('menuxSubFeedback').textContent='Não foi possível copiar automaticamente. Selecione o texto e copie.';}}
+by('menuxSubCopyKey').addEventListener('click',()=>copy('22996228992'));
+by('menuxSubCopyAmount').addEventListener('click',()=>copy('199,90'));
+by('menuxSubRefresh').addEventListener('click',load);
+document.querySelector('[data-page="subscription"]').addEventListener('click',load);
+// Atualiza avisos na página inicial, inclusive ao virar o dia.
+setInterval(()=>{if(typeof restaurant!=='undefined'&&restaurant?.id&&(lastStore!==restaurant.id||Date.now()-loadedAt>60000))load();},15000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-loadedAt>60000)load();});
+})();
+</script></body></html>
