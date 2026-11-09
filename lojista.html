@@ -702,7 +702,7 @@ menuxBellAudio.volume=0.95;
 const menuxSoundButton=document.getElementById('menux-sound-toggle');
 const menuxAlertCount=document.getElementById('menux-alert-count');
 const menuxDefaultTitle=document.title;
-let menuxSoundEnabled=false;
+let menuxSoundEnabled=true; // Ativo por padrão; respeita silenciamento salvo.
 let menuxAudioContext=null;
 let menuxAudioBuffer=null;
 let menuxAudioSource=null;
@@ -721,6 +721,10 @@ function menuxSeenKey(){return 'menux_seen_orders_'+String(restaurant?.id||'unkn
 function menuxReadSeen(){try{return new Set(JSON.parse(sessionStorage.getItem(menuxSeenKey())||'[]'))}catch{return new Set()}}
 function menuxStoreSeen(ids){try{sessionStorage.setItem(menuxSeenKey(),JSON.stringify([...ids].slice(-120)))}catch{}}
 function menuxSoundKey(){return 'menux_alert_sound_'+String(restaurant?.id||'unknown')}
+function menuxRestoreSoundPreference(){
+ try{menuxSoundEnabled=localStorage.getItem(menuxSoundKey())!=='off'}catch{menuxSoundEnabled=true}
+ menuxUpdateSoundButton();
+}
 function menuxUpdateSoundButton(){
  menuxSoundButton.textContent=menuxSoundEnabled?'🔊 Som ligado':'🔇 Ativar som';
  menuxSoundButton.setAttribute('aria-pressed',String(menuxSoundEnabled));
@@ -807,8 +811,20 @@ menuxSoundButton.addEventListener('click',async()=>{
   alert('Não foi possível preparar o sino. Verifique o arquivo menux-alerta.mp3 e as permissões de som do Safari.');
  }finally{menuxSoundButton.disabled=false}
 });
-// Preferência salva não significa áudio autorizado: exigir um clique por abertura.
-menuxUpdateSoundButton();
+// Preferência persiste no navegador. Safari pode exigir um gesto novo para liberar áudio.
+menuxRestoreSoundPreference();
+// Tenta preparar o contexto após a primeira interação do lojista, sem tocar som de teste.
+// O desbloqueio deve começar durante o evento de clique, não após um await.
+document.addEventListener('pointerdown',function menuxUnlockOnInteraction(){
+ if(!menuxSoundEnabled||!restaurant)return;
+ if(menuxAudioContext?.state==='running'&&menuxAudioBuffer)return;
+ void menuxPrepareWebAudio().catch(e=>console.warn('MENUX: ative o áudio novamente se necessário:',e));
+},{capture:true});
+document.addEventListener('keydown',function(event){
+ if(!menuxSoundEnabled||!restaurant||(!['Enter',' '].includes(event.key)))return;
+ if(menuxAudioContext?.state==='running'&&menuxAudioBuffer)return;
+ void menuxPrepareWebAudio().catch(()=>{});
+},{capture:true});
 // Somente na Central de Pedidos: começa um novo dia às 00:00 no horário de Brasília.
 function menuxToday(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=t=>parts.find(p=>p.type===t)?.value;return `${get('year')}-${get('month')}-${get('day')}`;}
 async function loadIncoming(){if(typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant){message.textContent='Aguarde o carregamento da loja e tente novamente.';return;}const day=menuxToday();const {data,error}=await sb.from('menux_checkout_orders').select('*').eq('restaurant_id',restaurant.id).eq('order_day',day).order('created_at',{ascending:false}).limit(100);if(error){message.textContent='Não foi possível consultar pedidos online: '+error.message;return;}onlineOrders=data||[];const ids=onlineOrders.map(o=>o.id);let items=[];if(ids.length){const r=await sb.from('menux_checkout_order_items').select('*').eq('restaurant_id',restaurant.id).in('order_id',ids);if(r.error){message.textContent='Erro ao carregar itens: '+r.error.message;return;}items=r.data||[];}message.textContent=onlineOrders.length+' pedido(s) online · Atualizar para consultar novos pedidos';
@@ -848,9 +864,8 @@ const go=document.getElementById('menux-go-orders');if(go)go.onclick=()=>{box.hi
 if(menuxAlertRestaurant!==restaurant.id){
  menuxAlertRestaurant=restaurant.id;
  menuxKnownPending=null;
- // O Safari exige um gesto nesta visita antes de reproduzir alertas.
- menuxSoundEnabled=false;
- menuxUpdateSoundButton();
+ // Ao trocar de loja, recupera a preferência dessa loja (padrão: ligado).
+ menuxRestoreSoundPreference();
 }
 const idsNow=new Set(pendingOrders.map(o=>o.id));
 // No primeiro carregamento, pedidos realmente recentes também devem tocar.
