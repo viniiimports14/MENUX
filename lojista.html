@@ -61,8 +61,9 @@
 @media(max-width:950px){.menux-sub-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.menux-sub-cards,.menux-sub-pix-grid{grid-template-columns:1fr}}
 </style></head><body><div class="layout">
-<aside class="side"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
-<main class="main"><header class="top"><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button class="btn" id="logout" title="Sair">Sair</button></div></header>
+<aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
+<div id="menuxMobileBackdrop" class="menux-mobile-backdrop" aria-hidden="true"></div>
+<main class="main"><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button class="btn" id="logout" title="Sair">Sair</button></div></header>
 <div id="feedback" role="status" aria-live="polite"></div>
 <section class="page active" id="overview"><div id="menuxSubscriptionAlert" hidden role="status" aria-live="polite"></div><div class="row between"><div><h2>Visão geral</h2><div class="muted small">Indicadores dos pedidos registrados no Supabase.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div>
 <div class="card menux-growth-panel" style="margin-top:15px" aria-labelledby="menuxGrowthTitle">
@@ -1384,4 +1385,94 @@ document.querySelector('[data-page="subscription"]').addEventListener('click',lo
 setInterval(()=>{if(typeof restaurant!=='undefined'&&restaurant?.id&&(lastStore!==restaurant.id||Date.now()-loadedAt>60000))load();},15000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-loadedAt>60000)load();});
 })();
-</script></body></html>
+</script>
+<style id="menux-mobile-2026">
+/* Ajustes exclusivamente visuais do painel MENUX, sem modificar consultas ou pedidos */
+.menux-mobile-menu-btn,.menux-mobile-backdrop{display:none}
+.main,.main .page,.card,.grid>*,.formgroup{min-width:0}
+.main{max-width:100%}
+.card,.page{overflow-wrap:anywhere}
+.table{max-width:100%}
+@media (max-width:820px){
+ html,body{max-width:100%;overflow-x:clip}
+ body{font-size:16px}
+ .layout{display:block;min-width:0}
+ .side{position:fixed;inset:0 auto 0 0;width:min(310px,86vw);height:100dvh;padding:18px 14px 90px;overflow-y:auto;overscroll-behavior:contain;background:#111214;z-index:102;box-shadow:20px 0 60px #0008;transform:translateX(-105%);transition:transform .22s ease;visibility:hidden}
+ .side.menux-mobile-open{transform:translateX(0);visibility:visible}
+ .side .brandtext,.side .label,.side .navtext,.side .sidefoot{display:block}
+ .side .brand{padding:4px 8px 15px}
+ .side .nav button{justify-content:flex-start;padding:13px;min-height:48px;text-align:left;gap:12px;font-size:15px}
+ .side .ico{flex:0 0 22px}
+ .side .sidefoot{position:static;margin:22px 10px 0}
+ .menux-mobile-backdrop.menux-mobile-open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:101}
+ .menux-mobile-menu-btn{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;gap:6px;border:1px solid #5d4e30;background:#28241c;color:#e3c77f;border-radius:10px;padding:9px 11px;min-height:44px;font:700 14px/1.2 inherit;cursor:pointer}
+ .menux-mobile-menu-btn span:first-child{font-size:20px;line-height:1}
+ .main{margin-left:0;width:100%;max-width:100%;padding:16px 14px 100px;overflow-x:clip}
+ .top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+ .top>div:nth-child(2){flex:1 1 120px;min-width:0}
+ .top h1{font-size:clamp(20px,5vw,27px);line-height:1.2;overflow-wrap:anywhere}
+ .top .eyebrow{font-size:10px}
+ .top .user{margin-left:auto;gap:7px}
+ .top .user .username{display:none}
+ .top .avatar{width:32px;height:32px;flex:0 0 32px}
+ .top .user .btn{min-height:42px;padding:8px 10px;font-size:14px}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .two,.formgrid,.menux-report-columns{grid-template-columns:minmax(0,1fr)!important}
+ .card{padding:15px;max-width:100%}
+ .page>.row.between{flex-wrap:wrap;align-items:flex-start}
+ .formgroup input,.formgroup select,.formgroup textarea,.field{max-width:100%;min-width:0;width:100%;font-size:16px}
+ .formgrid>[style*="grid-column"]{grid-column:1/-1}
+ .row{min-width:0}
+ #menuxMainOrders .menux-orders-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px}
+ #menuxMainOrders .menux-orders-grid .menux-order-card{width:100%;height:auto;min-height:0;max-height:none;padding:16px}
+ #menuxMainOrders .menux-orders-grid .menux-order-top{gap:10px;flex-wrap:wrap}
+ #menuxMainOrders .menux-orders-grid .menux-order-customer{font-size:22px}
+ #menuxMainOrders .menux-orders-grid .menux-order-summary{max-width:100%;font-size:16px}
+ #menuxMainOrders .menux-orders-grid .menux-item-primary{font-size:20px}
+ #menuxMainOrders .menux-orders-grid .menux-option-line{font-size:15px}
+ #menuxMainOrders .menux-orders-grid .menux-order-actions{display:flex;flex-wrap:wrap}
+ #menuxMainOrders .menux-orders-grid .menux-order-actions button{min-height:46px;font-size:15px}
+ #menuxOrderDialog{width:calc(100vw - 22px);max-width:calc(100vw - 22px);max-height:90dvh;overflow-y:auto}
+ #menuxOrderDialog .menux-detail-head h2{font-size:24px}
+ .menux-sub-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .menux-sub-pix-grid{grid-template-columns:minmax(0,1fr)!important}
+ .menux-report-filters{align-items:stretch}
+ .menux-report-filters .formgroup{flex:1 1 100%}
+ .menux-report-day{grid-template-columns:74px minmax(0,1fr) 85px}
+ .menux-hours-day{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .menux-hours-day>label:first-child{grid-column:1/-1}
+ .page .table{width:100%;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .page .table th,.page .table td{white-space:nowrap}
+ #menux-alert-controls{max-width:calc(100vw - 18px)}
+}
+@media(max-width:460px){
+ .main{padding:12px 10px 105px}
+ .top{gap:8px}
+ .menux-mobile-menu-btn{padding:8px 9px}
+ .stats{gap:8px}
+ .card{padding:12px}
+ .statvalue{font-size:22px}
+ .menux-sub-cards{grid-template-columns:minmax(0,1fr)}
+ #menuxMainOrders .menux-orders-grid .menux-order-card{padding:13px}
+ .menux-report-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .menux-report-day{grid-template-columns:67px minmax(0,1fr) 72px;font-size:12px;gap:6px}
+}
+@media(prefers-reduced-motion:reduce){.side{transition:none}}
+@media print{.menux-mobile-menu-btn,.menux-mobile-backdrop{display:none!important}}
+</style>
+<script id="menux-mobile-nav-script">
+(function(){
+ const btn=document.getElementById('menuxMobileMenuButton');
+ const side=document.getElementById('menuxSide');
+ const backdrop=document.getElementById('menuxMobileBackdrop');
+ if(!btn||!side||!backdrop)return;
+ function close(){side.classList.remove('menux-mobile-open');backdrop.classList.remove('menux-mobile-open');btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','Abrir menu de navegação');document.body.style.overflow='';}
+ function open(){side.classList.add('menux-mobile-open');backdrop.classList.add('menux-mobile-open');btn.setAttribute('aria-expanded','true');btn.setAttribute('aria-label','Fechar menu de navegação');document.body.style.overflow='hidden';}
+ btn.addEventListener('click',()=>side.classList.contains('menux-mobile-open')?close():open());
+ backdrop.addEventListener('click',close);
+ side.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',close));
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+ window.matchMedia('(min-width: 821px)').addEventListener('change',e=>{if(e.matches)close()});
+})();
+</script>
+</body></html>
