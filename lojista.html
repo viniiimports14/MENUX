@@ -702,20 +702,34 @@ const menuxDefaultTitle=document.title;
 let menuxSoundEnabled=false;
 let menuxKnownPending=null;
 let menuxAlertRestaurant=null;
+let menuxAlertInFlight=false;
+const menuxAlertMaxRecentMs=120000;
+function menuxNotice(text){
+ message.textContent=text;
+ const count=document.getElementById('menux-incoming-open');
+ if(count)count.hidden=false;
+ box.hidden=false;
+}
+function menuxSeenKey(){return 'menux_seen_orders_'+String(restaurant?.id||'unknown')+'_'+menuxToday()}
+function menuxReadSeen(){try{return new Set(JSON.parse(sessionStorage.getItem(menuxSeenKey())||'[]'))}catch{return new Set()}}
+function menuxStoreSeen(ids){try{sessionStorage.setItem(menuxSeenKey(),JSON.stringify([...ids].slice(-120)))}catch{}}
 function menuxSoundKey(){return 'menux_alert_sound_'+String(restaurant?.id||'unknown')}
 function menuxUpdateSoundButton(){
  menuxSoundButton.textContent=menuxSoundEnabled?'🔊 Som ligado':'🔇 Ativar som';
  menuxSoundButton.setAttribute('aria-pressed',String(menuxSoundEnabled));
  menuxSoundButton.title=menuxSoundEnabled?'Clique para silenciar':'Clique para habilitar avisos sonoros';
 }
-function playMenuxAlert(){
- if(!menuxSoundEnabled)return;
+async function playMenuxAlert(){
+ if(!menuxSoundEnabled||menuxAlertInFlight)return;
+ menuxAlertInFlight=true;
  try{
   menuxBellAudio.pause();
   menuxBellAudio.currentTime=0;
-  const promise=menuxBellAudio.play();
-  if(promise && typeof promise.catch==='function') promise.catch(e=>console.warn('MENUX: o navegador bloqueou o som. Clique em Ativar som novamente.',e));
- }catch(e){console.warn('MENUX: não foi possível tocar o alerta:',e)}
+  await menuxBellAudio.play();
+ }catch(e){
+  console.warn('MENUX: falha na reprodução do TRIM-TRIM:',e);
+  menuxNotice('🔔 NOVO PEDIDO! O Safari não reproduziu a campainha. Clique em Ativar som para liberar o áudio.');
+ }finally{menuxAlertInFlight=false}
 }
 menuxSoundButton.addEventListener('click',async()=>{
  if(menuxSoundEnabled){
@@ -782,10 +796,21 @@ if(menuxAlertRestaurant!==restaurant.id){
  menuxUpdateSoundButton();
 }
 const idsNow=new Set(pendingOrders.map(o=>o.id));
-if(menuxKnownPending!==null){
- const newIds=[...idsNow].filter(id=>!menuxKnownPending.has(id));
- if(newIds.length){box.hidden=false;playMenuxAlert()}
-}else if(pendingOrders.length){box.hidden=false}
+// No primeiro carregamento, pedidos realmente recentes também devem tocar.
+// O histórico da sessão impede que atualizações da página repitam o sino.
+const seen=menuxReadSeen();
+const now=Date.now();
+const newOrders=pendingOrders.filter(o=>{
+ if(seen.has(o.id))return false;
+ if(menuxKnownPending!==null)return !menuxKnownPending.has(o.id);
+ const dateMs=Date.parse(o.created_at);
+ return Number.isFinite(dateMs)&&now-dateMs>=0&&now-dateMs<=menuxAlertMaxRecentMs;
+});
+// Marca os pedidos conhecidos mesmo quando o som está desligado.
+const allSeen=new Set([...seen,...idsNow]);
+menuxStoreSeen(allSeen);
+if(newOrders.length){box.hidden=false;void playMenuxAlert()}
+else if(menuxKnownPending===null&&pendingOrders.length){box.hidden=false}
 if(!pendingOrders.length)box.hidden=true;
 menuxKnownPending=idsNow;
 }
