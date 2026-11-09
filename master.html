@@ -8,11 +8,25 @@
 .menux-sub-table input[type=date]{min-width:144px}
 .menux-sub-table button{white-space:nowrap}
 .menux-sub-status{font-size:12px;color:#dec386}
+.menux-sub-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}
+.menux-sub-kpi{border:1px solid var(--line);border-radius:12px;background:#111317;padding:12px}
+.menux-sub-kpi strong{display:block;font-size:26px;color:var(--gold)}
+.menux-sub-kpi span{font-size:12px;color:var(--muted)}
+.menux-sub-badge{display:inline-block;padding:4px 9px;border-radius:100px;font-size:12px;font-weight:700;margin-top:5px;background:#303039;color:#e9e5d8}
+.menux-sub-badge.due{background:#473514;color:#f5cf80}.menux-sub-badge.late{background:#492428;color:#ffb3b3}.menux-sub-badge.ok{background:#174333;color:#96e5ba}
+.menux-sub-actions{display:flex;gap:7px;flex-wrap:wrap}.menux-sub-actions button{padding:8px 10px;font-size:12px}
+@media(max-width:750px){.menux-sub-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .menux-sub-hint{color:#a4a6ad;font-size:13px}
 @media(max-width:750px){.menux-sub-grid{grid-template-columns:1fr}.menux-sub-grid .wide{grid-column:span 1}}
 </style></head><body><main class="wrap"><div class="top"><div><h1>◈ MENUX MASTER</h1><p class="muted">Central administrativa · Lojas da plataforma</p></div><button id="logout" class="secondary">Sair</button></div><p id="msg" role="status"></p><div class="grid"><div class="card"><p class="muted">Estabelecimentos</p><h1 id="count">—</h1></div><div class="card"><p class="muted">Produtos cadastrados</p><h1 id="products">—</h1></div><div class="card"><p class="muted">Pedidos registrados</p><h1 id="orders">—</h1></div></div><section class="card"><h2>Cadastrar estabelecimento</h2><p class="muted">Cria a loja. O acesso do proprietário é vinculado separadamente a uma conta Auth existente.</p><form id="newStore" class="grid"><div><label>Nome da loja</label><input id="name" required maxlength="120"></div><div><label>Link curto (slug)</label><input id="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="pizzaria-bella"></div><div style="align-self:end"><button>Criar loja</button></div></form></section><section class="card"><h2>Vincular proprietário</h2><p class="muted">Informe o UUID de um usuário já criado em Authentication → Users. Não use e-mail aqui: criar ou convidar usuários automaticamente exigirá uma Edge Function protegida.</p><form id="membership" class="grid"><div><label>Restaurante</label><select id="restaurant" required></select></div><div><label>UUID do usuário Auth</label><input id="userId" required pattern="[a-fA-F0-9-]{36}" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div><div style="align-self:end"><button>Vincular proprietário</button></div></form></section><section class="card" id="menuxSubscriptionAdmin">
 <h2>Planos e assinaturas</h2>
 <p class="menux-sub-hint">Controle administrativo manual. Os dados abaixo <strong>não</strong> cobram os lojistas nem bloqueiam suas lojas automaticamente.</p>
+<div class="menux-sub-kpis" aria-label="Resumo de assinaturas">
+<div class="menux-sub-kpi"><strong id="subCountAll">—</strong><span>Estabelecimentos</span></div>
+<div class="menux-sub-kpi"><strong id="subCountActive">—</strong><span>Ativas / em teste</span></div>
+<div class="menux-sub-kpi"><strong id="subCountDue">—</strong><span>Vencem em até 7 dias</span></div>
+<div class="menux-sub-kpi"><strong id="subCountLate">—</strong><span>Vencidas</span></div>
+</div>
 <h3>1. Cadastrar plano</h3>
 <form id="menuxPlanForm" class="menux-sub-grid">
 <div><label for="menuxPlanName">Nome do plano</label><input id="menuxPlanName" maxlength="80" placeholder="Ex.: Profissional" required></div>
@@ -22,7 +36,7 @@
 </form>
 <p id="menuxPlanMessage" role="status" class="menux-sub-status"></p>
 <h3>2. Assinaturas por estabelecimento</h3>
-<p class="menux-sub-hint">Escolha plano, situação e vencimento; clique em <strong>Salvar</strong> na linha da loja. O aviso de vencimento é informativo, sem bloqueio nesta etapa.</p>
+<p class="menux-sub-hint">Escolha plano, situação e vencimento; clique em <strong>Salvar</strong> na linha da loja. O aviso de vencimento é informativo, sem bloqueio nesta etapa. O botão Renovar +30 dias estende a partir do vencimento atual, se ainda estiver no futuro; caso contrário, conta a partir de hoje.</p>
 <div class="menux-sub-table"><table><thead><tr><th>Estabelecimento</th><th>Plano</th><th>Situação</th><th>Início</th><th>Vencimento</th><th>Ação</th></tr></thead><tbody id="menuxSubscriptionRows"><tr><td colspan="6">Carregando…</td></tr></tbody></table></div>
 <p id="menuxSubscriptionMessage" class="menux-sub-status" role="status"></p>
 <button type="button" id="menuxSubscriptionReload" class="secondary">Atualizar assinaturas</button>
@@ -32,6 +46,10 @@
   const $s = id => document.getElementById(id);
   const escSub = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const statuses = {trial:'Teste', active:'Ativa',past_due:'Em atraso',paused:'Pausada',cancelled:'Cancelada'};
+  const brToday=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  const addDays=(date,days)=>{const d=new Date(date+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10)};
+  const daysBetween=(today,date)=>Math.round((Date.parse(date+'T12:00:00Z')-Date.parse(today+'T12:00:00Z'))/86400000);
+
   let api, plans=[], subs=[];
   const say = (id,message,failed=false) => { $s(id).textContent=message;$s(id).className=failed?'error':'ok'; };
   async function getApi(){
@@ -53,12 +71,29 @@
       for(const result of [pr,sr,rr])if(result.error)throw result.error;
       plans=pr.data||[];subs=sr.data||[];
       const byRestaurant=new Map(subs.map(s=>[s.restaurant_id,s]));
+      const today=brToday();let dueCount=0,lateCount=0,activeCount=0;
+      for(const r of rr.data||[]){
+        const x=byRestaurant.get(r.id);if(!x)continue;
+        if(x.status==='active'||x.status==='trial')activeCount++;
+        if(x.expires_on&&x.status!=='cancelled'&&x.status!=='paused'){
+          const days=daysBetween(today,x.expires_on);
+          if(days<0)lateCount++;else if(days<=7)dueCount++;
+        }
+      }
+      $s('subCountAll').textContent=(rr.data||[]).length;
+      $s('subCountActive').textContent=activeCount;
+      $s('subCountDue').textContent=dueCount;
+      $s('subCountLate').textContent=lateCount;
       const planChoices='<option value="">Sem plano</option>'+plans.filter(p=>p.active).map(p=>`<option value="${escSub(p.id)}">${escSub(p.name)} — R$ ${Number(p.monthly_price).toFixed(2).replace('.',',')}</option>`).join('');
       const statusChoices=Object.entries(statuses).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
       $s('menuxSubscriptionRows').innerHTML=(rr.data||[]).map((r,i)=>{
         const sub=byRestaurant.get(r.id)||{};
-        const overdue=sub.expires_on&&sub.expires_on<new Date().toLocaleDateString('en-CA',{timeZone:'America/Sao_Paulo'})&&sub.status!=='cancelled';
-        return `<tr data-restaurant="${escSub(r.id)}"><td><strong>${escSub(r.name)}</strong>${overdue?'<div class="error">Vencimento ultrapassado</div>':''}</td><td><select data-field="plan_id">${planChoices}</select></td><td><select data-field="status">${statusChoices}</select></td><td><input data-field="starts_on" type="date"></td><td><input data-field="expires_on" type="date"></td><td><button type="button" data-sub-save>Salvar</button></td></tr>`;
+        const days=sub.expires_on?daysBetween(today,sub.expires_on):null;
+        const tracking=sub.status!=='cancelled'&&sub.status!=='paused';
+        const overdue=tracking&&days!==null&&days<0;
+        const approaching=tracking&&days!==null&&days>=0&&days<=7;
+        const dueBadge=overdue?'<span class="menux-sub-badge late">Vencida há '+Math.abs(days)+' dia(s)</span>':approaching?'<span class="menux-sub-badge due">Vence '+(days===0?'hoje':'em '+days+' dia(s)')+'</span>':(sub.status==='active'?'<span class="menux-sub-badge ok">Ativa</span>':sub.status==='trial'?'<span class="menux-sub-badge">Em teste</span>':'');
+        return `<tr data-restaurant="${escSub(r.id)}"><td><strong>${escSub(r.name)}</strong><div>${dueBadge}</div></td><td><select data-field="plan_id">${planChoices}</select></td><td><select data-field="status">${statusChoices}</select></td><td><input data-field="starts_on" type="date"></td><td><input data-field="expires_on" type="date"></td><td><div class="menux-sub-actions"><button type="button" data-sub-save>Salvar</button><button type="button" class="secondary" data-sub-renew title="Estende 30 dias e ativa a assinatura">Renovar +30 dias</button></div></td></tr>`;
       }).join('')||'<tr><td colspan="6">Nenhum estabelecimento cadastrado.</td></tr>';
       for(const row of $s('menuxSubscriptionRows').querySelectorAll('tr[data-restaurant]')){
         const data=byRestaurant.get(row.dataset.restaurant)||{};
@@ -82,18 +117,26 @@
     }catch(err){say('menuxPlanMessage',err.message||String(err),true);}
   });
   $s('menuxSubscriptionRows').addEventListener('click',async e=>{
-    const button=e.target.closest('button[data-sub-save]');if(!button)return;
+    const button=e.target.closest('button[data-sub-save],button[data-sub-renew]');if(!button)return;
     const row=button.closest('tr[data-restaurant]');if(!row)return;
+    const renewing=button.hasAttribute('data-sub-renew');
     button.disabled=true;
     try{
       const db=await getApi();
       const get=k=>row.querySelector(`[data-field="${k}"]`).value||null;
-      const plan=get('plan_id'), starts=get('starts_on'), expires=get('expires_on');
+      const plan=get('plan_id');let starts=get('starts_on'),expires=get('expires_on');
+      let status=get('status');
+      if(renewing){
+        if(!plan)throw Error('Selecione um plano antes de renovar.');
+        const today=brToday();const base=expires&&expires>today?expires:today;
+        expires=addDays(base,30);starts=starts||today;status='active';
+        if(!confirm('Renovar a assinatura de '+row.querySelector('strong').textContent+' até '+expires+' e marcar como Ativa?'))return;
+      }
       if(starts&&expires&&expires<starts)throw Error('Vencimento não pode ser anterior ao início.');
-      const payload={restaurant_id:row.dataset.restaurant,plan_id:plan,status:get('status'),starts_on:starts,expires_on:expires};
+      const payload={restaurant_id:row.dataset.restaurant,plan_id:plan,status,starts_on:starts,expires_on:expires};
       const {error}=await db.from('menux_restaurant_subscriptions').upsert(payload,{onConflict:'restaurant_id'});
       if(error)throw error;
-      say('menuxSubscriptionMessage','Assinatura de '+row.querySelector('strong').textContent+' salva.');
+      say('menuxSubscriptionMessage',(renewing?'Renovação de ':'Assinatura de ')+row.querySelector('strong').textContent+' salva.');
       await refresh();
     }catch(err){say('menuxSubscriptionMessage',err.message||String(err),true)}finally{button.disabled=false;}
   });
