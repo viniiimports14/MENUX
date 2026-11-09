@@ -693,6 +693,9 @@ $('catalogForm').addEventListener('submit',async e=>{
 <script>
 (function(){const box=document.getElementById('menux-incoming'),list=document.getElementById('menux-incoming-list'),message=document.getElementById('menux-incoming-message');document.getElementById('menux-incoming-open').onclick=()=>{box.hidden=false;loadIncoming()};document.getElementById('menux-incoming-close').onclick=()=>box.hidden=true;const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const menuxOrderNumber=o=>o&&o.daily_number!=null?'#'+String(o.daily_number).padStart(3,'0'):'#'+String(o?.id||'').slice(0,8).toUpperCase();const moneyIncoming=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);const statusNames={pending:'Recebido',accepted:'Aceito',preparing:'Preparando',ready:'Pronto',out_for_delivery:'Saiu para entrega',completed:'Concluído',cancelled:'Cancelado'};let onlineOrders=[];
 // Áudio aprovado para a MENUX. O MP3 deve estar na mesma pasta de lojista.html.
+// Alerta TRIM-TRIM: decodifica o MP3 no gesto de clique para usar Web Audio
+// nas próximas consultas. Safari pode suspender o contexto em segundo plano;
+// mantemos fallback e aviso visível caso isso aconteça.
 const menuxBellAudio=new Audio('./menux-alerta.mp3');
 menuxBellAudio.preload='auto';
 menuxBellAudio.volume=0.95;
@@ -700,6 +703,10 @@ const menuxSoundButton=document.getElementById('menux-sound-toggle');
 const menuxAlertCount=document.getElementById('menux-alert-count');
 const menuxDefaultTitle=document.title;
 let menuxSoundEnabled=false;
+let menuxAudioContext=null;
+let menuxAudioBuffer=null;
+let menuxAudioSource=null;
+let menuxAudioLoading=null;
 let menuxKnownPending=null;
 let menuxAlertRestaurant=null;
 let menuxAlertInFlight=false;
@@ -719,39 +726,88 @@ function menuxUpdateSoundButton(){
  menuxSoundButton.setAttribute('aria-pressed',String(menuxSoundEnabled));
  menuxSoundButton.title=menuxSoundEnabled?'Clique para silenciar':'Clique para habilitar avisos sonoros';
 }
+async function menuxPrepareWebAudio(){
+ const AudioCtx=window.AudioContext||window.webkitAudioContext;
+ if(!AudioCtx)throw new Error('Web Audio indisponível');
+ // IMPORTANTE: esta chamada é iniciada diretamente no clique do usuário.
+ if(!menuxAudioContext)menuxAudioContext=new AudioCtx();
+ const context=menuxAudioContext;
+ const resume=context.resume();
+ if(!menuxAudioLoading){
+  menuxAudioLoading=(async()=>{
+   const response=await fetch('./menux-alerta.mp3',{cache:'force-cache'});
+   if(!response.ok)throw new Error('MP3 indisponível: '+response.status);
+   const bytes=await response.arrayBuffer();
+   menuxAudioBuffer=await context.decodeAudioData(bytes);
+   return menuxAudioBuffer;
+  })().catch(e=>{menuxAudioLoading=null;throw e});
+ }
+ await Promise.all([resume,menuxAudioLoading]);
+ return context;
+}
+function menuxPlayBuffer(){
+ if(!menuxAudioContext||!menuxAudioBuffer||menuxAudioContext.state!=='running')return false;
+ if(menuxAudioSource){try{menuxAudioSource.stop()}catch{}}
+ const source=menuxAudioContext.createBufferSource();
+ const gain=menuxAudioContext.createGain();
+ source.buffer=menuxAudioBuffer;
+ gain.gain.value=0.95;
+ source.connect(gain);
+ gain.connect(menuxAudioContext.destination);
+ source.start(0);
+ menuxAudioSource=source;
+ source.onended=()=>{if(menuxAudioSource===source)menuxAudioSource=null};
+ return true;
+}
 async function playMenuxAlert(){
  if(!menuxSoundEnabled||menuxAlertInFlight)return;
  menuxAlertInFlight=true;
  try{
-  menuxBellAudio.pause();
-  menuxBellAudio.currentTime=0;
-  await menuxBellAudio.play();
+  // Usa o contexto previamente desbloqueado, sem depender de novo gesto.
+  if(menuxAudioContext&&menuxAudioContext.state!=='running'){
+   await menuxAudioContext.resume();
+  }
+  if(!menuxPlayBuffer()){
+   menuxBellAudio.pause();
+   menuxBellAudio.currentTime=0;
+   await menuxBellAudio.play();
+  }
  }catch(e){
-  console.warn('MENUX: falha na reprodução do TRIM-TRIM:',e);
-  menuxNotice('🔔 NOVO PEDIDO! O Safari não reproduziu a campainha. Clique em Ativar som para liberar o áudio.');
+  console.warn('MENUX: áudio automático bloqueado:',e);
+  menuxNotice('🔔 NOVO PEDIDO! O navegador bloqueou a campainha. Abra a aba MENUX e clique em Ativar som para habilitar novamente.');
  }finally{menuxAlertInFlight=false}
 }
 menuxSoundButton.addEventListener('click',async()=>{
  if(menuxSoundEnabled){
   menuxSoundEnabled=false;
   menuxBellAudio.pause();
-  menuxBellAudio.currentTime=0;
+  if(menuxAudioSource){try{menuxAudioSource.stop()}catch{}}
   localStorage.setItem(menuxSoundKey(),'off');
   menuxUpdateSoundButton();
   return;
  }
+ menuxSoundButton.disabled=true;
+ menuxSoundButton.textContent='🔔 Preparando sino...';
  try{
-  // Iniciado por clique explícito para liberar a reprodução de áudio no Safari.
+  // Inicia imediatamente no clique: desbloqueia o AudioContext no Safari.
+  const prepared=menuxPrepareWebAudio();
+  // Testa o som com o clique, que já sabemos funcionar neste navegador.
+  menuxBellAudio.currentTime=0;
+  const test=menuxBellAudio.play();
+  const results=await Promise.allSettled([prepared,test]);
+  if(results.every(r=>r.status==='rejected'))throw results[0].reason;
+  if(results[0].status==='rejected')console.warn('MENUX: Web Audio não preparado, usando MP3:',results[0].reason);
   menuxSoundEnabled=true;
-  await menuxBellAudio.play();
   localStorage.setItem(menuxSoundKey(),'on');
   menuxUpdateSoundButton();
  }catch(e){
+  console.warn('MENUX: falha ao ativar som:',e);
   menuxSoundEnabled=false;
   menuxUpdateSoundButton();
-  alert('Não foi possível tocar a campainha. Verifique se o arquivo menux-alerta.mp3 está no GitHub e se o som está liberado neste navegador.');
- }
+  alert('Não foi possível preparar o sino. Verifique o arquivo menux-alerta.mp3 e as permissões de som do Safari.');
+ }finally{menuxSoundButton.disabled=false}
 });
+// Preferência salva não significa áudio autorizado: exigir um clique por abertura.
 menuxUpdateSoundButton();
 // Somente na Central de Pedidos: começa um novo dia às 00:00 no horário de Brasília.
 function menuxToday(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=t=>parts.find(p=>p.type===t)?.value;return `${get('year')}-${get('month')}-${get('day')}`;}
@@ -784,7 +840,7 @@ alertButton.hidden=!pendingOrders.length;
 alertButton.textContent='🔔 '+(pendingOrders.length===1?'1 pedido novo':pendingOrders.length+' pedidos novos');
 menuxAlertCount.textContent='';
 document.title=pendingOrders.length?'('+pendingOrders.length+') '+menuxDefaultTitle:menuxDefaultTitle;
-message.textContent=pendingOrders.length?'Você tem '+pendingOrders.length+' pedido(s) aguardando aceite. Acesse a aba Pedidos.':'Nenhum pedido novo aguardando aceite.';
+message.textContent=pendingOrders.length?'Você tem '+pendingOrders.length+' pedido(s) aguardando aceite. Acesse a aba Pedidos.'+(menuxSoundEnabled?'':' Clique em Ativar som para habilitar a campainha.'):'Nenhum pedido novo aguardando aceite.';
 list.innerHTML=pendingOrders.length?'<button type="button" id="menux-go-orders" style="background:#bfa366;color:#17151d;font-weight:700">Abrir Central de Pedidos</button>':'';
 const go=document.getElementById('menux-go-orders');if(go)go.onclick=()=>{box.hidden=true;document.querySelector('[data-go="orders"]')?.click();loadIncoming()};
 // Mostra pendentes já existentes, mas só toca para pedidos que chegam depois do primeiro carregamento.
@@ -792,7 +848,8 @@ const go=document.getElementById('menux-go-orders');if(go)go.onclick=()=>{box.hi
 if(menuxAlertRestaurant!==restaurant.id){
  menuxAlertRestaurant=restaurant.id;
  menuxKnownPending=null;
- menuxSoundEnabled=localStorage.getItem(menuxSoundKey())==='on';
+ // O Safari exige um gesto nesta visita antes de reproduzir alertas.
+ menuxSoundEnabled=false;
  menuxUpdateSoundButton();
 }
 const idsNow=new Set(pendingOrders.map(o=>o.id));
