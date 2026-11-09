@@ -126,7 +126,22 @@
  <div id="menuxHoursMsg" role="status" style="margin:12px 0;color:#e3c77f"></div>
  <button type="submit" class="btn primary">Salvar horários</button>
  </form></div></section>
-<section class="page" id="printing"><h2>Impressão de pedidos</h2><div class="grid two"><div class="card"><h2>Formato da comanda</h2><p class="muted">Escolha a largura da bobina usada pela impressora. A configuração fica salva neste navegador.</p><label for="menuxPrintWidth">Largura da bobina</label><select class="field" id="menuxPrintWidth"><option value="80">80 mm — térmica maior</option><option value="58">58 mm — térmica compacta</option></select><p class="muted small">Na Central de Pedidos, clique em <b>Imprimir</b> ou <b>Ver detalhes → Imprimir comanda</b>.</p><button class="btn primary" data-go="orders">Ir para pedidos</button></div><div class="card"><h2>Como imprimir</h2><p class="muted">A MENUX abre a impressão do navegador. Escolha sua impressora e configure papel de 58 mm ou 80 mm no driver, conforme o modelo.</p><p class="muted small">A impressão automática sem confirmação depende de um aplicativo/serviço específico e ainda não está disponível. Para reimprimir, use o mesmo botão.</p></div></div></section>
+<section class="page" id="printing"><h2>Impressão de pedidos</h2><div class="grid two"><div class="card"><h2>Formato da comanda</h2><p class="muted">Escolha a largura da bobina usada pela impressora. A configuração fica salva neste navegador.</p><label for="menuxPrintWidth">Largura da bobina</label><select class="field" id="menuxPrintWidth"><option value="80">80 mm — térmica maior</option><option value="58">58 mm — térmica compacta</option></select><p class="muted small">Na Central de Pedidos, clique em <b>Imprimir</b> ou <b>Ver detalhes → Imprimir comanda</b>.</p><button class="btn primary" data-go="orders">Ir para pedidos</button></div><div class="card"><h2>Como imprimir</h2><p class="muted">A MENUX abre a impressão do navegador. Escolha sua impressora e configure papel de 58 mm ou 80 mm no driver, conforme o modelo.</p><p class="muted small">A impressão automática sem confirmação depende de um aplicativo/serviço específico e ainda não está disponível. Para reimprimir, use o mesmo botão.</p></div></div>
+<div class="card" style="margin-top:18px" id="menuxAutoPrintSettings">
+<h2>🖨️ Impressão automática gratuita — Windows</h2>
+<p class="muted">Sem QZ Tray e sem licença paga. O computador precisa executar o <b>Impressor MENUX</b> (programa local gratuito) e a impressora deve estar instalada no Windows e aceitar comandos ESC/POS.</p>
+<div class="formgrid">
+ <div class="formgroup"><label>Chave do Impressor MENUX (visível na janela do programa)</label><input id="menuxAutoPrintToken" type="password" autocomplete="off" placeholder="Cole a chave gerada no Windows"></div>
+ <div class="formgroup"><label>Impressora instalada no Windows</label><select class="field" id="menuxAutoPrintPrinter" style="width:100%"><option value="">Conecte ao impressor para listar</option></select></div>
+</div>
+<div class="row" style="flex-wrap:wrap;margin-top:14px">
+<button type="button" class="btn" id="menuxAutoPrintConnect">Conectar e listar impressoras</button>
+<button type="button" class="btn primary" id="menuxAutoPrintEnable">Ativar impressão automática</button>
+<button type="button" class="btn" id="menuxAutoPrintDisable">Desativar</button>
+</div>
+<p class="muted small" id="menuxAutoPrintStatus" aria-live="polite" style="margin-top:12px">Desativada.</p>
+<p class="muted small">Imprime <b>novos pedidos recebidos</b> enquanto o painel e o programa Windows estiverem abertos. Pedidos que já estavam pendentes ao ativar não são impressos automaticamente; use o botão manual nesses casos. Cada pedido novo é enviado uma única vez, mesmo após atualizar a página.</p>
+</div></section>
 <section class="page" id="settings"><h2>Minha loja</h2><div class="card"><form id="storeForm"><div class="formgrid"><div class="formgroup"><label>Nome do restaurante</label><input name="name" required></div><div class="formgroup"><label>Slug (endereço curto)</label><input name="slug" placeholder="minha-loja" pattern="[a-z0-9-]+" title="Use letras minúsculas, números e hífens"></div></div><p class="muted small">WhatsApp, endereço, horários e outras configurações exigem novas colunas no banco. O slug não publica o cardápio sozinho.</p><button class="btn primary" style="margin-top:15px">Salvar alterações</button></form></div></section>
 <div class="muted small" style="padding-top:25px">MENUX · Painel do lojista · Dados reais por restaurante.</div></main></div>
 <div id="authOverlay"><div class="authCard"><h2>Acesso à loja</h2><p>Verificando sua sessão...</p><p id="authError" style="color:#ffaaa0"></p><a href="index.html" style="color:#e3c77f">Ir para login</a></div></div>
@@ -827,7 +842,8 @@ document.addEventListener('keydown',function(event){
 },{capture:true});
 // Somente na Central de Pedidos: começa um novo dia às 00:00 no horário de Brasília.
 function menuxToday(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=t=>parts.find(p=>p.type===t)?.value;return `${get('year')}-${get('month')}-${get('day')}`;}
-async function loadIncoming(){if(typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant){message.textContent='Aguarde o carregamento da loja e tente novamente.';return;}const day=menuxToday();const {data,error}=await sb.from('menux_checkout_orders').select('*').eq('restaurant_id',restaurant.id).eq('order_day',day).order('created_at',{ascending:false}).limit(100);if(error){message.textContent='Não foi possível consultar pedidos online: '+error.message;return;}onlineOrders=data||[];const ids=onlineOrders.map(o=>o.id);let items=[];if(ids.length){const r=await sb.from('menux_checkout_order_items').select('*').eq('restaurant_id',restaurant.id).in('order_id',ids);if(r.error){message.textContent='Erro ao carregar itens: '+r.error.message;return;}items=r.data||[];}message.textContent=onlineOrders.length+' pedido(s) online · Atualizar para consultar novos pedidos';
+async function loadIncoming(){if(typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant){message.textContent='Aguarde o carregamento da loja e tente novamente.';return;}const day=menuxToday();const {data,error}=await sb.from('menux_checkout_orders').select('*').eq('restaurant_id',restaurant.id).eq('order_day',day).order('created_at',{ascending:false}).limit(100);if(error){message.textContent='Não foi possível consultar pedidos online: '+error.message;return;}onlineOrders=data||[];const ids=onlineOrders.map(o=>o.id);let items=[];if(ids.length){const r=await sb.from('menux_checkout_order_items').select('*').eq('restaurant_id',restaurant.id).in('order_id',ids);if(r.error){message.textContent='Erro ao carregar itens: '+r.error.message;return;}items=r.data||[];}if(window.menuxAutoPrintPoll)void window.menuxAutoPrintPoll(onlineOrders,items,restaurant);
+message.textContent=onlineOrders.length+' pedido(s) online · Atualizar para consultar novos pedidos';
 const main=document.getElementById('menuxMainOrders');
 if(main){
 const ordered=onlineOrders.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
@@ -1152,6 +1168,137 @@ showHistory();setText('menuxReportMsg',records.length+' pedido(s) encontrados no
 function csvCell(v){return '"'+String(v??'').replace(/"/g,'""')+'"';}
 function downloadCsv(){if(!selected.length){setText('menuxReportMsg','Nenhum pedido disponível para exportar neste filtro.');return;}const rows=[['Data','Pedido','Cliente','Atendimento','Status','Total (R$)'],...selected.map(o=>[new Date(o.created_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}),String(o.daily_number||'').padStart(3,'0'),o.customer_name,o.fulfillment,states[o.status]||o.status,Number(o.total||0).toFixed(2).replace('.',',')])];const csv='\uFEFF'+rows.map(r=>r.map(csvCell).join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));const a=document.createElement('a');a.href=url;a.download='menux-historico-'+byId('menuxReportStart').value+'-a-'+byId('menuxReportEnd').value+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
 initDates();byId('menuxReportApply').addEventListener('click',loadReport);byId('menuxReportStatus').addEventListener('change',showHistory);byId('menuxReportExport').addEventListener('click',downloadCsv);document.querySelector('[data-page="analytics"]')?.addEventListener('click',loadReport);
+})();
+</script>
+<script id="menux-auto-print-windows">
+/* MENUX: ponte local Windows gratuita. Nenhum pedido e enviado a terceiros.
+ * O navegador envia para 127.0.0.1 e o utilitario imprime pela impressora instalada.
+ * Origin e token devem ser validados no utilitario; nao habilitar CORS generico.
+ */
+(()=>{
+'use strict';
+const ROOT='http://127.0.0.1:18774';
+const el=id=>document.getElementById(id);
+const key='menux_winprint_';
+const status=el('menuxAutoPrintStatus');
+const printer=el('menuxAutoPrintPrinter');
+const tokenInput=el('menuxAutoPrintToken');
+let enabled=false;
+let busy=false;
+let known=new Set();
+let storeId='';
+let initialized=false;
+function storeKey(id,suffix){return key+String(id)+'_'+suffix}
+function say(t,isError=false){if(status){status.textContent=t;status.style.color=isError?'#ffaaa3':'#8ed7aa'}}
+function loadPrefs(id){
+ if(!id||storeId===id)return;
+ storeId=id;
+ try{
+   tokenInput.value=localStorage.getItem(storeKey(id,'token'))||'';
+   const savedPrinter=localStorage.getItem(storeKey(id,'printer'))||'';
+   if(savedPrinter && ![...printer.options].some(o=>o.value===savedPrinter))printer.add(new Option(savedPrinter,savedPrinter));
+   printer.value=savedPrinter;
+   enabled=localStorage.getItem(storeKey(id,'on'))==='true';
+   known=new Set(JSON.parse(localStorage.getItem(storeKey(id,'seen'))||'[]'));
+   initialized=localStorage.getItem(storeKey(id,'initialized'))==='true';
+ }catch(err){enabled=false;known=new Set();initialized=false;}
+ say(enabled?'Ativada. Aguardando novos pedidos e conexao com o programa Windows.':'Desativada.');
+}
+function keepSeen(){
+ try{localStorage.setItem(storeKey(storeId,'seen'),JSON.stringify([...known].slice(-1500)))}catch{}
+}
+async function agent(path,payload,ms=4500){
+ const abort=new AbortController(),tm=setTimeout(()=>abort.abort(),ms);
+ try{
+   const r=await fetch(ROOT+path,{
+     method:payload?'POST':'GET',mode:'cors',cache:'no-store',signal:abort.signal,
+     headers:{'X-MENUX-Token':tokenInput.value.trim(),...(payload?{'Content-Type':'application/json'}:{})},
+     ...(payload?{body:JSON.stringify(payload)}:{})
+   });
+   let data;try{data=await r.json()}catch{throw new Error('Resposta inválida do programa Windows')}
+   if(!r.ok)throw new Error(data.error||('Erro '+r.status));
+   return data;
+ }catch(e){
+   if(e.name==='AbortError')throw new Error('O impressor local demorou para responder.');
+   if(e instanceof TypeError)throw new Error('Não conectou ao Impressor MENUX. Confirme que o programa está aberto no mesmo Windows e o navegador permite acesso local.');
+   throw e;
+ }finally{clearTimeout(tm)}
+}
+async function connect(){
+ const id=typeof restaurant!=='undefined'&&restaurant?.id;
+ if(!id){say('Entre no painel de uma loja antes de conectar.',true);return}
+ loadPrefs(id);
+ if(!tokenInput.value.trim()){say('Copie a chave da janela do Impressor MENUX no Windows.',true);return}
+ say('Conectando à impressora local...');
+ const data=await agent('/printers');
+ const old=printer.value||localStorage.getItem(storeKey(id,'printer'))||'';
+ printer.textContent='';
+ printer.add(new Option('Selecione uma impressora',''));
+ for(const name of data.printers){printer.add(new Option(name,name))}
+ if([...printer.options].some(o=>o.value===old))printer.value=old;
+ say(data.printers.length?'Conectado! Escolha sua impressora.':'Nenhuma impressora foi encontrada no Windows.',!data.printers.length);
+}
+el('menuxAutoPrintConnect').addEventListener('click',()=>connect().catch(e=>say(e.message,true)));
+el('menuxAutoPrintEnable').addEventListener('click',async()=>{
+ const id=typeof restaurant!=='undefined'&&restaurant?.id;
+ if(!id){say('Aguarde o carregamento da loja.',true);return}
+ loadPrefs(id);
+ try{
+   await connect();
+   if(!printer.value)throw new Error('Selecione uma impressora Windows.');
+   if(!window.__menuxAutoPrintLastOrders){await refreshMenuxOrders().catch(()=>{});}
+   const current=window.__menuxAutoPrintLastOrders||[];
+   if(!initialized){for(const o of current)known.add(o.id);initialized=true;localStorage.setItem(storeKey(id,'initialized'),'true');keepSeen()}
+   enabled=true;
+   localStorage.setItem(storeKey(id,'token'),tokenInput.value.trim());
+   localStorage.setItem(storeKey(id,'printer'),printer.value);
+   localStorage.setItem(storeKey(id,'on'),'true');
+   say('Impressão automática ATIVA. Novos pedidos serão impressos no Windows.');
+ }catch(e){say(e.message,true)}
+});
+el('menuxAutoPrintDisable').addEventListener('click',()=>{
+ enabled=false;
+ if(storeId)localStorage.setItem(storeKey(storeId,'on'),'false');
+ say('Impressão automática desativada.');
+});
+printer.addEventListener('change',()=>{
+ if(storeId)localStorage.setItem(storeKey(storeId,'printer'),printer.value);
+});
+tokenInput.addEventListener('change',()=>{
+ if(storeId)localStorage.setItem(storeKey(storeId,'token'),tokenInput.value.trim());
+});
+window.menuxAutoPrintPoll=async(orders,items,rest)=>{
+ if(!rest?.id)return;
+ loadPrefs(rest.id);
+ window.__menuxAutoPrintLastOrders=orders;
+ if(!initialized){
+   // Primeira entrada: evita imprimir todos os pedidos antigos ao habilitar.
+   for(const o of orders)known.add(o.id);
+   initialized=true;
+   localStorage.setItem(storeKey(rest.id,'initialized'),'true');
+   keepSeen();
+   return;
+ }
+ if(!enabled||busy||!printer.value||!tokenInput.value)return;
+ // Nunca imprime pedido cancelado ou já em preparação; impressão é no recebimento.
+ const fresh=orders.filter(o=>o.status==='pending'&&!known.has(o.id));
+ if(!fresh.length)return;
+ busy=true;
+ try{
+   for(const order of fresh.slice().reverse()){
+     const its=items.filter(i=>i.order_id===order.id);
+     if(!its.length)continue;
+     try{
+       const data=await agent('/print',{
+         printer:printer.value,width:el('menuxPrintWidth')?.value==='58'?58:80,
+         order:{...order,store_name:rest.name},items:its
+       },11000);
+       known.add(order.id);keepSeen();
+       say('🖨️ Comanda '+(order.daily_number?'#'+String(order.daily_number).padStart(3,'0'):'')+' enviada para a impressora!');
+     }catch(e){say('⚠️ Pedido novo sem impressão: '+e.message+' Use Imprimir na Central de Pedidos.',true);break;}
+   }
+ }finally{busy=false}
+};
 })();
 </script>
 </body></html>
