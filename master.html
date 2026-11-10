@@ -18,6 +18,16 @@
 @media(max-width:750px){.menux-sub-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .menux-sub-hint{color:#a4a6ad;font-size:13px}
 @media(max-width:750px){.menux-sub-grid{grid-template-columns:1fr}.menux-sub-grid .wide{grid-column:span 1}}
+</style><style id="menux-demo-admin-style">
+.menux-demo-table{overflow-x:auto}.menux-demo-table table{min-width:650px}
+.menux-demo-table td,.menux-demo-table th{vertical-align:middle}
+.menux-demo-delete{background:#4a2328;color:#ffceca;border:1px solid #7d4149}
+.menux-demo-delete:hover{background:#693039}
+.menux-demo-modal[hidden]{display:none!important}
+.menux-demo-modal{position:fixed;z-index:10050;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:16px}
+.menux-demo-dialog{background:#191b20;border:1px solid #60515a;border-radius:18px;padding:25px;width:min(100%,480px);box-shadow:0 24px 90px #0009}
+.menux-demo-dialog h3{margin-top:0}.menux-demo-dialog .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:20px}
+.menux-demo-help{background:#242116;border:1px solid #66522d;border-radius:13px;padding:13px 16px;margin:12px 0 18px;color:#f1dfbc}.menux-demo-help p{line-height:1.55;font-size:13px;margin:7px 0;color:#e1d3b6}.menux-demo-delete{min-height:36px}
 </style></head><body><main class="wrap"><div class="top"><div><h1>◈ MENUX MASTER</h1><p class="muted">Central administrativa · Lojas da plataforma</p></div><button id="logout" class="secondary">Sair</button></div><p id="msg" role="status"></p><div class="grid"><div class="card"><p class="muted">Estabelecimentos</p><h1 id="count">—</h1></div><div class="card"><p class="muted">Produtos cadastrados</p><h1 id="products">—</h1></div><div class="card"><p class="muted">Pedidos registrados</p><h1 id="orders">—</h1></div></div><section class="card"><h2>Cadastrar estabelecimento</h2><p class="muted">Cria a loja. O acesso do proprietário é vinculado separadamente a uma conta Auth existente.</p><form id="newStore" class="grid"><div><label>Nome da loja</label><input id="name" required maxlength="120"></div><div><label>Link curto (slug)</label><input id="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="pizzaria-bella"></div><div style="align-self:end"><button>Criar loja</button></div></form></section><section class="card"><h2>Vincular proprietário</h2><p class="muted">Informe o UUID de um usuário já criado em Authentication → Users. Não use e-mail aqui: criar ou convidar usuários automaticamente exigirá uma Edge Function protegida.</p><form id="membership" class="grid"><div><label>Restaurante</label><select id="restaurant" required></select></div><div><label>UUID do usuário Auth</label><input id="userId" required pattern="[a-fA-F0-9-]{36}" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div><div style="align-self:end"><button>Vincular proprietário</button></div></form></section><section class="card" id="menuxSubscriptionAdmin">
 <h2>Planos e assinaturas</h2>
 <p class="menux-sub-hint">Controle administrativo manual. Os dados abaixo <strong>não</strong> cobram os lojistas nem bloqueiam suas lojas automaticamente.</p>
@@ -49,7 +59,23 @@
 </form><p id="menuxPaymentMessage" role="status" class="menux-sub-status"></p></div>
 <p id="menuxSubscriptionMessage" class="menux-sub-status" role="status"></p>
 <button type="button" id="menuxSubscriptionReload" class="secondary">Atualizar assinaturas</button>
-</section><section class="card"><h2>Estabelecimentos cadastrados</h2><div style="overflow:auto"><table><thead><tr><th>Nome</th><th>Link público planejado</th><th>ID</th><th>Cadastro</th></tr></thead><tbody id="rows"></tbody></table></div></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><script>function client(){const c=window.MENUX_CONFIG||{};if(!c.supabaseUrl?.startsWith('https://')||!c.supabaseAnonKey||c.supabaseAnonKey.startsWith('COLE_'))throw Error('Configure o arquivo config.js com a URL e a chave pública do Supabase.');return window.supabase.createClient(c.supabaseUrl,c.supabaseAnonKey)}const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));</script><script>let sb,stores=[];const $=id=>document.getElementById(id);function msg(t,bad=false){$('msg').className=bad?'error':'ok';$('msg').textContent=t}async function load(){const {data,error}=await sb.from('restaurants').select('id,name,slug,created_at').order('created_at',{ascending:false});if(error)throw error;stores=data||[];$('count').textContent=stores.length;$('rows').innerHTML=stores.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.slug||'Sem slug')} (a publicar)</td><td><small>${esc(s.id)}</small></td><td>${new Date(s.created_at).toLocaleDateString('pt-BR')}</td></tr>`).join('')||'<tr><td colspan="4">Nenhuma loja cadastrada</td></tr>';$('restaurant').innerHTML=stores.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');for(const [table,id] of [['products','products'],['orders','orders']]){const {count,error}=await sb.from(table).select('id',{count:'exact',head:true});$(id).textContent=error?'—':count}}(async()=>{try{sb=client();const {data:{user}}=await sb.auth.getUser();if(!user){location.replace('./');return}const {data,error}=await sb.from('platform_admins').select('user_id').eq('user_id',user.id).limit(1);if(error)throw error;if(!data?.length){location.replace('lojista.html');return}await load()}catch(e){msg(e.message,true)}})();$('newStore').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurants').insert({name:$('name').value.trim(),slug:$('slug').value.trim()});if(error)throw error;e.target.reset();await load();msg('Loja cadastrada! Agora vincule o proprietário.')}catch(err){msg(err.message,true)}});$('membership').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurant_members').insert({restaurant_id:$('restaurant').value,user_id:$('userId').value.trim(),role:'owner'});if(error)throw error;$('userId').value='';msg('Proprietário vinculado! Já pode entrar no login único.')}catch(err){msg(err.message,true)}});$('logout').onclick=async()=>{await sb?.auth.signOut();location.replace('./')};</script><script>
+</section><section class="card" id="menuxDemoManagement">
+<h2>Cadastros de demonstração</h2>
+<div class="menux-demo-help"><strong>🗑️ Onde excluir uma conta?</strong><p>O botão <b>Excluir</b> fica na última coluna da tabela abaixo, na linha de cada loja cadastrada como <b>Demonstração</b>. Se não houver nenhuma loja nessa situação, o botão não aparecerá. Para excluir, escolha uma conta de demonstração vazia e confirme digitando o nome da loja.</p><p>⚠️ Lojas em Teste, Ativas ou com dados operacionais não podem ser excluídas por essa opção.</p></div>
+<p class="muted">Exclusão manual de contas que ainda estão no modo Demonstração. <strong>Clientes com planos ativos, lojas com pedidos ou qualquer outro dado operacional não podem ser excluídos por aqui.</strong> A operação remove também a conta de acesso de demonstração, somente quando ela não pertence a outra loja.</p>
+<div class="top"><p id="menuxDemoMessage" role="status" class="muted">Carregando demonstrações…</p><button type="button" class="secondary" id="menuxDemoRefresh">Atualizar lista</button></div>
+<div class="menux-demo-table"><table><thead><tr><th>Loja</th><th>E-mail da conta</th><th>Cadastro</th><th>Último login</th><th>Ação</th></tr></thead><tbody id="menuxDemoRows"><tr><td colspan="5">Carregando…</td></tr></tbody></table></div>
+<p class="muted" style="font-size:13px">O último login não comprova se a pessoa usou o painel. Revise cada cadastro antes de excluir. Esta opção não exclui estabelecimentos com dados operacionais.</p>
+</section>
+<div id="menuxDemoModal" class="menux-demo-modal" hidden role="presentation"><div class="menux-demo-dialog" role="dialog" aria-modal="true" aria-labelledby="menuxDemoModalTitle">
+<h3 id="menuxDemoModalTitle">Excluir demonstração?</h3>
+<p id="menuxDemoModalInfo" class="muted"></p>
+<p style="color:#ffb1a7">Essa ação é definitiva. Se for permitida pelo banco, removerá a loja de demonstração e sua conta de login. Não afeta outras lojas.</p>
+<label for="menuxDemoConfirmName">Digite exatamente o nome da loja para confirmar</label>
+<input id="menuxDemoConfirmName" autocomplete="off" spellcheck="false" placeholder="Nome da loja">
+<p id="menuxDemoModalError" role="alert" class="error"></p>
+<div class="actions"><button id="menuxDemoCancel" class="secondary" type="button">Cancelar</button><button id="menuxDemoConfirm" class="menux-demo-delete" type="button" disabled>Excluir definitivamente</button></div>
+</div></div><section class="card"><h2>Estabelecimentos cadastrados</h2><div style="overflow:auto"><table><thead><tr><th>Nome</th><th>Link público planejado</th><th>ID</th><th>Cadastro</th></tr></thead><tbody id="rows"></tbody></table></div></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><script>function client(){const c=window.MENUX_CONFIG||{};if(!c.supabaseUrl?.startsWith('https://')||!c.supabaseAnonKey||c.supabaseAnonKey.startsWith('COLE_'))throw Error('Configure o arquivo config.js com a URL e a chave pública do Supabase.');return window.supabase.createClient(c.supabaseUrl,c.supabaseAnonKey)}const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));</script><script>let sb,stores=[];const $=id=>document.getElementById(id);function msg(t,bad=false){$('msg').className=bad?'error':'ok';$('msg').textContent=t}async function load(){const {data,error}=await sb.from('restaurants').select('id,name,slug,created_at').order('created_at',{ascending:false});if(error)throw error;stores=data||[];$('count').textContent=stores.length;$('rows').innerHTML=stores.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.slug||'Sem slug')} (a publicar)</td><td><small>${esc(s.id)}</small></td><td>${new Date(s.created_at).toLocaleDateString('pt-BR')}</td></tr>`).join('')||'<tr><td colspan="4">Nenhuma loja cadastrada</td></tr>';$('restaurant').innerHTML=stores.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');for(const [table,id] of [['products','products'],['orders','orders']]){const {count,error}=await sb.from(table).select('id',{count:'exact',head:true});$(id).textContent=error?'—':count}}(async()=>{try{sb=client();const {data:{user}}=await sb.auth.getUser();if(!user){location.replace('./');return}const {data,error}=await sb.from('platform_admins').select('user_id').eq('user_id',user.id).limit(1);if(error)throw error;if(!data?.length){location.replace('lojista.html');return}await load()}catch(e){msg(e.message,true)}})();$('newStore').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurants').insert({name:$('name').value.trim(),slug:$('slug').value.trim()});if(error)throw error;e.target.reset();await load();msg('Loja cadastrada! Agora vincule o proprietário.')}catch(err){msg(err.message,true)}});$('membership').addEventListener('submit',async e=>{e.preventDefault();try{const {error}=await sb.from('restaurant_members').insert({restaurant_id:$('restaurant').value,user_id:$('userId').value.trim(),role:'owner'});if(error)throw error;$('userId').value='';msg('Proprietário vinculado! Já pode entrar no login único.')}catch(err){msg(err.message,true)}});$('logout').onclick=async()=>{await sb?.auth.signOut();location.replace('./')};</script><script>
 // MENUX | Gestão manual de planos e assinaturas. Não altera o acesso das lojas.
 (() => {
   const $s = id => document.getElementById(id);
@@ -186,5 +212,74 @@
  });
  const origin=$('menuxSubscriptionReload');origin.addEventListener('click',()=>loadStores().catch(e=>say(e.message,true)));
  let attempts=0;const timer=setInterval(()=>{if(++attempts>80)clearInterval(timer);if(typeof window.supabase!=='undefined'&&window.MENUX_CONFIG){clearInterval(timer);loadStores().catch(e=>say(e.message,true))}},250);
+})();
+</script><script id="menux-demo-admin-script">
+(() => {
+ 'use strict';
+ const el=id=>document.getElementById(id);
+ const modal=el('menuxDemoModal');
+ let client=null,entries=[],selected=null,busy=false;
+ function message(t,error=false){const e=el('menuxDemoMessage');e.textContent=t;e.className=error?'error':'muted';}
+ const date=s=>s?new Date(s).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):'Sem registro';
+ async function api(){
+   if(!client){const cfg=window.MENUX_CONFIG||{};client=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey)}
+   const {data:{user},error}=await client.auth.getUser();
+   if(error||!user)throw Error('Entre na sua conta Master.');
+   const a=await client.from('platform_admins').select('user_id').eq('user_id',user.id).limit(1);
+   if(a.error||!a.data?.length)throw Error('Apenas o Master pode gerenciar demonstrações.');
+   return client;
+ }
+ async function load(){
+   message('Consultando contas de demonstração…');
+   try{
+     const db=await api();
+     const r=await db.rpc('menux_admin_list_demo_accounts');
+     if(r.error)throw r.error;
+     entries=r.data||[];
+     const tbody=el('menuxDemoRows');tbody.replaceChildren();
+     for(const account of entries){
+       const tr=document.createElement('tr');
+       for(const value of [account.store_name,account.account_email||'Sem e-mail',date(account.created_at),date(account.last_sign_in_at)]){
+         const td=document.createElement('td');td.textContent=value;tr.append(td);
+       }
+       const action=document.createElement('td');const button=document.createElement('button');
+       button.type='button';button.className='menux-demo-delete';button.textContent='Excluir';
+       button.addEventListener('click',()=>open(account));action.append(button);tr.append(action);tbody.append(tr);
+     }
+     if(!entries.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.textContent='Nenhuma conta em demonstração no momento. O botão Excluir aparecerá aqui quando houver um cadastro com situação Demonstração.';tr.append(td);tbody.append(tr)}
+     message(entries.length+' conta(s) em demonstração. Exclusão disponível apenas para cadastros sem dados.');
+   }catch(e){message('Não foi possível listar demonstrações: '+(e.message||e),true)}
+ }
+ function open(account){
+   selected=account;el('menuxDemoModalInfo').textContent='Loja: '+account.store_name+' · Conta: '+(account.account_email||'Sem e-mail');
+   el('menuxDemoConfirmName').value='';el('menuxDemoModalError').textContent='';
+   el('menuxDemoConfirm').disabled=true;modal.hidden=false;el('menuxDemoConfirmName').focus();
+ }
+ function close(){if(busy)return;modal.hidden=true;selected=null}
+ el('menuxDemoConfirmName').addEventListener('input',()=>{
+   el('menuxDemoConfirm').disabled=busy||!selected||el('menuxDemoConfirmName').value.trim()!==selected.store_name;
+ });
+ el('menuxDemoCancel').addEventListener('click',close);
+ modal.addEventListener('click',e=>{if(e.target===modal)close()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close()});
+ el('menuxDemoConfirm').addEventListener('click',async()=>{
+   if(busy||!selected||el('menuxDemoConfirmName').value.trim()!==selected.store_name)return;
+   busy=true;el('menuxDemoConfirm').disabled=true;el('menuxDemoCancel').disabled=true;
+   try{
+     const db=await api();
+     const result=await db.rpc('menux_admin_delete_empty_demo',{
+       p_restaurant_id:selected.restaurant_id,p_confirm_name:selected.store_name
+     });
+     if(result.error)throw result.error;
+     if(!result.data?.deleted)throw Error('O banco não confirmou a exclusão.');
+     modal.hidden=true;selected=null;
+     await load();
+     message('Demonstração excluída. Atualize a página para atualizar todos os indicadores.');
+   }catch(e){el('menuxDemoModalError').textContent='Não foi possível excluir: '+(e.message||e)}
+   finally{busy=false;el('menuxDemoCancel').disabled=false;el('menuxDemoConfirm').disabled=!selected||el('menuxDemoConfirmName').value.trim()!==selected.store_name}
+ });
+ el('menuxDemoRefresh').addEventListener('click',load);
+ const spin=()=>{if(window.supabase&&window.MENUX_CONFIG){load()}else setTimeout(spin,180)};
+ spin();
 })();
 </script></body></html>
