@@ -54,7 +54,7 @@
 (() => {
   const $s = id => document.getElementById(id);
   const escSub = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  const statuses = {trial:'Teste', active:'Ativa',past_due:'Em atraso',paused:'Pausada',cancelled:'Cancelada'};
+  const statuses = {demo:'Demonstração',trial:'Teste', active:'Ativa',past_due:'Em atraso',paused:'Pausada',cancelled:'Cancelada'};
   const brToday=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   const addDays=(date,days)=>{const d=new Date(date+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10)};
   const daysBetween=(today,date)=>Math.round((Date.parse(date+'T12:00:00Z')-Date.parse(today+'T12:00:00Z'))/86400000);
@@ -98,7 +98,7 @@
       $s('menuxSubscriptionRows').innerHTML=(rr.data||[]).map((r,i)=>{
         const sub=byRestaurant.get(r.id)||{};
         const days=sub.expires_on?daysBetween(today,sub.expires_on):null;
-        const tracking=sub.status!=='cancelled'&&sub.status!=='paused';
+        const tracking=sub.status!=='cancelled'&&sub.status!=='paused'&&sub.status!=='demo';
         const overdue=tracking&&days!==null&&days<0;
         const approaching=tracking&&days!==null&&days>=0&&days<=7;
         const dueBadge=overdue?'<span class="menux-sub-badge late">Vencida há '+Math.abs(days)+' dia(s)</span>':approaching?'<span class="menux-sub-badge due">Vence '+(days===0?'hoje':'em '+days+' dia(s)')+'</span>':(sub.status==='active'?'<span class="menux-sub-badge ok">Ativa</span>':sub.status==='trial'?'<span class="menux-sub-badge">Em teste</span>':'');
