@@ -169,8 +169,16 @@
    Dimensões em mm com folga para as margens da impressora/Safari. */
 @media print {
  @page { size:A4 portrait; margin:8mm; }
+ /* Isola QR das regras antigas que escondem todos os elementos na impressão
+    de comandas. O QR vive fora do contêiner .layout. */
+ body:not(.menux-print-qr) #menuxQrPrintPages { display:none!important; }
+ body.menux-print-qr > :not(#menuxQrPrintPages):not(#menuxQrPageStyle) { display:none!important; }
+ body.menux-print-qr #menuxQrPrintPages, body.menux-print-qr #menuxQrPrintPages * {
+   visibility:visible!important;
+ }
+
  html, body { width:auto!important;min-width:0!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important; }
- #menuxQrPrintPages {display:block!important;position:static!important;width:194mm!important;margin:0!important;padding:0!important;background:#fff!important;}
+ body.menux-print-qr #menuxQrPrintPages {display:block!important;position:static!important;width:194mm!important;margin:0!important;padding:0!important;background:#fff!important;}
  #menuxQrPrintPages .menux-qr-print-page {
    box-sizing:border-box!important;
    width:194mm!important;height:260mm!important;max-height:260mm!important;
@@ -2164,9 +2172,14 @@ async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da 
     for(const item of rendered.slice(i,i+2))page.appendChild(makePaper(item.n,item.src,orientation.value));
     printPages.appendChild(page);
    }
-   window.print();
-  }catch(e){status.textContent=e.message}
+   document.body.classList.add('menux-print-qr');
+   const imgs=[...printPages.querySelectorAll('img')];
+   Promise.all(imgs.map(img=>img.decode?img.decode().catch(()=>{}):Promise.resolve()))
+    .then(()=>window.print())
+    .catch(e=>{document.body.classList.remove('menux-print-qr');status.textContent=e.message});
+  }catch(e){document.body.classList.remove('menux-print-qr');status.textContent=e.message}
  });
+ window.addEventListener('afterprint',()=>document.body.classList.remove('menux-print-qr'));
  document.querySelector('[data-page="tableqr"]').addEventListener('click',()=>{if(restaurant?.slug&&!rendered.length){try{build()}catch(e){status.textContent=e.message}}});
 })();
 </script></body></html>
