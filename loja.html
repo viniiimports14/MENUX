@@ -477,6 +477,7 @@ async function menuxOpenGoogleCart(){
   menuxCurrentPhone=menuxCloudProfile.phone||'';
   checkoutForm.elements.customer_phone.value=menuxCurrentPhone;
   menuxProfileToForm(menuxCloudProfile);
+  menuxPrefillQrTable();
   $('menux-remember-feedback').textContent='Conectado com Google. Endereços salvos disponíveis nesta conta.';
   await menuxSyncTrackingShortcutFromCloud();
  }catch(e){
@@ -555,7 +556,7 @@ function menuxCompletePhoneStep(){
  if(!/^[0-9]{11}$/.test(phone)){$('menux-phone-error').textContent='Informe 11 dígitos: DDD + celular.';return;}
  menuxCurrentPhone=phone;menuxPhoneModal.hidden=true;
  checkoutForm.elements.customer_phone.value=phone;
- const saved=menuxSelectedProfile();if(saved)menuxProfileToForm(saved);else{checkoutForm.elements.customer_name.value='';menuxRenderSavedAddresses();}
+ const saved=menuxSelectedProfile();if(saved)menuxProfileToForm(saved);else{checkoutForm.elements.customer_name.value='';menuxRenderSavedAddresses();}menuxPrefillQrTable();
  try{localStorage.setItem('menux:last-phone:'+checkoutSlug,phone);}catch(e){}
  refreshCart();cartModal.hidden=false;
 }
@@ -695,6 +696,18 @@ checkoutForm.elements.fulfillment.onchange=()=>{
  if(!delivery)checkoutForm.elements.delivery_area_id.value='';
  refreshMenuxCheckoutSummary();
 };
+const menuxQrTable=(function(){
+ const value=new URLSearchParams(location.search).get('mesa');
+ return value&&/^[1-9][0-9]{0,2}$/.test(value)?value:null;
+})();
+function menuxPrefillQrTable(){
+ if(!menuxQrTable)return;
+ const f=checkoutForm.elements;
+ f.fulfillment.value='table';
+ f.fulfillment.onchange();
+ f.table_number.value=menuxQrTable;
+}
+menuxPrefillQrTable();
 checkoutForm.elements.delivery_area_id.onchange=refreshMenuxCheckoutSummary;
 checkoutForm.elements.payment_method.onchange=()=>{$('change-block').hidden=checkoutForm.elements.payment_method.value!=='cash';if(checkoutForm.elements.payment_method.value!=='cash')checkoutForm.elements.change_for.value='';};
 

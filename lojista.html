@@ -147,8 +147,41 @@
 .menux-support-banner[hidden]{display:none!important}.menux-support-banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#2b2417;border:1px solid #a88643;color:#ffdf9a;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px}.menux-support-banner b{letter-spacing:.05em}.menux-support-banner small{display:block;color:#e0ceab;margin-top:4px;font-size:12px}.menux-support-back{white-space:nowrap;background:#d2ad60;color:#18130a;text-decoration:none;border-radius:9px;padding:9px 12px;font-weight:800}
 :root[data-menux-theme="light"] .menux-support-banner{background:#fff8e8;color:#684a16;border-color:#d6b875}:root[data-menux-theme="light"] .menux-support-banner small{color:#715d39}
 @media(max-width:650px){.menux-support-banner{align-items:flex-start;flex-direction:column}}
+</style><style id="menux-qr-style">
+.menux-qr-config{max-width:960px}.menux-qr-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.menux-qr-form-grid .formgroup input,.menux-qr-form-grid .formgroup select{min-width:0;width:100%}
+.menux-qr-action-bar{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 7px}
+.menux-qr-preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:20px;max-width:960px}
+.menux-qr-preview-box{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:16px;display:flex;justify-content:center;align-items:center}
+.menux-qr-paper{background:white;color:#151515;border:2px solid #222;box-sizing:border-box;display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;padding:15px;font-family:Arial,Helvetica,sans-serif;width:min(100%,360px);box-shadow:0 3px 14px #0002}
+.menux-qr-paper[data-orientation="portrait"]{aspect-ratio:3/4;flex-direction:column}
+.menux-qr-paper[data-orientation="landscape"]{aspect-ratio:4/3;flex-direction:column}
+.menux-qr-paper .menux-qr-title{font-weight:900;font-size:clamp(22px,3vw,36px);line-height:1.15;white-space:nowrap}
+.menux-qr-paper .menux-qr-code{width:clamp(110px,14vw,160px);height:clamp(110px,14vw,160px);max-width:65%;aspect-ratio:1}
+.menux-qr-paper .menux-qr-code img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+.menux-qr-paper .menux-qr-instruction{font-size:clamp(12px,1.15vw,15px);line-height:1.35;font-weight:700;max-width:260px}
+.menux-qr-paper .menux-qr-brand{font-size:10px;letter-spacing:.18em;font-weight:900;margin-top:2px}
+@media(max-width:680px){.menux-qr-form-grid{grid-template-columns:1fr 1fr}.menux-qr-form-grid>.formgroup:last-child{grid-column:1/-1}.menux-qr-preview-grid{grid-template-columns:1fr}.menux-qr-paper .menux-qr-code{width:150px;height:150px}.menux-qr-paper .menux-qr-title{font-size:28px}.menux-qr-paper .menux-qr-instruction{font-size:14px}}
+#menuxQrPrintPages{display:none}
+@media print{
+ @page{size:A4 portrait;margin:7mm}
+ body>*:not(#menuxQrPrintPages){display:none!important}
+ #menuxQrPrintPages{display:block!important;position:static!important;background:#fff!important;color:#000!important;padding:0!important;margin:0!important}
+ #menuxQrPrintPages,#menuxQrPrintPages *{visibility:visible!important}
+ #menuxQrPrintPages .menux-qr-print-page{display:flex!important;align-items:center;justify-content:space-around;gap:7mm;page-break-after:always;break-after:page;break-inside:avoid;box-sizing:border-box}
+ #menuxQrPrintPages .menux-qr-print-page:last-child{page-break-after:auto;break-after:auto}
+ #menuxQrPrintPages[data-orientation="portrait"] .menux-qr-print-page{height:280mm;flex-direction:column}
+ #menuxQrPrintPages[data-orientation="landscape"] .menux-qr-print-page{height:190mm;flex-direction:row}
+ #menuxQrPrintPages .menux-qr-paper{flex:0 0 auto!important;box-shadow:none!important;border:2px solid #000!important;background:#fff!important;color:#000!important;border-radius:0!important;max-width:none!important;width:90mm!important;height:125mm!important;aspect-ratio:auto!important;padding:8mm!important;gap:5mm!important}
+ #menuxQrPrintPages[data-orientation="landscape"] .menux-qr-paper{width:132mm!important;height:102mm!important}
+ #menuxQrPrintPages .menux-qr-title{font-size:24pt!important}
+ #menuxQrPrintPages .menux-qr-instruction{font-size:11pt!important}
+ #menuxQrPrintPages .menux-qr-code{width:49mm!important;height:49mm!important;max-width:none!important}
+ #menuxQrPrintPages[data-orientation="landscape"] .menux-qr-code{width:42mm!important;height:42mm!important}
+ #menuxQrPrintPages .menux-qr-brand{font-size:9pt!important}
+}
 </style></head><body><div class="layout">
-<aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
+<aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="tableqr"><span class="ico">▦</span><span class="navtext">QR Code das mesas</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <div id="menuxMobileBackdrop" class="menux-mobile-backdrop" aria-hidden="true"></div>
 <main class="main"><div id="menuxSupportBanner" class="menux-support-banner" hidden role="status"><span><b>🛠️ SUPORTE MENUX</b> · <span id="menuxSupportStore">—</span><small>Você está usando sua conta Master para auxiliar este estabelecimento. As alterações feitas aqui afetam a loja selecionada.</small></span><a href="master.html" class="menux-support-back">← Voltar ao Master</a></div><div id="menuxDemoBanner" class="menux-demo-banner" hidden><span>👀 <b>DEMONSTRAÇÃO</b> · <span id="menuxDemoBannerName"></span><br><small>Explore as telas. Para cadastrar ou vender, assine um plano MENUX.</small></span><button type="button" class="btn primary" data-demo-open="1">Conhecer planos ↗</button></div><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button><button class="btn" id="logout" title="Sair">Sair</button></div></header>
 <div id="feedback" role="status" aria-live="polite"></div>
@@ -246,6 +279,21 @@
 <p class="muted small" id="menuxAutoPrintStatus" aria-live="polite" style="margin-top:12px">Desativada.</p>
 <p class="muted small">Imprime <b>novos pedidos recebidos</b> enquanto o painel e o programa Windows estiverem abertos. Pedidos que já estavam pendentes ao ativar não são impressos automaticamente; use o botão manual nesses casos. Cada pedido novo é enviado uma única vez, mesmo após atualizar a página.</p>
 </div></section>
+<section class="page" id="tableqr">
+ <div class="row between" style="flex-wrap:wrap"><h2>QR Code das mesas</h2><span class="tag">Acesso direto ao cardápio</span></div>
+ <p class="muted">Crie plaquinhas prontas para imprimir, recortar e colocar nas mesas. Cada QR Code abre o cardápio da sua loja e já identifica a mesa.</p>
+ <div class="card menux-qr-config">
+  <div class="menux-qr-form-grid">
+   <div class="formgroup"><label for="menuxQrStart">Da mesa</label><input id="menuxQrStart" type="number" min="1" max="999" step="1" value="1"></div>
+   <div class="formgroup"><label for="menuxQrEnd">Até a mesa</label><input id="menuxQrEnd" type="number" min="1" max="999" step="1" value="10"></div>
+   <div class="formgroup"><label for="menuxQrOrientation">Orientação das plaquinhas</label><select id="menuxQrOrientation"><option value="portrait">Retrato — vertical</option><option value="landscape">Paisagem — horizontal</option></select></div>
+  </div>
+  <div class="menux-qr-action-bar"><button class="btn" type="button" id="menuxQrGenerate">Gerar prévia</button><button class="btn primary" type="button" id="menuxQrPrint">🖨️ Imprimir mesas</button></div>
+  <p id="menuxQrStatus" class="muted small" role="status" aria-live="polite">Configure as mesas e clique em Gerar prévia.</p>
+  <p class="muted small" style="margin-bottom:0">Impressão em papel A4, com duas plaquinhas por folha. Para manter o tamanho certo, use escala de 100% nas opções da impressora. O QR Code é gerado no seu navegador.</p>
+ </div>
+ <div id="menuxQrPreview" class="menux-qr-preview-grid" aria-label="Prévia de plaquinhas"></div>
+</section>
 <section class="page" id="settings"><h2>Minha loja</h2><div class="card"><form id="storeForm"><div class="formgrid"><div class="formgroup"><label>Nome do restaurante</label><input name="name" required></div><div class="formgroup"><label>Slug (endereço curto)</label><input name="slug" placeholder="minha-loja" pattern="[a-z0-9-]+" title="Use letras minúsculas, números e hífens"></div></div><p class="muted small">WhatsApp, endereço, horários e outras configurações exigem novas colunas no banco. O slug não publica o cardápio sozinho.</p><button class="btn primary" style="margin-top:15px">Salvar alterações</button></form></div></section>
 <section class="page" id="subscription">
 <div class="row between" style="align-items:center;flex-wrap:wrap;gap:12px"><div><h2>Minha assinatura</h2><p class="muted">Consulte seu plano, pagamentos registrados e a data da próxima renovação.</p></div><button class="btn" id="menuxSubRefresh" type="button">Atualizar</button></div>
@@ -269,10 +317,10 @@
 [hidden]{display:none!important}#feedback{display:none;margin-bottom:14px;padding:12px;border:1px solid #70572d;background:#29251d;border-radius:10px;color:#e3c77f}#feedback.show{display:block}#authOverlay{position:fixed;inset:0;background:#0d0e10ee;z-index:20;display:grid;place-items:center;padding:18px}#authOverlay.hidden{display:none}.authCard{width:min(440px,100%);background:var(--panel);border:1px solid var(--line);padding:28px;border-radius:18px}.authCard .formgroup{margin:12px 0}.authCard input{width:100%;background:#111317;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px}textarea.field{font:inherit}.order-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.empty{padding:18px 0;color:var(--muted)}@media print{.side,.top,#feedback,.order-actions,.btn,#authOverlay{display:none!important}.main{margin:0;width:100%;padding:0}.page{display:none!important}#printSheet{display:block!important;color:#000;background:#fff;padding:12px;font:13px Arial}.layout{display:block}}
 </style>
 <div id="printSheet" hidden></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 'use strict';
-const titles={overview:'Visão geral',orders:'Pedidos',menu:'Cardápio',catalog:'Central de opções e adicionais',customers:'Clientes',analytics:'Menux Intelligence',delivery:'Entregas e regiões',storefront:'Site da loja',hours:'Horário de funcionamento',printing:'Impressão',settings:'Minha loja',subscription:'Minha assinatura'};
+const titles={overview:'Visão geral',orders:'Pedidos',menu:'Cardápio',catalog:'Central de opções e adicionais',customers:'Clientes',analytics:'Menux Intelligence',delivery:'Entregas e regiões',storefront:'Site da loja',hours:'Horário de funcionamento',printing:'Impressão',tableqr:'QR Code das mesas',settings:'Minha loja',subscription:'Minha assinatura'};
 let sb=null,restaurant=null,restaurants=[],products=[],orders=[],items=[],customers=[],areas=[],user=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const done=['completed','delivered','finished','finalizado','concluido','concluído'];const cancelled=['cancelled','canceled','cancelado'];const isDone=o=>done.includes(String(o.status).toLowerCase()),isCancelled=o=>cancelled.includes(String(o.status).toLowerCase());
@@ -2034,4 +2082,67 @@ async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da 
  #menuxMainOrders .menux-orders-grid .menux-preview{overflow:visible!important}
 }
 </style>
-</body></html>
+<div id="menuxQrPrintPages" aria-hidden="true"></div><style id="menuxQrPageStyle"></style><script>
+(function(){
+ const start=document.getElementById('menuxQrStart'),end=document.getElementById('menuxQrEnd'),orientation=document.getElementById('menuxQrOrientation');
+ const preview=document.getElementById('menuxQrPreview'),status=document.getElementById('menuxQrStatus');
+ const printPages=document.getElementById('menuxQrPrintPages');
+ let rendered=[];
+ function getConfig(){
+  const a=Number(start.value),b=Number(end.value);
+  if(!Number.isInteger(a)||!Number.isInteger(b)||a<1||b<a||b>999)throw Error('Informe um intervalo válido, entre as mesas 1 e 999.');
+  if(b-a+1>60)throw Error('Para imprimir com segurança, gere no máximo 60 mesas por vez.');
+  if(!restaurant?.slug||!/^[a-z0-9-]+$/.test(restaurant.slug))throw Error('Cadastre um endereço público (slug) válido em Minha loja primeiro.');
+  if(typeof QRCode==='undefined')throw Error('Não foi possível carregar a ferramenta de QR Code. Verifique sua conexão com a internet.');
+  return {a,b,orientation:orientation.value};
+ }
+ function tableUrl(n){
+  const u=new URL('loja.html',location.href);
+  u.searchParams.set('slug',restaurant.slug);
+  u.searchParams.set('mesa',String(n));
+  return u.href;
+ }
+ function qrData(text){
+  const off=document.createElement('div');
+  new QRCode(off,{text,width:320,height:320,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});
+  const canvas=off.querySelector('canvas');
+  if(canvas)return canvas.toDataURL('image/png');
+  const img=off.querySelector('img');
+  if(img?.src)return img.src;
+  throw Error('Não foi possível gerar o QR Code.');
+ }
+ function makePaper(n,src,dir){
+  const box=document.createElement('div');box.className='menux-qr-paper';box.dataset.orientation=dir;
+  const title=document.createElement('div');title.className='menux-qr-title';title.textContent='MESA '+n;
+  const wrap=document.createElement('div');wrap.className='menux-qr-code';
+  const img=document.createElement('img');img.src=src;img.alt='QR Code para pedir na mesa '+n;wrap.appendChild(img);
+  const instruction=document.createElement('div');instruction.className='menux-qr-instruction';instruction.textContent='Aponte a câmera para o QR Code e faça seu pedido.';
+  const brand=document.createElement('div');brand.className='menux-qr-brand';brand.textContent='MENUX';
+  box.append(title,wrap,instruction,brand);return box;
+ }
+ function build(){
+  const c=getConfig();rendered=[];preview.replaceChildren();printPages.replaceChildren();
+  printPages.dataset.orientation=c.orientation;
+  document.getElementById('menuxQrPageStyle').textContent='@media print{@page{size:A4 '+c.orientation+';margin:7mm}}';
+  for(let n=c.a;n<=c.b;n++)rendered.push({n,src:qrData(tableUrl(n))});
+  for(const item of rendered.slice(0,4)){
+   const wrap=document.createElement('div');wrap.className='menux-qr-preview-box';wrap.appendChild(makePaper(item.n,item.src,c.orientation));preview.appendChild(wrap);
+  }
+  status.textContent=rendered.length+' mesa(s) pronta(s) para impressão.'+(rendered.length>4?' Prévia das quatro primeiras; todas serão impressas.':'');
+  return rendered;
+ }
+ document.getElementById('menuxQrGenerate').addEventListener('click',()=>{try{build()}catch(e){status.textContent=e.message;preview.replaceChildren()}});
+ document.getElementById('menuxQrPrint').addEventListener('click',()=>{
+  try{
+   build();
+   for(let i=0;i<rendered.length;i+=2){
+    const page=document.createElement('div');page.className='menux-qr-print-page';
+    for(const item of rendered.slice(i,i+2))page.appendChild(makePaper(item.n,item.src,orientation.value));
+    printPages.appendChild(page);
+   }
+   window.print();
+  }catch(e){status.textContent=e.message}
+ });
+ document.querySelector('[data-page="tableqr"]').addEventListener('click',()=>{if(restaurant?.slug&&!rendered.length){try{build()}catch(e){status.textContent=e.message}}});
+})();
+</script></body></html>
