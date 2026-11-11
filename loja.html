@@ -138,6 +138,41 @@
 #menux-auth-google{background:#fff;border:1px solid #c7c7c7;color:#222}#menux-auth-guest{background:var(--accent);border:1px solid var(--accent);color:white}
 #menux-auth-close{float:right;width:auto;min-height:32px;padding:4px 10px;margin:0;border:0;background:transparent;color:inherit}
 #menux-google-account{font-size:12px;color:var(--store-muted);margin-top:6px}
+
+/* MENUX — acompanhamento do pedido mais elegante e integrado ao tema da loja. */
+.tracking-box{width:min(640px,100%);border-radius:24px;padding:0;overflow:hidden;border:1px solid color-mix(in srgb,var(--store-text) 10%,transparent);box-shadow:0 24px 80px #0005}
+.tracking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:24px 24px 18px;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 9%,var(--store-card)),var(--store-card))}
+.tracking-kicker{font-size:11px;font-weight:850;letter-spacing:.14em;color:var(--accent);margin-bottom:5px}
+.tracking-head h2{margin:0;font-size:30px;line-height:1.05;letter-spacing:-.04em}
+.tracking-copy{margin:8px 0 0;color:var(--store-muted);font-size:14px;line-height:1.5}
+.tracking-close-btn{width:42px;height:42px;border-radius:12px;background:color-mix(in srgb,var(--store-text) 7%,var(--store-card));color:var(--store-text);padding:0;font-size:18px}
+.tracking-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 24px 18px}
+.tracking-summary>div{padding:14px 16px;border:1px solid color-mix(in srgb,var(--store-text) 12%,transparent);border-radius:16px;background:color-mix(in srgb,var(--store-card) 96%,var(--store-text))}
+.tracking-summary-label{font-size:12px;font-weight:700;color:var(--store-muted);margin-bottom:6px}
+.tracking-number{font-size:24px;font-weight:900;letter-spacing:-.03em}
+.tracking-pill{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;font-size:13px;font-weight:850;background:color-mix(in srgb,var(--accent) 12%,var(--store-card));color:var(--accent)}
+.tracking-pill.is-completed{background:#16a34a1a;color:#15803d}.tracking-pill.is-cancelled{background:#dc26261a;color:#b91c1c}
+#tracking-status{padding:0 24px 6px}
+.tracking-card{border:1px solid color-mix(in srgb,var(--store-text) 12%,transparent);border-radius:20px;background:var(--store-card);overflow:hidden}
+.tracking-card-top{padding:18px 18px 14px;background:color-mix(in srgb,var(--accent) 4%,var(--store-card));border-bottom:1px solid color-mix(in srgb,var(--store-text) 10%,transparent)}
+.tracking-status-title{font-size:24px;font-weight:900;letter-spacing:-.03em;margin:0 0 6px}
+.tracking-status-note{margin:0;color:var(--store-muted);font-size:14px}
+.tracking-meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px 18px}
+.tracking-meta{padding:13px 14px;border-radius:14px;background:color-mix(in srgb,var(--store-text) 4%,var(--store-card));border:1px solid color-mix(in srgb,var(--store-text) 10%,transparent)}
+.tracking-meta span{display:block;font-size:12px;color:var(--store-muted);margin-bottom:5px}
+.tracking-meta strong{font-size:15px;line-height:1.3}
+.tracking-alert{margin:0 18px 16px;padding:13px 14px;border-radius:14px;border:1px solid #dc26265c;background:#dc262614;color:#991b1b;font-size:14px}
+.tracking-steps{display:grid;gap:10px;padding:0 18px 18px}
+.tracking-step{display:flex;gap:12px;align-items:flex-start;padding:12px 12px;border-radius:16px;border:1px solid color-mix(in srgb,var(--store-text) 10%,transparent);background:color-mix(in srgb,var(--store-text) 2%,var(--store-card))}
+.tracking-step-dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;flex:0 0 28px;border:2px solid color-mix(in srgb,var(--store-text) 18%,transparent);color:var(--store-muted);background:var(--store-card)}
+.tracking-step strong{display:block;font-size:14px;line-height:1.25}.tracking-step small{display:block;color:var(--store-muted);font-size:12px;line-height:1.4;margin-top:3px}
+.tracking-step.is-done{background:color-mix(in srgb,var(--accent) 7%,var(--store-card));border-color:color-mix(in srgb,var(--accent) 18%,transparent)}
+.tracking-step.is-done .tracking-step-dot{background:var(--accent);border-color:var(--accent);color:#fff}
+.tracking-step.is-current{background:color-mix(in srgb,var(--accent) 11%,var(--store-card));border-color:color-mix(in srgb,var(--accent) 28%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 18%,transparent) inset}
+.tracking-step.is-current .tracking-step-dot{background:var(--store-card);border-color:var(--accent);color:var(--accent)}
+.tracking-hint{padding:0 24px 0;color:var(--store-muted);font-size:12px;line-height:1.5}
+.tracking-actions{padding:12px 24px 24px}.tracking-actions button{min-height:50px}
+@media(max-width:640px){.tracking-box{border-radius:22px}.tracking-head{padding:20px 18px 15px}.tracking-head h2{font-size:26px}.tracking-summary{grid-template-columns:1fr;padding:0 18px 16px}.tracking-summary>div{padding:13px 14px}#tracking-status{padding:0 18px 6px}.tracking-meta-grid{grid-template-columns:1fr}.tracking-hint{padding:0 18px}.tracking-actions{padding:12px 18px 18px}}
 </style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><h2>Nosso cardápio</h2><div id="products">Aguarde...</div></main><div class="product-detail" id="product-detail" role="dialog" aria-modal="true" aria-label="Personalizar produto" hidden>
 <div class="detail-panel"><div class="detail-top"><b>Detalhe do produto</b><button id="close-detail" type="button" aria-label="Fechar detalhes">×</button></div><div id="detail-body"></div>
 <div class="detail-footer"><div><strong id="detail-total"></strong><div class="detail-note">Escolha suas opções e adicione ao carrinho</div></div><button type="button" id="detail-confirm">Adicionar ao carrinho</button></div></div></div><button class="tracking-shortcut" id="tracking-shortcut" type="button" hidden aria-label="Acompanhar meu último pedido">📦 Acompanhar pedido</button><button class="checkout-fab" id="open-cart" type="button">🛒 Carrinho (0)</button>
@@ -203,7 +238,7 @@
   </div>
 </div>
 <div id="success-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Pedido confirmado"><div class="checkout-box"><h2>✓ Pedido recebido!</h2><p>Seu pedido já foi registrado na MENUX e enviado ao painel do estabelecimento.</p><p><b id="success-number"></b></p><p id="success-total"></p><p>O WhatsApp é opcional: seu pedido já foi realizado.</p><button type="button" id="open-tracking" class="checkout-primary" style="width:100%;margin-bottom:10px">Acompanhar meu pedido</button><div class="checkout-actions"><button class="checkout-primary" id="share-whatsapp" type="button">Enviar cópia pelo WhatsApp</button><button id="success-close" type="button">Fechar</button></div><p id="whatsapp-info" class="checkout-error"></p></div></div>
-<div id="image-modal" class="image-modal" role="dialog" aria-modal="true" aria-label="Foto ampliada do produto" hidden><button type="button" class="close-image" aria-label="Fechar imagem">×</button><img id="expanded-image" alt=""></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><div id="tracking-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Acompanhar pedido"><div class="checkout-box"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Acompanhe seu pedido</h2><button type="button" id="tracking-close">✕</button></div><p style="font-weight:700">✓ Pedido confirmado na MENUX!</p><p id="tracking-number"></p><div id="tracking-status" role="status" aria-live="polite">Carregando...</div><p class="muted">Esta página consulta automaticamente o andamento do pedido.</p><div class="checkout-actions" style="margin-top:12px"><button type="button" id="tracking-refresh">Atualizar agora</button><button type="button" id="tracking-whatsapp" class="checkout-primary">Enviar cópia pelo WhatsApp</button></div><p id="tracking-whatsapp-info" class="checkout-error" role="status"></p></div></div><script>
+<div id="image-modal" class="image-modal" role="dialog" aria-modal="true" aria-label="Foto ampliada do produto" hidden><button type="button" class="close-image" aria-label="Fechar imagem">×</button><img id="expanded-image" alt=""></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><div id="tracking-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Acompanhar pedido"><div class="checkout-box tracking-box"><div class="tracking-head"><div><div class="tracking-kicker">MENUX • ACOMPANHAMENTO</div><h2>Acompanhe seu pedido</h2><p class="tracking-copy">Seu pedido foi enviado para a loja. Veja abaixo o andamento em tempo real.</p></div><button type="button" id="tracking-close" class="tracking-close-btn" aria-label="Fechar acompanhamento">✕</button></div><div class="tracking-summary"><div><div class="tracking-summary-label">Pedido</div><div id="tracking-number" class="tracking-number">Carregando...</div></div><div><div class="tracking-summary-label">Status atual</div><div id="tracking-pill" class="tracking-pill">Consultando...</div></div></div><div id="tracking-status" role="status" aria-live="polite">Carregando...</div><p class="tracking-hint">A consulta acontece automaticamente enquanto esta janela estiver aberta.</p><div class="checkout-actions tracking-actions" style="margin-top:12px"><button type="button" id="tracking-refresh">Atualizar agora</button><button type="button" id="tracking-whatsapp" class="checkout-primary">Enviar cópia pelo WhatsApp</button></div><p id="tracking-whatsapp-info" class="checkout-error" role="status" style="padding:0 24px 24px"></p></div></div><script>
 /* MENUX: consultar disponibilidade; servidor valida novamente ao salvar. */
 let menuxStoreOpen=true;
 async function menuxFetchHours(){
@@ -354,6 +389,23 @@ async function menuxLoadGoogleProfile(){
  menuxCloudProfile={name:p.data?.full_name||menuxGoogleUser.user_metadata?.full_name||menuxGoogleUser.user_metadata?.name||'',phone:p.data?.phone||'',addresses:a.data||[]};
  menuxCloudAddressesLoaded=true;
 }
+async function menuxLoadCloudRecentOrder(){
+ if(!menuxGoogleUser)return null;
+ const {data,error}=await checkoutSb.from('menux_customer_recent_orders').select('order_id,tracking_token,created_at').eq('user_id',menuxGoogleUser.id).eq('restaurant_slug',checkoutSlug).order('created_at',{ascending:false}).limit(1).maybeSingle();
+ if(error)throw error;
+ if(!data?.order_id||!data?.tracking_token)return null;
+ return {id:data.order_id,token:data.tracking_token,created_at:data.created_at};
+}
+async function menuxSyncTrackingShortcutFromCloud(){
+ if(!menuxGoogleUser||!checkoutSb||!checkoutSlug)return;
+ try{const ref=await menuxLoadCloudRecentOrder();if(ref)setTrackingShortcut(ref,true);}catch(e){console.warn('MENUX: rastreio em nuvem indisponível',e)}
+}
+async function menuxSaveRecentOrderForGoogle(order){
+ if(!menuxGoogleUser||!order?.id||!order?.tracking_token)return;
+ const payload={user_id:menuxGoogleUser.id,restaurant_slug:checkoutSlug,order_id:order.id,tracking_token:order.tracking_token,created_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+ const {error}=await checkoutSb.from('menux_customer_recent_orders').upsert(payload,{onConflict:'user_id,restaurant_slug,order_id'});
+ if(error)throw error;
+}
 async function menuxOpenGoogleCart(){
  menuxUseGoogle=true;menuxAuthChoice.hidden=true;
  try{
@@ -362,6 +414,7 @@ async function menuxOpenGoogleCart(){
   checkoutForm.elements.customer_phone.value=menuxCurrentPhone;
   menuxProfileToForm(menuxCloudProfile);
   $('menux-remember-feedback').textContent='Conectado com Google. Endereços salvos disponíveis nesta conta.';
+  await menuxSyncTrackingShortcutFromCloud();
  }catch(e){
   console.warn('MENUX: dados da conta indisponíveis',e);
   $('menux-remember-feedback').textContent='Não foi possível recuperar os endereços da conta. Você ainda pode fazer seu pedido preenchendo os dados.';
@@ -388,6 +441,9 @@ async function menuxRestoreGoogleSession(){
     cart=pending.items.filter(item=>ids.has(String(item.product_id))&&Number.isInteger(item.quantity)&&item.quantity>0&&item.quantity<=99&&Array.isArray(item.options)).slice(0,30);
    }
    if(cart.length)await menuxOpenGoogleCart();
+   else await menuxSyncTrackingShortcutFromCloud();
+  }else if(menuxGoogleUser){
+   await menuxSyncTrackingShortcutFromCloud();
   }
  }catch(e){console.warn('MENUX: retorno do Google',e)}
 }
@@ -550,34 +606,70 @@ function menuxBuildDeliveryAddress(fields){
  return address;
 }
 let confirmedOrder=null;
-checkoutForm.addEventListener('submit',async e=>{e.preventDefault();if(!cart.length||!checkoutSb)return;const btn=$('checkout-submit');btn.disabled=true;btn.textContent='Enviando pedido...';$('checkout-error').textContent='';try{const status=await menuxFetchHours();menuxApplyHours(status);if(!status.is_open)throw Error('Loja fechada no momento. Não é possível confirmar o pedido.');const f=checkoutForm.elements;const phone=f.customer_phone.value.replace(/\D/g,'');if(!/^[0-9]{11}$/.test(phone))throw Error('Informe um WhatsApp com exatamente 11 números (DDD + celular), como 22999999999.');const payload={p_slug:checkoutSlug,p_customer_name:f.customer_name.value.trim(),p_customer_phone:phone,p_fulfillment:f.fulfillment.value,p_delivery_address:f.fulfillment.value==='delivery'?menuxBuildDeliveryAddress(f):'',p_notes:f.notes.value.trim(),p_items:cart.map(x=>({product_id:x.product_id,quantity:x.quantity,options:x.options.map(o=>({group_id:o.group_id,item_id:o.item_id}))})),p_delivery_area_id:f.fulfillment.value==='delivery'?(f.delivery_area_id.value||null):null,p_payment_method:f.payment_method.value,p_change_for:f.payment_method.value==='cash'&&f.change_for.value!==''?Number(f.change_for.value):null,p_table_number:f.fulfillment.value==='table'?f.table_number.value.trim():null};if(f.fulfillment.value==='delivery'&&!menuxSelectedArea())throw Error('Selecione uma região de entrega válida.');const {data,error}=await checkoutSb.rpc('menux_place_order_v3',payload);if(error)throw error;if(!data?.order_id)throw Error('Não foi possível confirmar o número do pedido.');try{await menuxSaveCustomerProfile(f)}catch(saveErr){console.warn('MENUX: pedido confirmado, mas perfil não foi salvo',saveErr)}confirmedOrder={id:data.order_id,tracking_token:data.tracking_token,total:Number(data.total),cart:JSON.parse(JSON.stringify(cart)),name:payload.p_customer_name,phone:payload.p_customer_phone,fulfillment:payload.p_fulfillment,table_number:payload.p_table_number,address:payload.p_delivery_address,notes:payload.p_notes,delivery_fee:Number(data.delivery_fee||0),delivery_area:menuxSelectedArea()?.name||'',payment_method:payload.p_payment_method,change_for:payload.p_change_for};if(confirmedOrder.tracking_token){try{const r=await checkoutSb.rpc('menux_track_order',{p_order_id:confirmedOrder.id,p_token:confirmedOrder.tracking_token});if(!r.error&&r.data?.daily_number!=null)confirmedOrder.daily_number=r.data.daily_number;}catch(e){console.warn('MENUX: numeração pública indisponível',e)}}$('success-number').textContent='Pedido '+menuxDisplayNumber(confirmedOrder);$('success-total').textContent='Total: '+brl(confirmedOrder.total);if(confirmedOrder.tracking_token){try{localStorage.setItem('menux:last:'+checkoutSlug,JSON.stringify({id:confirmedOrder.id,token:confirmedOrder.tracking_token}))}catch(e){}setTrackingShortcut({id:confirmedOrder.id,token:confirmedOrder.tracking_token});}cart=[];refreshCart();cartModal.hidden=true;checkoutForm.reset();delete cartModal.dataset.profileLoaded;$('address-block').hidden=true;$('table-block').hidden=true;$('change-block').hidden=true;checkoutForm.elements.delivery_area_id.disabled=true;refreshMenuxCheckoutSummary();if(confirmedOrder.tracking_token){$('success-modal').hidden=true;openTracking({id:confirmedOrder.id,token:confirmedOrder.tracking_token});}else{$('success-modal').hidden=false;}}catch(err){$('checkout-error').textContent='Pedido não confirmado: '+(err.message||String(err));}finally{btn.disabled=!cart.length||!menuxStoreOpen;btn.textContent='Confirmar pedido na MENUX';}});
+checkoutForm.addEventListener('submit',async e=>{e.preventDefault();if(!cart.length||!checkoutSb)return;const btn=$('checkout-submit');btn.disabled=true;btn.textContent='Enviando pedido...';$('checkout-error').textContent='';try{const status=await menuxFetchHours();menuxApplyHours(status);if(!status.is_open)throw Error('Loja fechada no momento. Não é possível confirmar o pedido.');const f=checkoutForm.elements;const phone=f.customer_phone.value.replace(/\D/g,'');if(!/^[0-9]{11}$/.test(phone))throw Error('Informe um WhatsApp com exatamente 11 números (DDD + celular), como 22999999999.');const payload={p_slug:checkoutSlug,p_customer_name:f.customer_name.value.trim(),p_customer_phone:phone,p_fulfillment:f.fulfillment.value,p_delivery_address:f.fulfillment.value==='delivery'?menuxBuildDeliveryAddress(f):'',p_notes:f.notes.value.trim(),p_items:cart.map(x=>({product_id:x.product_id,quantity:x.quantity,options:x.options.map(o=>({group_id:o.group_id,item_id:o.item_id}))})),p_delivery_area_id:f.fulfillment.value==='delivery'?(f.delivery_area_id.value||null):null,p_payment_method:f.payment_method.value,p_change_for:f.payment_method.value==='cash'&&f.change_for.value!==''?Number(f.change_for.value):null,p_table_number:f.fulfillment.value==='table'?f.table_number.value.trim():null};if(f.fulfillment.value==='delivery'&&!menuxSelectedArea())throw Error('Selecione uma região de entrega válida.');const {data,error}=await checkoutSb.rpc('menux_place_order_v3',payload);if(error)throw error;if(!data?.order_id)throw Error('Não foi possível confirmar o número do pedido.');try{await menuxSaveCustomerProfile(f)}catch(saveErr){console.warn('MENUX: pedido confirmado, mas perfil não foi salvo',saveErr)}confirmedOrder={id:data.order_id,tracking_token:data.tracking_token,total:Number(data.total),cart:JSON.parse(JSON.stringify(cart)),name:payload.p_customer_name,phone:payload.p_customer_phone,fulfillment:payload.p_fulfillment,table_number:payload.p_table_number,address:payload.p_delivery_address,notes:payload.p_notes,delivery_fee:Number(data.delivery_fee||0),delivery_area:menuxSelectedArea()?.name||'',payment_method:payload.p_payment_method,change_for:payload.p_change_for};if(confirmedOrder.tracking_token){try{const r=await checkoutSb.rpc('menux_track_order',{p_order_id:confirmedOrder.id,p_token:confirmedOrder.tracking_token});if(!r.error&&r.data?.daily_number!=null)confirmedOrder.daily_number=r.data.daily_number;}catch(e){console.warn('MENUX: numeração pública indisponível',e)}}$('success-number').textContent='Pedido '+menuxDisplayNumber(confirmedOrder);$('success-total').textContent='Total: '+brl(confirmedOrder.total);if(confirmedOrder.tracking_token){try{localStorage.setItem('menux:last:'+checkoutSlug,JSON.stringify({id:confirmedOrder.id,token:confirmedOrder.tracking_token}))}catch(e){}setTrackingShortcut({id:confirmedOrder.id,token:confirmedOrder.tracking_token});try{await menuxSaveRecentOrderForGoogle(confirmedOrder)}catch(e){console.warn('MENUX: pedido salvo apenas neste aparelho',e)}}cart=[];refreshCart();cartModal.hidden=true;checkoutForm.reset();delete cartModal.dataset.profileLoaded;$('address-block').hidden=true;$('table-block').hidden=true;$('change-block').hidden=true;checkoutForm.elements.delivery_area_id.disabled=true;refreshMenuxCheckoutSummary();if(confirmedOrder.tracking_token){$('success-modal').hidden=true;openTracking({id:confirmedOrder.id,token:confirmedOrder.tracking_token});}else{$('success-modal').hidden=false;}}catch(err){$('checkout-error').textContent='Pedido não confirmado: '+(err.message||String(err));}finally{btn.disabled=!cart.length||!menuxStoreOpen;btn.textContent='Confirmar pedido na MENUX';}});
 $('success-close').onclick=()=>{$('success-modal').hidden=true};
 $('share-whatsapp').onclick=()=>{if(!confirmedOrder)return;const o=confirmedOrder;const lines=['Olá! Segue uma cópia do pedido JÁ REGISTRADO na MENUX.','Pedido '+menuxDisplayNumber(o),...o.cart.map(x=>x.quantity+'x '+x.name+' — '+brl(x.unit_price*x.quantity)+(x.options.length?'\n  '+x.options.map(v=>v.name).join(', '):'')),'Taxa de entrega: '+brl(o.delivery_fee||0),'Total: '+brl(o.total),'Pagamento: '+({pix:'Pix',cash:'Dinheiro',credit_card:'Crédito',debit_card:'Débito'}[o.payment_method]||'Não informado'),o.change_for!=null?'Troco para: '+brl(o.change_for):'',o.delivery_area?'Região: '+o.delivery_area:'','Cliente: '+o.name,'Telefone: '+o.phone,'Modalidade: '+(o.fulfillment==='delivery'?'Entrega':o.fulfillment==='table'?'Mesa '+(o.table_number||''):'Retirada'),o.address?'Endereço: '+o.address:'',o.notes?'Observações: '+o.notes:'','Esta mensagem é apenas uma cópia. Não registre outro pedido.'].filter(Boolean);if(!storeWhatsapp){$('whatsapp-info').textContent='O estabelecimento ainda não configurou um número de WhatsApp válido.';document.getElementById('tracking-whatsapp-info').textContent=$('whatsapp-info').textContent;return;}const phone=storeWhatsapp.startsWith('55')?storeWhatsapp:'55'+storeWhatsapp;window.open('https://wa.me/'+encodeURIComponent(phone)+'?text='+encodeURIComponent(lines.join('\n')),'_blank','noopener,noreferrer');};
 
 const trackingModal=document.getElementById('tracking-modal');
 let trackingTimer=null,trackingRef=null;
 const menuxDisplayNumber=o=>o?.daily_number!=null?'#'+String(o.daily_number).padStart(3,'0'):'#'+String(o?.id||'').slice(0,8).toUpperCase();
-const trackingLabels={pending:'Pedido recebido — aguardando aceite',accepted:'Pedido aceito',preparing:'Em preparação',ready:'Pronto para retirada / envio',out_for_delivery:'Saiu para entrega',completed:'Concluído',cancelled:'Cancelado'};
-async function refreshTracking(){if(!trackingRef||!checkoutSb)return;const el=document.getElementById('tracking-status');try{const {data,error}=await checkoutSb.rpc('menux_track_order',{p_order_id:trackingRef.id,p_token:trackingRef.token});if(error)throw error;if(!data)throw Error('Pedido não encontrado');const status=data.status;if(data.daily_number!=null){trackingRef.daily_number=data.daily_number;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(trackingRef);if(confirmedOrder?.id===trackingRef.id)confirmedOrder.daily_number=data.daily_number;}el.innerHTML='<div style="padding:15px;border:1px solid #8885;border-radius:12px"><strong style="font-size:19px">'+esc(status==='ready'&&data.fulfillment==='table'?'Pronto para servir na mesa':trackingLabels[status]||status)+'</strong><p>Valor: '+brl(data.total)+'</p><small>Última consulta: '+new Date().toLocaleTimeString('pt-BR')+'</small></div>';if(['completed','cancelled'].includes(status)){clearInterval(trackingTimer);trackingTimer=null}}catch(e){el.textContent='Não foi possível consultar o pedido: '+e.message}}
-function openTracking(ref){if(!ref?.id||!ref?.token)return;trackingRef=ref;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(ref);trackingModal.hidden=false;refreshTracking();clearInterval(trackingTimer);trackingTimer=setInterval(()=>{if(!trackingModal.hidden&&document.visibilityState==='visible')refreshTracking()},10000)}
+const trackingLabels={pending:'Pedido recebido — aguardando aceite',accepted:'Pedido aceito',preparing:'Em preparo',ready:'Pronto para retirada / envio',out_for_delivery:'Saiu para entrega',completed:'Concluído',cancelled:'Cancelado'};
+const trackingStepMeta={pending:{title:'Pedido recebido',desc:'Seu pedido entrou na fila da loja.'},accepted:{title:'Pedido aceito',desc:'A loja aceitou e vai preparar o pedido.'},preparing:{title:'Em preparo',desc:'O estabelecimento já está preparando o seu pedido.'},ready:{title:'Pronto',desc:'Seu pedido está pronto para retirada, entrega ou serviço na mesa.'},out_for_delivery:{title:'Saiu para entrega',desc:'O pedido já está a caminho do endereço informado.'},completed:{title:'Concluído',desc:'Pedido finalizado com sucesso.'}};
+function menuxTrackingLabel(status,fulfillment){
+ if(status==='ready'&&fulfillment==='table')return'Pronto para servir na mesa';
+ if(status==='ready'&&fulfillment==='pickup')return'Pronto para retirada';
+ if(status==='ready'&&fulfillment==='delivery')return'Pronto para envio';
+ return trackingLabels[status]||status;
+}
+function menuxTrackingStepsFor(fulfillment){
+ return fulfillment==='delivery'?['pending','accepted','preparing','ready','out_for_delivery','completed']:['pending','accepted','preparing','ready','completed'];
+}
+function renderTrackingStatusCard(data){
+ const status=String(data.status||'pending');
+ const fulfillment=String(data.fulfillment||'delivery');
+ const visibleStatus=menuxTrackingLabel(status,fulfillment);
+ const pill=document.getElementById('tracking-pill');
+ pill.textContent=visibleStatus;
+ pill.className='tracking-pill'+(status==='completed'?' is-completed':status==='cancelled'?' is-cancelled':'');
+ const steps=menuxTrackingStepsFor(fulfillment);
+ let currentIndex=steps.indexOf(status);
+ if(currentIndex<0)currentIndex=status==='cancelled'?0:steps.length-1;
+ const stepHtml=steps.map((key,index)=>{
+   const info=trackingStepMeta[key]||{title:key,desc:''};
+   const state=status==='cancelled'?(index===0?'is-done':''):(index<currentIndex?'is-done':index===currentIndex?'is-current':'');
+   const dot=state==='is-done'?'✓':state==='is-current'?'•':'○';
+   let title=info.title,desc=info.desc;
+   if(key==='ready'&&fulfillment==='pickup'){title='Pronto para retirada';desc='O pedido já pode ser retirado no local.';}
+   if(key==='ready'&&fulfillment==='table'){title='Pronto para servir';desc='O pedido está pronto para ser servido na mesa.';}
+   if(key==='ready'&&fulfillment==='delivery'){title='Pronto para envio';desc='O pedido está preparado e pronto para seguir para a entrega.';}
+   return '<div class="tracking-step '+state+'"><div class="tracking-step-dot">'+dot+'</div><div><strong>'+esc(title)+'</strong><small>'+esc(desc)+'</small></div></div>';
+ }).join('');
+ const when=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+ const mode=fulfillment==='delivery'?'Entrega':fulfillment==='pickup'?'Retirada':'Mesa';
+ const alert=status==='cancelled'?'<div class="tracking-alert">Este pedido foi marcado como cancelado pela loja. Se precisar, entre em contato diretamente com o estabelecimento.</div>':'';
+ return '<div class="tracking-card"><div class="tracking-card-top"><div class="tracking-status-title">'+esc(visibleStatus)+'</div><p class="tracking-status-note">Última atualização às '+when+'.</p></div><div class="tracking-meta-grid"><div class="tracking-meta"><span>Valor total</span><strong>'+brl(data.total||0)+'</strong></div><div class="tracking-meta"><span>Modalidade</span><strong>'+esc(mode)+'</strong></div><div class="tracking-meta"><span>Número do pedido</span><strong>'+esc(menuxDisplayNumber(trackingRef||data))+'</strong></div></div>'+alert+'<div class="tracking-steps">'+stepHtml+'</div></div>';
+}
+async function refreshTracking(){if(!trackingRef||!checkoutSb)return;const el=document.getElementById('tracking-status');try{const {data,error}=await checkoutSb.rpc('menux_track_order',{p_order_id:trackingRef.id,p_token:trackingRef.token});if(error)throw error;if(!data)throw Error('Pedido não encontrado');const status=data.status;if(data.daily_number!=null){trackingRef.daily_number=data.daily_number;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(trackingRef);if(confirmedOrder?.id===trackingRef.id)confirmedOrder.daily_number=data.daily_number;}el.innerHTML=renderTrackingStatusCard(data);if(['completed','cancelled'].includes(status)){clearInterval(trackingTimer);trackingTimer=null}}catch(e){document.getElementById('tracking-pill').textContent='Indisponível';el.innerHTML='<div class="tracking-card"><div class="tracking-card-top"><div class="tracking-status-title">Não foi possível consultar</div><p class="tracking-status-note">'+esc(e.message)+'</p></div></div>'}}
+function openTracking(ref){if(!ref?.id||!ref?.token)return;trackingRef=ref;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(ref);document.getElementById('tracking-pill').textContent='Consultando...';trackingModal.hidden=false;refreshTracking();clearInterval(trackingTimer);trackingTimer=setInterval(()=>{if(!trackingModal.hidden&&document.visibilityState==='visible')refreshTracking()},10000)}
 document.getElementById('open-tracking').onclick=()=>openTracking({id:confirmedOrder?.id,token:confirmedOrder?.tracking_token});
 document.getElementById('tracking-close').onclick=()=>{trackingModal.hidden=true;clearInterval(trackingTimer)};
 document.getElementById('tracking-refresh').onclick=refreshTracking;
 document.getElementById('tracking-whatsapp').onclick=()=>document.getElementById('share-whatsapp').click();
-// Botão fixo para reabrir o acompanhamento, inclusive depois de fechar o modal.
-// O token pertence ao pedido e fica apenas neste navegador, separado por loja.
+// Botão fixo para reabrir o acompanhamento, inclusive em outro aparelho quando o cliente usa Google.
 let shortcutOrder=null;
 const trackingShortcut=document.getElementById('tracking-shortcut');
-function setTrackingShortcut(ref){
+function setTrackingShortcut(ref,fromCloud){
   if(!ref?.id||!ref?.token)return;
-  shortcutOrder={id:ref.id,token:ref.token};
+  shortcutOrder={id:ref.id,token:ref.token,daily_number:ref.daily_number};
   trackingShortcut.hidden=false;
-  trackingShortcut.title='Acompanhar pedido #'+ref.id.slice(0,8).toUpperCase();
+  trackingShortcut.title='Acompanhar pedido';
+  trackingShortcut.textContent='📦 Acompanhar pedido';
+  if(fromCloud)trackingShortcut.dataset.source='cloud';
 }
 trackingShortcut.addEventListener('click',()=>{if(shortcutOrder)openTracking(shortcutOrder)});
 try{
   const slug=new URLSearchParams(location.search).get('slug');
   const saved=JSON.parse(localStorage.getItem('menux:last:'+slug)||'null');
-  setTrackingShortcut(saved);
+  setTrackingShortcut(saved,false);
 }catch(e){}
 </script><style>.menux-closed-banner[hidden]{display:none!important}.menux-closed-banner{border:2px solid var(--accent);background:var(--store-card);color:var(--store-text);padding:19px;margin:14px 0 24px;border-radius:16px;line-height:1.5}.menux-closed-banner strong{display:block;font-size:20px}.menux-closed-banner p{margin:7px 0}.menux-closed-banner span{font-size:14px;color:var(--store-muted)}</style></body></html>
