@@ -156,7 +156,7 @@
   </div>
   <div id="menuxGrowthTips" class="menux-growth-grid" aria-live="polite"><p class="muted">Carregando sugestões…</p></div>
 </div></section>
-<section class="page" id="orders"><div class="row between"><h2>Central de pedidos</h2><button class="btn" id="refreshOrders">Atualizar</button></div><p class="muted small">Pedidos de hoje, atualizados automaticamente a cada 20 segundos. À meia-noite, a lista reinicia sem apagar o histórico.</p><div class="card" id="menuxMainOrders"><div class="muted small">Carregando pedidos online...</div></div><div style="margin-top:16px"><h3>Outros pedidos de hoje</h3><div class="card" id="ordersList"></div></div></section>
+<section class="page" id="orders"><div class="row between"><h2>Central de pedidos</h2><div class="menux-manual-top-actions"><button class="btn primary" type="button" id="menuxManualNew">＋ Pedido manual</button><button class="btn" id="refreshOrders">Atualizar</button></div></div><p class="muted small">Pedidos de hoje, atualizados automaticamente a cada 20 segundos. À meia-noite, a lista reinicia sem apagar o histórico.</p><div class="card" id="menuxMainOrders"><div class="muted small">Carregando pedidos online...</div></div><div id="ordersList" hidden aria-hidden="true"></div></section>
 <section class="page" id="menu"><div class="row between"><h2>Cardápio</h2><button class="btn primary" id="newProduct">＋ Novo produto</button></div><div class="card" style="overflow-x:auto"><table class="table"><thead><tr><th>PRODUTO</th><th>PREÇO</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody id="productsBody"></tbody></table></div><div class="card" id="productEditor" hidden style="margin-top:15px"><h2 id="productEditorTitle">Novo produto</h2><form id="productForm"><input type="hidden" name="id"><div class="formgrid"><div class="formgroup"><label>Nome *</label><input name="name" required maxlength="150"></div><div class="formgroup"><label>Preço (R$) *</label><input name="price" type="number" min="0" step="0.01" required></div><div class="formgroup"><label>Categoria</label><input name="category" list="menuxCategorySuggestions" autocomplete="off" placeholder="Selecione uma categoria ou digite uma nova" maxlength="100"><datalist id="menuxCategorySuggestions"></datalist><small class="muted">Escolha uma categoria já cadastrada ou digite uma nova.</small></div><div class="formgroup"><label>Foto do produto</label><input type="file" id="productImageFile" accept="image/jpeg,image/png,image/webp" class="field"><small class="muted">Até 5 MB. O envio acontece ao salvar o produto.</small><label>Ou URL pública da imagem (https://)</label><input name="image_url" type="url"></div><div class="formgroup"><label>Descrição</label><textarea name="description" class="field" style="width:100%;min-height:80px"></textarea></div><div class="formgroup"><label>Disponibilidade</label><select name="active"><option value="true">Disponível</option><option value="false">Pausado</option></select></div></div><div class="row" style="margin-top:16px"><button class="btn primary" type="submit">Salvar produto</button><button class="btn" type="button" id="cancelProduct">Cancelar</button></div></form></div><div class="card" id="optionManager" hidden style="margin-top:15px">
 <h2 id="optionManagerTitle">Opções do produto</h2>
 <p class="muted small">Crie grupos independentes. Ex.: Molhos (até 2), Adicionais (até 4), Acompanhamentos (até 1).</p>
@@ -968,7 +968,7 @@ message.textContent=onlineOrders.length+' pedido(s) online · Atualizar para con
 const main=document.getElementById('menuxMainOrders');
 if(main){
 const ordered=onlineOrders.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-main.innerHTML='<div class="menux-orders-header"><b>Pedidos recebidos pelo cardápio ('+ordered.length+')</b><button type="button" class="btn" id="menuxMainRefresh">Atualizar pedidos</button></div>'+
+main.innerHTML='<div class="menux-orders-header"><b>Pedidos de hoje ('+ordered.length+')</b><button type="button" class="btn" id="menuxMainRefresh">Atualizar pedidos</button></div>'+
 '<div class="menux-orders-grid">'+(ordered.map(o=>{
  const orderItems=items.filter(i=>i.order_id===o.id);
  const itemCount=orderItems.reduce((total,i)=>total+(Number(i.quantity)||0),0);
@@ -986,8 +986,9 @@ main.innerHTML='<div class="menux-orders-header"><b>Pedidos recebidos pelo card�
  const paymentPreview='<div class="menux-payment-mini"><span>💳 Pagamento: <strong>'+escapeHtml(paymentLabel)+'</strong></span>'+
    (needsChange?'<span>💵 Troco para: <strong>'+moneyIncoming(changeValue)+'</strong></span><span>Devolver: <strong>'+moneyIncoming(changeAmount)+'</strong></span>':'')+'</div>';
  const action=({pending:['accepted','Aceitar pedido'],accepted:['preparing','Iniciar preparo'],preparing:['ready','Marcar pronto'],ready:[o.fulfillment==='delivery'?'out_for_delivery':'completed',o.fulfillment==='delivery'?'Saiu para entrega':'Concluir'],out_for_delivery:['completed','Concluir']})[o.status];
+ const manualBadge=o.source==='manual'?'<span class="menux-manual-badge">✍️ MANUAL</span>':'';
  const fulfillmentLabel=o.fulfillment==='delivery'?'🚚 ENTREGA':o.fulfillment==='pickup'?'🏪 RETIRADA':o.fulfillment==='table'||o.fulfillment==='dine_in'?'🍽️ MESA'+(o.table_number?' '+escapeHtml(o.table_number):''):'📋 '+escapeHtml(o.fulfillment||'Atendimento');
- return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div><div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div>'+paymentPreview+'<div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div>'+moreNotice+'<div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button><button type="button" class="btn" data-print-online="'+o.id+'">🖨 Imprimir</button>'+
+ return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div>'+manualBadge+'<div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div>'+paymentPreview+'<div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div>'+moreNotice+'<div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button><button type="button" class="btn" data-print-online="'+o.id+'">🖨 Imprimir</button>'+
 (action?'<button type="button" class="btn primary" data-incoming="'+o.id+'" data-newstatus="'+action[0]+'">'+action[1]+'</button> <button type="button" class="btn" data-incoming="'+o.id+'" data-newstatus="cancelled">Cancelar</button>':'')+'</div></article>';
  }).join('')||'<div class="empty">Nenhum pedido online encontrado.</div>')+'</div>';
 // Guardar os itens do último carregamento para o modal de detalhes.
@@ -1718,4 +1719,97 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now(
  #menuxMainOrders .menux-orders-grid>.menux-order-card{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
  #menuxMainOrders .menux-orders-grid .menux-preview{overflow:visible!important;min-height:0!important}
 }
-</style></body></html>
+</style>
+<style id="menux-manual-style">
+.menux-manual-top-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.menux-manual-badge{display:inline-block;margin-left:7px;padding:4px 7px;border-radius:8px;border:1px solid var(--gold);color:var(--gold2);font-size:10px;font-weight:850;letter-spacing:.04em}
+.menux-manual-shade[hidden]{display:none!important}.menux-manual-shade{position:fixed;inset:0;z-index:135000;background:#000b;display:grid;place-items:center;padding:15px}
+.menux-manual-dialog{width:min(670px,100%);max-height:94dvh;overflow:auto;border-radius:19px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:22px;box-shadow:0 24px 75px #0008}
+.menux-manual-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
+.menux-manual-head h2{font-size:24px;margin:0}.menux-manual-head button{font-size:22px;min-width:42px}
+.menux-manual-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.menux-manual-fields label{display:block;font-weight:750;font-size:13px;margin-bottom:5px;color:var(--text)}
+.menux-manual-fields input,.menux-manual-fields select,.menux-manual-fields textarea,.menux-manual-product select,.menux-manual-product input{width:100%;min-height:43px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);font:inherit}
+.menux-manual-full{grid-column:1/-1}.menux-manual-product{display:grid;grid-template-columns:minmax(0,1fr) 78px 44px;gap:8px;align-items:center;margin-bottom:8px}
+.menux-manual-product button{min-height:43px;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:9px;font-size:20px;cursor:pointer}
+.menux-manual-items{padding:14px;border:1px solid var(--line);border-radius:14px;margin:16px 0}
+.menux-manual-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}.menux-manual-actions button{flex:1;min-height:47px}
+.menux-manual-total{font-weight:900;font-size:22px;color:var(--gold2);text-align:right;margin-top:10px}
+#menuxManualFeedback:not(:empty){margin-top:10px;color:#ef9a8b;font-size:14px}
+#menuxManualDelivery[hidden],#menuxManualTable[hidden],#menuxManualChange[hidden]{display:none!important}
+@media(max-width:610px){.menux-manual-shade{padding:0;place-items:stretch}.menux-manual-dialog{max-height:100dvh;height:100dvh;border-radius:0;padding:18px}.menux-manual-fields{grid-template-columns:1fr;gap:10px}.menux-manual-full{grid-column:1}.menux-manual-product{grid-template-columns:minmax(0,1fr) 65px 40px}}
+</style>
+<div id="menuxManualOverlay" class="menux-manual-shade" hidden>
+ <section class="menux-manual-dialog" role="dialog" aria-modal="true" aria-labelledby="menuxManualTitle">
+  <div class="menux-manual-head"><h2 id="menuxManualTitle">✍️ Novo pedido manual</h2><button class="btn" type="button" id="menuxManualClose" aria-label="Fechar">×</button></div>
+  <p class="muted small">Para pedidos recebidos no balcão, telefone ou WhatsApp. Os itens usam os preços cadastrados na MENUX.</p>
+  <form id="menuxManualForm">
+   <div class="menux-manual-fields">
+    <div><label for="menuxManualName">Nome do cliente *</label><input id="menuxManualName" maxlength="120" minlength="2" required autocomplete="off"></div>
+    <div><label for="menuxManualPhone">WhatsApp (11 números) *</label><input id="menuxManualPhone" type="tel" inputmode="numeric" pattern="[0-9]{11}" minlength="11" maxlength="11" placeholder="22999999999" required></div>
+    <div><label for="menuxManualFulfillment">Tipo do pedido</label><select id="menuxManualFulfillment"><option value="pickup">Retirada</option><option value="delivery">Entrega</option><option value="table">Mesa</option></select></div>
+    <div><label for="menuxManualPayment">Pagamento</label><select id="menuxManualPayment"><option value="pix">PIX</option><option value="cash">Dinheiro</option><option value="credit_card">Cartão de crédito</option><option value="debit_card">Cartão de débito</option></select></div>
+    <div class="menux-manual-full" id="menuxManualDelivery" hidden>
+     <div class="menux-manual-fields"><div><label for="menuxManualArea">Região / taxa de entrega *</label><select id="menuxManualArea"><option value="">Selecione uma região</option></select></div>
+     <div><label for="menuxManualAddress">Endereço completo *</label><input id="menuxManualAddress" maxlength="500" placeholder="Rua, número, complemento e referência"></div></div>
+    </div>
+    <div id="menuxManualTable" hidden><label for="menuxManualTableNumber">Número da mesa *</label><input id="menuxManualTableNumber" maxlength="20" placeholder="Ex.: 04"></div>
+    <div id="menuxManualChange" hidden><label for="menuxManualChangeFor">Troco para (R$) — opcional</label><input id="menuxManualChangeFor" type="number" min="0" max="100000" step="0.01" placeholder="Ex.: 50,00"></div>
+    <div class="menux-manual-full"><label for="menuxManualNotes">Observações</label><textarea id="menuxManualNotes" rows="2" maxlength="1000" placeholder="Ex.: pedido do WhatsApp, sem cebola, complemento combinado..."></textarea></div>
+   </div>
+   <div class="menux-manual-items"><div class="row between" style="margin-bottom:12px"><b>Produtos</b><button type="button" class="btn" id="menuxManualAdd">＋ Adicionar</button></div><div id="menuxManualRows"></div>
+    <p class="muted small">Nesta primeira versão manual, são usados os preços básicos dos produtos. Adicionais cobrados separadamente devem ser lançados pelo cardápio até a seleção completa de opções estar disponível aqui.</p>
+    <div class="menux-manual-total" id="menuxManualTotal">Total: R$ 0,00</div>
+   </div>
+   <div id="menuxManualFeedback" role="alert"></div>
+   <div class="menux-manual-actions"><button type="button" class="btn" id="menuxManualCancel">Cancelar</button><button type="submit" class="btn primary" id="menuxManualSave">Salvar pedido</button></div>
+  </form>
+ </section>
+</div>
+<script id="menuxManualScript">(()=>{
+ 'use strict';
+ const el=id=>document.getElementById(id),modal=el('menuxManualOverlay'),form=el('menuxManualForm'),rows=el('menuxManualRows');
+ if(!modal||!form)return;
+ let catalog=[],regions=[];
+ const fmt=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);
+ const escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const dsel=(v)=>catalog.find(p=>String(p.id)===v);
+ function makeRow(){
+  const r=document.createElement('div');r.className='menux-manual-product';
+  r.innerHTML='<select aria-label="Produto" required><option value="">Selecione um produto</option>'+catalog.map(p=>'<option value="'+escape(p.id)+'">'+escape(p.name)+' — '+fmt(p.price)+'</option>').join('')+'</select><input type="number" aria-label="Quantidade" min="1" max="99" step="1" value="1" required><button type="button" aria-label="Remover produto">×</button>';
+  r.querySelector('button').onclick=()=>{r.remove();recalc()};r.querySelectorAll('select,input').forEach(x=>x.addEventListener('change',recalc));rows.appendChild(r);recalc();
+ }
+ function recalc(){const total=[...rows.children].reduce((sum,r)=>sum+(Number(dsel(r.querySelector('select').value)?.price)||0)*(Number(r.querySelector('input').value)||0),0);const area=regions.find(a=>String(a.id)===el('menuxManualArea').value);const fee=el('menuxManualFulfillment').value==='delivery'?Number(area?.delivery_fee||0):0;el('menuxManualTotal').textContent='Total previsto: '+fmt(total+fee)+(fee?' (inclui '+fmt(fee)+' de entrega)':'')}
+ function updateFields(){const mode=el('menuxManualFulfillment').value;el('menuxManualDelivery').hidden=mode!=='delivery';el('menuxManualTable').hidden=mode!=='table';el('menuxManualChange').hidden=el('menuxManualPayment').value!=='cash';el('menuxManualArea').required=mode==='delivery';el('menuxManualAddress').required=mode==='delivery';el('menuxManualTableNumber').required=mode==='table';recalc()}
+ function close(){modal.hidden=true;el('menuxManualFeedback').textContent=''}
+ async function open(){
+  if(!sb||!restaurant?.id){alert('Aguarde o carregamento da loja.');return;}
+  if(window.MENUX_IS_DEMO){document.getElementById('menuxDemoOverlay').hidden=false;return;}
+  const b=el('menuxManualNew');b.disabled=true;
+  try{
+   const [p,a]=await Promise.all([sb.from('products').select('id,name,price,active').eq('restaurant_id',restaurant.id).eq('active',true).order('name'),sb.from('delivery_areas').select('id,name,delivery_fee,active').eq('restaurant_id',restaurant.id).eq('active',true).order('name')]);
+   if(p.error)throw p.error;if(a.error)throw a.error;
+   catalog=p.data||[];regions=a.data||[];
+   if(!catalog.length)throw Error('Cadastre pelo menos um produto ativo no Cardápio antes de criar um pedido manual.');
+   el('menuxManualArea').innerHTML='<option value="">Selecione uma região</option>'+regions.map(x=>'<option value="'+escape(x.id)+'">'+escape(x.name)+' — '+fmt(x.delivery_fee)+'</option>').join('');
+   form.reset();rows.innerHTML='';makeRow();updateFields();modal.hidden=false;el('menuxManualName').focus();
+  }catch(e){alert('Não foi possível abrir o pedido manual: '+e.message)}finally{b.disabled=false}
+ }
+ el('menuxManualNew').addEventListener('click',open);el('menuxManualClose').onclick=close;el('menuxManualCancel').onclick=close;
+ modal.addEventListener('click',e=>{if(e.target===modal)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close()});
+ el('menuxManualFulfillment').onchange=updateFields;el('menuxManualPayment').onchange=updateFields;el('menuxManualArea').onchange=recalc;
+ el('menuxManualPhone').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,11)});
+ el('menuxManualAdd').onclick=()=>{if(rows.children.length<30)makeRow()};
+ form.addEventListener('submit',async e=>{
+  e.preventDefault();const b=el('menuxManualSave');if(b.disabled)return;
+  const items=[...rows.children].map(r=>({product_id:r.querySelector('select').value,quantity:Number(r.querySelector('input').value)}));
+  if(!items.length||items.some(i=>!dsel(i.product_id)||!Number.isInteger(i.quantity)||i.quantity<1||i.quantity>99)){el('menuxManualFeedback').textContent='Confira os produtos e as quantidades.';return;}
+  const mode=el('menuxManualFulfillment').value,payment=el('menuxManualPayment').value;
+  const payload={p_restaurant:restaurant.id,p_name:el('menuxManualName').value.trim(),p_phone:el('menuxManualPhone').value.trim(),p_fulfillment:mode,p_address:mode==='delivery'?el('menuxManualAddress').value.trim():'',p_notes:el('menuxManualNotes').value.trim(),p_items:items,p_delivery_area:mode==='delivery'?(el('menuxManualArea').value||null):null,p_payment:payment,p_change_for:payment==='cash'&&el('menuxManualChangeFor').value!==''?Number(el('menuxManualChangeFor').value):null,p_table_number:mode==='table'?el('menuxManualTableNumber').value.trim():null};
+  b.disabled=true;b.textContent='Salvando...';el('menuxManualFeedback').textContent='';
+  try{const {data,error}=await sb.rpc('menux_create_manual_order',payload);if(error)throw error;if(!data?.order_id)throw Error('Pedido não confirmado.');close();el('refreshOrders').click();notice('Pedido manual criado com sucesso: '+(data.daily_number!=null?'#'+String(data.daily_number).padStart(3,'0'):'novo pedido'));}
+  catch(err){el('menuxManualFeedback').textContent='Não foi possível salvar: '+err.message}
+  finally{b.disabled=false;b.textContent='Salvar pedido'}
+ });
+})();</script>
+</body></html>
