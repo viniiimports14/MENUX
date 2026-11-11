@@ -183,15 +183,15 @@
    box-sizing:border-box!important;
    width:194mm!important;height:260mm!important;max-height:260mm!important;
    padding:0!important;margin:0!important;
-   display:flex!important;align-items:center!important;justify-content:center!important;
-   column-gap:7mm!important;row-gap:9mm!important;
+   display:flex!important;align-items:flex-start!important;justify-content:center!important;
+   padding-top:12mm!important;column-gap:7mm!important;row-gap:9mm!important;
    overflow:hidden!important;
    break-inside:avoid!important;page-break-inside:avoid!important;
    break-after:page!important;page-break-after:always!important;
  }
  #menuxQrPrintPages .menux-qr-print-page:last-child { break-after:auto!important;page-break-after:auto!important; }
  #menuxQrPrintPages[data-orientation="portrait"] .menux-qr-print-page{flex-direction:row!important;}
- #menuxQrPrintPages[data-orientation="landscape"] .menux-qr-print-page{flex-direction:column!important;}
+ #menuxQrPrintPages[data-orientation="landscape"] .menux-qr-print-page{flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;}
  #menuxQrPrintPages .menux-qr-paper {
    display:flex!important;flex-direction:column!important;justify-content:center!important;
    flex:0 0 auto!important;box-sizing:border-box!important;
@@ -322,7 +322,7 @@
   </div>
   <div class="menux-qr-action-bar"><button class="btn" type="button" id="menuxQrGenerate">Gerar prévia</button><button class="btn primary" type="button" id="menuxQrPrint">🖨️ Imprimir mesas</button></div>
   <p id="menuxQrStatus" class="muted small" role="status" aria-live="polite">Configure as mesas e clique em Gerar prévia.</p>
-  <p class="muted small" style="margin-bottom:0">Folha A4 em retrato, sempre com 2 plaquinhas: no modelo vertical elas ficam lado a lado; no horizontal, uma acima da outra. Na impressão, escolha A4 e escala 100% e desative cabeçalhos e rodapés se aparecerem. O QR Code é gerado no navegador.</p>
+  <p class="muted small" style="margin-bottom:0">Folha A4 em retrato, sempre com 2 plaquinhas: no modelo vertical elas ficam lado a lado; no horizontal, uma acima da outra. Ao imprimir ou salvar em PDF, use A4, escala 100% e DESATIVE a opção “Imprimir cabeçalhos e rodapés” no navegador para não mostrar data, link e numeração. O espaço em branco restante é para recortar as duas plaquinhas. O QR Code é gerado no navegador.</p>
  </div>
  <div id="menuxQrPreview" class="menux-qr-preview-grid" aria-label="Prévia de plaquinhas"></div>
 </section>
@@ -2155,7 +2155,7 @@ async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da 
  function build(){
   const c=getConfig();rendered=[];preview.replaceChildren();printPages.replaceChildren();
   printPages.dataset.orientation=c.orientation;
-  document.getElementById('menuxQrPageStyle').textContent='@media print{@page{size:A4 portrait;margin:8mm}}';
+  document.getElementById('menuxQrPageStyle').textContent='';
   for(let n=c.a;n<=c.b;n++)rendered.push({n,src:qrData(tableUrl(n))});
   for(const item of rendered.slice(0,4)){
    const wrap=document.createElement('div');wrap.className='menux-qr-preview-box';wrap.appendChild(makePaper(item.n,item.src,c.orientation));preview.appendChild(wrap);
