@@ -674,7 +674,7 @@ async function loadMenuxDeliveryAreas(){
  try{
   const {data,error}=await checkoutSb.rpc('menux_public_delivery_areas',{p_slug:checkoutSlug});if(error)throw error;
   menuxDeliveryAreas=Array.isArray(data)?data:[];
-  select.innerHTML='<option value="">Selecione seu bairro / região</option>'+menuxDeliveryAreas.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+' — '+brl(a.delivery_fee)+'</option>').join('');
+  select.innerHTML='<option value="">Selecione seu bairro / região</option>'+menuxDeliveryAreas.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('');
   $('delivery-area-info').textContent=menuxDeliveryAreas.length?'Selecione uma região atendida pelo estabelecimento.':'Esta loja ainda não cadastrou regiões de entrega. Você pode escolher retirada.';
   menuxAreasReady=true;
   const savedArea=menuxSelectedProfile()?.addresses?.at(-1)?.delivery_area_id;
