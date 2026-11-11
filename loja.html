@@ -601,6 +601,16 @@ async function menuxSearchCep(){
 $('menux-cep-search').onclick=menuxSearchCep;
 $('menux-cep').addEventListener('input',e=>{let v=e.target.value.replace(/\D/g,'').slice(0,8);e.target.value=v.length>5?v.slice(0,5)+'-'+v.slice(5):v;});
 $('menux-cep').addEventListener('change',()=>{if($('menux-cep').value.replace(/\D/g,'').length===8)menuxSearchCep();});
+function menuxAddressSame(a,b){
+ const text=v=>String(v??'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').toLowerCase();
+ const digits=v=>String(v??'').replace(/\D/g,'');
+ return text(a.street)===text(b.street)
+  && text(a.house_number)===text(b.house_number)
+  && text(a.address_complement)===text(b.address_complement)
+  && text(a.address_reference)===text(b.address_reference)
+  && digits(a.cep)===digits(b.cep)
+  && String(a.delivery_area_id||'')===String(b.delivery_area_id||'');
+}
 async function menuxSaveCustomerProfile(f){
  if(menuxUseGoogle&&menuxGoogleUser){
   const uid=menuxGoogleUser.id;
@@ -609,8 +619,15 @@ async function menuxSaveCustomerProfile(f){
   if(profileError)throw profileError;
   if(f.fulfillment.value==='delivery'&&menuxWantsSaveAddress){
    const address={user_id:uid,restaurant_slug:checkoutSlug,street:f.street.value.trim().slice(0,160),house_number:f.house_number.value.trim().slice(0,20),address_complement:f.address_complement.value.trim().slice(0,120),address_reference:f.address_reference.value.trim().slice(0,160),cep:f.cep.value.replace(/\D/g,'').slice(0,8),delivery_area_id:f.delivery_area_id.value||null};
-   const {error}=await checkoutSb.from('menux_customer_addresses').insert(address);
-   if(error)throw error;
+   // Confere o conjunto completo de endereços da conta, inclusive os não carregados na lista.
+   const {data:existing,error:readError}=await checkoutSb.from('menux_customer_addresses')
+     .select('street,house_number,address_complement,address_reference,cep,delivery_area_id')
+     .eq('user_id',uid).eq('restaurant_slug',checkoutSlug);
+   if(readError)throw readError;
+   if(!(existing||[]).some(item=>menuxAddressSame(item,address))){
+    const {error}=await checkoutSb.from('menux_customer_addresses').insert(address);
+    if(error)throw error;
+   }
   }
   menuxSetSaveAddress(false);return;
  }
@@ -620,7 +637,10 @@ async function menuxSaveCustomerProfile(f){
  const p={name:f.customer_name.value.trim().slice(0,120),last_fulfillment:f.fulfillment.value,addresses:Array.isArray(previous.addresses)?previous.addresses.slice(0,9):[]};
  if(f.fulfillment.value==='delivery'&&menuxWantsSaveAddress){
   const a={street:f.street.value.trim().slice(0,160),house_number:f.house_number.value.trim().slice(0,20),address_complement:f.address_complement.value.trim().slice(0,120),address_reference:f.address_reference.value.trim().slice(0,160),cep:f.cep.value.replace(/\D/g,'').slice(0,8),delivery_area_id:f.delivery_area_id.value};
-  p.addresses=p.addresses.filter(x=>!(x.street.toLowerCase()===a.street.toLowerCase()&&x.house_number===a.house_number));p.addresses.push(a);p.addresses=p.addresses.slice(-10);
+  if(!p.addresses.some(x=>menuxAddressSame(x,a))){
+   p.addresses.push(a);
+   p.addresses=p.addresses.slice(-10);
+  }
  }
  profiles[menuxCurrentPhone]=p;menuxWriteProfiles(profiles);menuxSetSaveAddress(false);
 }
