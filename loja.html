@@ -173,6 +173,36 @@
 .tracking-hint{padding:0 24px 0;color:var(--store-muted);font-size:12px;line-height:1.5}
 .tracking-actions{padding:12px 24px 24px}.tracking-actions button{min-height:50px}
 @media(max-width:640px){.tracking-box{border-radius:22px}.tracking-head{padding:20px 18px 15px}.tracking-head h2{font-size:26px}.tracking-summary{grid-template-columns:1fr;padding:0 18px 16px}.tracking-summary>div{padding:13px 14px}#tracking-status{padding:0 18px 6px}.tracking-meta-grid{grid-template-columns:1fr}.tracking-hint{padding:0 18px}.tracking-actions{padding:12px 18px 18px}}
+
+/* MENUX: acompanhamento compacto — um status atual e o resumo dos produtos */
+#tracking-modal .tracking-summary{gap:10px}
+#tracking-modal .tracking-brief-text{font-weight:760;font-size:14px}
+#tracking-modal .tracking-compact-status{border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);background:color-mix(in srgb,var(--accent) 9%,var(--store-card));padding:17px 18px;border-radius:16px;margin-bottom:16px}
+#tracking-modal .tracking-status-top{display:flex;align-items:center;gap:13px}
+#tracking-modal .tracking-status-indicator{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border-radius:12px;background:var(--accent);color:#fff;font-size:24px;font-weight:800}
+#tracking-modal .tracking-status-top b{display:block;font-size:19px;line-height:1.25}
+#tracking-modal .tracking-status-top small{display:block;color:var(--store-muted);font-size:12px;margin-top:3px}
+#tracking-modal .tracking-cancel-note{font-size:13px;margin:12px 0 0;color:var(--store-text)}
+#tracking-modal .tracking-products{border:1px solid color-mix(in srgb,var(--store-text) 12%,transparent);border-radius:17px;background:var(--store-card);overflow:hidden;margin-bottom:4px}
+#tracking-modal .tracking-products-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px;border-bottom:1px solid color-mix(in srgb,var(--store-text) 10%,transparent)}
+#tracking-modal .tracking-products-title h3{font-size:19px;letter-spacing:-.025em;margin:0}
+#tracking-modal .tracking-products-title span{font-size:12px;font-weight:700;color:var(--accent);padding:5px 10px;border-radius:99px;background:color-mix(in srgb,var(--accent) 9%,var(--store-card))}
+#tracking-modal .tracking-product{display:flex;gap:12px;align-items:flex-start;padding:15px 18px;border-bottom:1px solid color-mix(in srgb,var(--store-text) 8%,transparent)}
+#tracking-modal .tracking-product-qty{flex:0 0 32px;min-width:32px;min-height:32px;display:grid;place-items:center;border-radius:10px;background:color-mix(in srgb,var(--accent) 12%,var(--store-card));color:var(--accent);font-size:13px;font-weight:800}
+#tracking-modal .tracking-product-info{flex:1;min-width:0}
+#tracking-modal .tracking-product-info>strong{font-size:15px;line-height:1.35;display:block;overflow-wrap:anywhere}
+#tracking-modal .tracking-product-options{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:4px;color:var(--store-muted);font-size:12px}
+#tracking-modal .tracking-product-options li:before{content:'+';display:inline;margin-right:6px;color:var(--accent);font-weight:700}
+#tracking-modal .tracking-product-options span{font-weight:700}
+#tracking-modal .tracking-product-price{flex:0 0 auto;white-space:nowrap;font-size:14px;font-weight:800}
+#tracking-modal .tracking-products-empty{padding:12px 18px;font-size:13px;color:var(--store-muted)}
+#tracking-modal .tracking-totals{padding:15px 18px;background:color-mix(in srgb,var(--store-text) 3%,var(--store-card))}
+#tracking-modal .tracking-total-line,#tracking-modal .tracking-grand-total{display:flex;justify-content:space-between;gap:12px;align-items:baseline;font-size:13px;margin:0 0 9px}
+#tracking-modal .tracking-grand-total{padding-top:12px;margin:4px 0 0;border-top:1px solid color-mix(in srgb,var(--store-text) 12%,transparent);font-size:17px;font-weight:800}
+#tracking-modal .tracking-grand-total strong{color:var(--accent)}
+#tracking-modal .tracking-error{padding:18px;border-radius:15px;border:1px solid #dc262644;background:#dc262610}
+#tracking-modal .tracking-error p{margin:8px 0 0;font-size:13px}
+@media(max-width:640px){#tracking-modal .tracking-summary{grid-template-columns:1fr 1fr;padding-bottom:12px}#tracking-modal .tracking-summary>div{padding:11px 12px}#tracking-modal .tracking-number{font-size:20px}#tracking-modal .tracking-brief-text{font-size:12px}#tracking-modal .tracking-compact-status{padding:13px}#tracking-modal .tracking-products-title{padding:13px 14px}#tracking-modal .tracking-product{padding:13px 14px;gap:9px}#tracking-modal .tracking-totals{padding:12px 14px}}
 </style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><h2>Nosso cardápio</h2><div id="products">Aguarde...</div></main><div class="product-detail" id="product-detail" role="dialog" aria-modal="true" aria-label="Personalizar produto" hidden>
 <div class="detail-panel"><div class="detail-top"><b>Detalhe do produto</b><button id="close-detail" type="button" aria-label="Fechar detalhes">×</button></div><div id="detail-body"></div>
 <div class="detail-footer"><div><strong id="detail-total"></strong><div class="detail-note">Escolha suas opções e adicione ao carrinho</div></div><button type="button" id="detail-confirm">Adicionar ao carrinho</button></div></div></div><button class="tracking-shortcut" id="tracking-shortcut" type="button" hidden aria-label="Acompanhar meu último pedido">📦 Acompanhar pedido</button><button class="checkout-fab" id="open-cart" type="button">🛒 Carrinho (0)</button>
@@ -238,7 +268,7 @@
   </div>
 </div>
 <div id="success-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Pedido confirmado"><div class="checkout-box"><h2>✓ Pedido recebido!</h2><p>Seu pedido já foi registrado na MENUX e enviado ao painel do estabelecimento.</p><p><b id="success-number"></b></p><p id="success-total"></p><p>O WhatsApp é opcional: seu pedido já foi realizado.</p><button type="button" id="open-tracking" class="checkout-primary" style="width:100%;margin-bottom:10px">Acompanhar meu pedido</button><div class="checkout-actions"><button class="checkout-primary" id="share-whatsapp" type="button">Enviar cópia pelo WhatsApp</button><button id="success-close" type="button">Fechar</button></div><p id="whatsapp-info" class="checkout-error"></p></div></div>
-<div id="image-modal" class="image-modal" role="dialog" aria-modal="true" aria-label="Foto ampliada do produto" hidden><button type="button" class="close-image" aria-label="Fechar imagem">×</button><img id="expanded-image" alt=""></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><div id="tracking-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Acompanhar pedido"><div class="checkout-box tracking-box"><div class="tracking-head"><div><div class="tracking-kicker">MENUX • ACOMPANHAMENTO</div><h2>Acompanhe seu pedido</h2><p class="tracking-copy">Seu pedido foi enviado para a loja. Veja abaixo o andamento em tempo real.</p></div><button type="button" id="tracking-close" class="tracking-close-btn" aria-label="Fechar acompanhamento">✕</button></div><div class="tracking-summary"><div><div class="tracking-summary-label">Pedido</div><div id="tracking-number" class="tracking-number">Carregando...</div></div><div><div class="tracking-summary-label">Status atual</div><div id="tracking-pill" class="tracking-pill">Consultando...</div></div></div><div id="tracking-status" role="status" aria-live="polite">Carregando...</div><p class="tracking-hint">A consulta acontece automaticamente enquanto esta janela estiver aberta.</p><div class="checkout-actions tracking-actions" style="margin-top:12px"><button type="button" id="tracking-refresh">Atualizar agora</button><button type="button" id="tracking-whatsapp" class="checkout-primary">Enviar cópia pelo WhatsApp</button></div><p id="tracking-whatsapp-info" class="checkout-error" role="status" style="padding:0 24px 24px"></p></div></div><script>
+<div id="image-modal" class="image-modal" role="dialog" aria-modal="true" aria-label="Foto ampliada do produto" hidden><button type="button" class="close-image" aria-label="Fechar imagem">×</button><img id="expanded-image" alt=""></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><div id="tracking-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Acompanhar pedido"><div class="checkout-box tracking-box"><div class="tracking-head"><div><div class="tracking-kicker">MENUX • ACOMPANHAMENTO</div><h2>Acompanhe seu pedido</h2><p class="tracking-copy">Seu pedido foi enviado para a loja. Veja abaixo o andamento em tempo real.</p></div><button type="button" id="tracking-close" class="tracking-close-btn" aria-label="Fechar acompanhamento">✕</button></div><div class="tracking-summary"><div><div class="tracking-summary-label">Pedido</div><div id="tracking-number" class="tracking-number">Carregando...</div></div><div class="tracking-brief"><div class="tracking-summary-label">Atualização</div><div class="tracking-brief-text">Acompanhamento ao vivo</div></div></div><div id="tracking-pill" class="menux-visually-hidden" aria-live="polite"></div><div id="tracking-status" role="status" aria-live="polite">Carregando...</div><p class="tracking-hint">A consulta acontece automaticamente enquanto esta janela estiver aberta.</p><div class="checkout-actions tracking-actions" style="margin-top:12px"><button type="button" id="tracking-refresh">Atualizar agora</button><button type="button" id="tracking-whatsapp" class="checkout-primary">Enviar cópia pelo WhatsApp</button></div><p id="tracking-whatsapp-info" class="checkout-error" role="status" style="padding:0 24px 24px"></p></div></div><script>
 /* MENUX: consultar disponibilidade; servidor valida novamente ao salvar. */
 let menuxStoreOpen=true;
 async function menuxFetchHours(){
@@ -631,25 +661,25 @@ function renderTrackingStatusCard(data){
  const pill=document.getElementById('tracking-pill');
  pill.textContent=visibleStatus;
  pill.className='tracking-pill'+(status==='completed'?' is-completed':status==='cancelled'?' is-cancelled':'');
- const steps=menuxTrackingStepsFor(fulfillment);
- let currentIndex=steps.indexOf(status);
- if(currentIndex<0)currentIndex=status==='cancelled'?0:steps.length-1;
- const stepHtml=steps.map((key,index)=>{
-   const info=trackingStepMeta[key]||{title:key,desc:''};
-   const state=status==='cancelled'?(index===0?'is-done':''):(index<currentIndex?'is-done':index===currentIndex?'is-current':'');
-   const dot=state==='is-done'?'✓':state==='is-current'?'•':'○';
-   let title=info.title,desc=info.desc;
-   if(key==='ready'&&fulfillment==='pickup'){title='Pronto para retirada';desc='O pedido já pode ser retirado no local.';}
-   if(key==='ready'&&fulfillment==='table'){title='Pronto para servir';desc='O pedido está pronto para ser servido na mesa.';}
-   if(key==='ready'&&fulfillment==='delivery'){title='Pronto para envio';desc='O pedido está preparado e pronto para seguir para a entrega.';}
-   return '<div class="tracking-step '+state+'"><div class="tracking-step-dot">'+dot+'</div><div><strong>'+esc(title)+'</strong><small>'+esc(desc)+'</small></div></div>';
- }).join('');
- const when=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
  const mode=fulfillment==='delivery'?'Entrega':fulfillment==='pickup'?'Retirada':'Mesa';
- const alert=status==='cancelled'?'<div class="tracking-alert">Este pedido foi marcado como cancelado pela loja. Se precisar, entre em contato diretamente com o estabelecimento.</div>':'';
- return '<div class="tracking-card"><div class="tracking-card-top"><div class="tracking-status-title">'+esc(visibleStatus)+'</div><p class="tracking-status-note">Última atualização às '+when+'.</p></div><div class="tracking-meta-grid"><div class="tracking-meta"><span>Valor total</span><strong>'+brl(data.total||0)+'</strong></div><div class="tracking-meta"><span>Modalidade</span><strong>'+esc(mode)+'</strong></div><div class="tracking-meta"><span>Número do pedido</span><strong>'+esc(menuxDisplayNumber(trackingRef||data))+'</strong></div></div>'+alert+'<div class="tracking-steps">'+stepHtml+'</div></div>';
+ const time=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+ const items=Array.isArray(data.items)?data.items:[];
+ let itemsHtml=items.map(item=>{
+  const qty=Math.max(1,Number(item.quantity)||1);
+  const unit=Number(item.unit_price)||0;
+  const options=Array.isArray(item.options)?item.options:[];
+  const extras=options.map(opt=>'<li>'+esc(opt.name||'Adicional')+(Number(opt.price)>0?' <span>+ '+brl(opt.price)+'</span>':'')+'</li>').join('');
+  return '<div class="tracking-product"><div class="tracking-product-qty">'+esc(String(qty))+'×</div><div class="tracking-product-info"><strong>'+esc(item.product_name||'Produto')+'</strong>'+(extras?'<ul class="tracking-product-options">'+extras+'</ul>':'')+'</div><div class="tracking-product-price">'+brl(qty*unit)+'</div></div>';
+ }).join('');
+ if(!itemsHtml)itemsHtml='<p class="tracking-products-empty">Os itens deste pedido não estão disponíveis para consulta agora.</p>';
+ const cancelled=status==='cancelled'?'<p class="tracking-cancel-note">Este pedido foi cancelado. Entre em contato com a loja se precisar de ajuda.</p>':'';
+ const subtotal=Number(data.subtotal);
+ const deliveryFee=Number(data.delivery_fee||0);
+ const sums=Number.isFinite(subtotal)?'<div class="tracking-total-line"><span>Produtos e adicionais</span><strong>'+brl(subtotal)+'</strong></div>':'';
+ return '<section class="tracking-compact-status"><div class="tracking-status-top"><span class="tracking-status-indicator">'+(status==='completed'?'✓':status==='cancelled'?'!':'●')+'</span><div><b>'+esc(visibleStatus)+'</b><small>Atualizado às '+time+'</small></div></div>'+cancelled+'</section>'+
+ '<section class="tracking-products"><div class="tracking-products-title"><h3>Seu pedido</h3><span>'+esc(mode)+'</span></div>'+itemsHtml+'<div class="tracking-totals">'+sums+(fulfillment==='delivery'?'<div class="tracking-total-line"><span>Taxa de entrega</span><strong>'+brl(deliveryFee)+'</strong></div>':'')+'<div class="tracking-grand-total"><span>Total do pedido</span><strong>'+brl(data.total||0)+'</strong></div></div></section>';
 }
-async function refreshTracking(){if(!trackingRef||!checkoutSb)return;const el=document.getElementById('tracking-status');try{const {data,error}=await checkoutSb.rpc('menux_track_order',{p_order_id:trackingRef.id,p_token:trackingRef.token});if(error)throw error;if(!data)throw Error('Pedido não encontrado');const status=data.status;if(data.daily_number!=null){trackingRef.daily_number=data.daily_number;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(trackingRef);if(confirmedOrder?.id===trackingRef.id)confirmedOrder.daily_number=data.daily_number;}el.innerHTML=renderTrackingStatusCard(data);if(['completed','cancelled'].includes(status)){clearInterval(trackingTimer);trackingTimer=null}}catch(e){document.getElementById('tracking-pill').textContent='Indisponível';el.innerHTML='<div class="tracking-card"><div class="tracking-card-top"><div class="tracking-status-title">Não foi possível consultar</div><p class="tracking-status-note">'+esc(e.message)+'</p></div></div>'}}
+async function refreshTracking(){if(!trackingRef||!checkoutSb)return;const el=document.getElementById('tracking-status');try{const {data,error}=await checkoutSb.rpc('menux_track_order',{p_order_id:trackingRef.id,p_token:trackingRef.token});if(error)throw error;if(!data)throw Error('Pedido não encontrado');const status=data.status;if(data.daily_number!=null){trackingRef.daily_number=data.daily_number;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(trackingRef);if(confirmedOrder?.id===trackingRef.id)confirmedOrder.daily_number=data.daily_number;}el.innerHTML=renderTrackingStatusCard(data);if(['completed','cancelled'].includes(status)){clearInterval(trackingTimer);trackingTimer=null}}catch(e){document.getElementById('tracking-pill').textContent='Indisponível';el.innerHTML='<div class="tracking-error"><strong>Não foi possível consultar o pedido.</strong><p>'+esc(e.message)+'</p></div>'}}
 function openTracking(ref){if(!ref?.id||!ref?.token)return;trackingRef=ref;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(ref);document.getElementById('tracking-pill').textContent='Consultando...';trackingModal.hidden=false;refreshTracking();clearInterval(trackingTimer);trackingTimer=setInterval(()=>{if(!trackingModal.hidden&&document.visibilityState==='visible')refreshTracking()},10000)}
 document.getElementById('open-tracking').onclick=()=>openTracking({id:confirmedOrder?.id,token:confirmedOrder?.tracking_token});
 document.getElementById('tracking-close').onclick=()=>{trackingModal.hidden=true;clearInterval(trackingTimer)};
