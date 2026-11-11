@@ -1757,8 +1757,15 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now(
     <div id="menuxManualChange" hidden><label for="menuxManualChangeFor">Troco para (R$) — opcional</label><input id="menuxManualChangeFor" type="number" min="0" max="100000" step="0.01" placeholder="Ex.: 50,00"></div>
     <div class="menux-manual-full"><label for="menuxManualNotes">Observações</label><textarea id="menuxManualNotes" rows="2" maxlength="1000" placeholder="Ex.: pedido do WhatsApp, sem cebola, complemento combinado..."></textarea></div>
    </div>
-   <div class="menux-manual-items"><div class="row between" style="margin-bottom:12px"><b>Produtos</b><button type="button" class="btn" id="menuxManualAdd">＋ Adicionar</button></div><div id="menuxManualRows"></div>
-    <p class="muted small">Nesta primeira versão manual, são usados os preços básicos dos produtos. Adicionais cobrados separadamente devem ser lançados pelo cardápio até a seleção completa de opções estar disponível aqui.</p>
+   <div class="menux-manual-items">
+    <div class="menux-manual-toolhead"><b>Monte o pedido</b><small class="muted">Toque no produto, escolha os adicionais e adicione</small></div>
+    <label for="menuxManualSearch" class="menux-manual-search-label">Buscar produto</label>
+    <input id="menuxManualSearch" type="search" autocomplete="off" placeholder="🔎 Digite o nome do produto..." aria-label="Buscar produtos">
+    <div id="menuxManualCategories" class="menux-manual-categories" aria-label="Categorias"></div>
+    <div id="menuxManualProductPicker" class="menux-manual-product-picker"></div>
+    <div id="menuxManualOptionEditor" class="menux-manual-option-editor" hidden></div>
+    <div class="menux-manual-cart-head"><b>Itens escolhidos</b><span id="menuxManualCartCount">0 itens</span></div>
+    <div id="menuxManualRows" class="menux-manual-cart"></div>
     <div class="menux-manual-total" id="menuxManualTotal">Total: R$ 0,00</div>
    </div>
    <div id="menuxManualFeedback" role="alert"></div>
@@ -1767,49 +1774,112 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now(
  </section>
 </div>
 <script id="menuxManualScript">(()=>{
- 'use strict';
- const el=id=>document.getElementById(id),modal=el('menuxManualOverlay'),form=el('menuxManualForm'),rows=el('menuxManualRows');
- if(!modal||!form)return;
- let catalog=[],regions=[];
- const fmt=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);
- const escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const dsel=(v)=>catalog.find(p=>String(p.id)===v);
- function makeRow(){
-  const r=document.createElement('div');r.className='menux-manual-product';
-  r.innerHTML='<select aria-label="Produto" required><option value="">Selecione um produto</option>'+catalog.map(p=>'<option value="'+escape(p.id)+'">'+escape(p.name)+' — '+fmt(p.price)+'</option>').join('')+'</select><input type="number" aria-label="Quantidade" min="1" max="99" step="1" value="1" required><button type="button" aria-label="Remover produto">×</button>';
-  r.querySelector('button').onclick=()=>{r.remove();recalc()};r.querySelectorAll('select,input').forEach(x=>x.addEventListener('change',recalc));rows.appendChild(r);recalc();
+'use strict';
+const el=id=>document.getElementById(id),modal=el('menuxManualOverlay'),form=el('menuxManualForm'),rows=el('menuxManualRows');
+if(!modal||!form)return;
+let catalog=[],regions=[],cart=[],category='Todas',selected=null,selectedChoices=new Map(),qty=1;
+const fmt=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);
+const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=v=>Number(v)||0;
+const pickedOptions=()=>[...selectedChoices.values()].flatMap(x=>[...x.values()]);
+const itemUnit=(product,opts)=>money(product.price)+opts.reduce((sum,opt)=>sum+money(opt.price),0);
+function currentEditorTotal(){return selected?itemUnit(selected,pickedOptions())*qty:0;}
+function recalc(){const sum=cart.reduce((total,c)=>total+c.unit*c.quantity,0);const region=regions.find(a=>String(a.id)===el('menuxManualArea').value);const fee=el('menuxManualFulfillment').value==='delivery'?money(region?.delivery_fee):0;
+ el('menuxManualTotal').innerHTML='Produtos: '+fmt(sum)+(fee?' · Entrega: '+fmt(fee):'')+'<br><strong>Total: '+fmt(sum+fee)+'</strong>';
+}
+function updateFields(){const mode=el('menuxManualFulfillment').value;el('menuxManualDelivery').hidden=mode!=='delivery';el('menuxManualTable').hidden=mode!=='table';el('menuxManualChange').hidden=el('menuxManualPayment').value!=='cash';el('menuxManualArea').required=mode==='delivery';el('menuxManualAddress').required=mode==='delivery';el('menuxManualTableNumber').required=mode==='table';recalc();}
+function close(){modal.hidden=true;el('menuxManualFeedback').textContent='';selected=null;}
+function renderProducts(){const query=el('menuxManualSearch').value.trim().toLocaleLowerCase('pt-BR');
+ const categories=['Todas',...new Set(catalog.map(p=>p.category||'Outros'))];
+ el('menuxManualCategories').innerHTML=categories.map(c=>'<button type="button" class="menux-category-chip'+(category===c?' selected':'')+'" data-cat="'+safe(c)+'">'+safe(c)+'</button>').join('');
+ const filtered=catalog.filter(p=>(category==='Todas'||(p.category||'Outros')===category)&&(!query||p.name.toLocaleLowerCase('pt-BR').includes(query)));
+ el('menuxManualProductPicker').innerHTML=filtered.length?filtered.map(p=>'<button type="button" class="menux-manual-pick" data-product="'+safe(p.id)+'">'+(p.image_url&&p.image_url.startsWith('https://')?'<img alt="" src="'+safe(p.image_url)+'" loading="lazy">':'<span class="menux-no-photo">🍽️</span>')+'<span><strong>'+safe(p.name)+'</strong><small>'+fmt(p.price)+'</small></span><span class="menux-pick-plus">＋</span></button>').join(''):'<p class="muted">Nenhum produto encontrado.</p>';
+}
+function renderEditor(){const target=el('menuxManualOptionEditor');if(!selected){target.hidden=true;return;}target.hidden=false;
+ let out='<div class="menux-manual-editor-head"><div><small class="gold">PERSONALIZAR PRODUTO</small><h3>'+safe(selected.name)+'</h3><small>Preço base: '+fmt(selected.price)+'</small></div><button type="button" class="btn" data-editor-close>✕</button></div>';
+ for(const g of (selected.option_groups||[])){
+  const picks=selectedChoices.get(String(g.id))||new Map();const min=Math.max(0,Number(g.min_select)||0),max=Math.max(0,Number(g.max_select)||0);
+  out+='<div class="menux-manual-option-group"><div class="menux-manual-group-head"><b>'+safe(g.title)+'</b><span>'+picks.size+'/'+max+' · '+(min?'mín. '+min:'opcional')+'</span></div>';
+  for(const opt of g.items||[]){const checked=picks.has(String(opt.id));out+='<label class="menux-manual-option'+(checked?' active':'')+'"><input type="checkbox" data-group="'+safe(g.id)+'" data-option="'+safe(opt.id)+'" '+(checked?'checked':'')+'><span>'+safe(opt.name)+'</span><strong>'+(money(opt.price)?'+ '+fmt(opt.price):'Grátis')+'</strong></label>';}
+  out+='</div>';
  }
- function recalc(){const total=[...rows.children].reduce((sum,r)=>sum+(Number(dsel(r.querySelector('select').value)?.price)||0)*(Number(r.querySelector('input').value)||0),0);const area=regions.find(a=>String(a.id)===el('menuxManualArea').value);const fee=el('menuxManualFulfillment').value==='delivery'?Number(area?.delivery_fee||0):0;el('menuxManualTotal').textContent='Total previsto: '+fmt(total+fee)+(fee?' (inclui '+fmt(fee)+' de entrega)':'')}
- function updateFields(){const mode=el('menuxManualFulfillment').value;el('menuxManualDelivery').hidden=mode!=='delivery';el('menuxManualTable').hidden=mode!=='table';el('menuxManualChange').hidden=el('menuxManualPayment').value!=='cash';el('menuxManualArea').required=mode==='delivery';el('menuxManualAddress').required=mode==='delivery';el('menuxManualTableNumber').required=mode==='table';recalc()}
- function close(){modal.hidden=true;el('menuxManualFeedback').textContent=''}
- async function open(){
-  if(!sb||!restaurant?.id){alert('Aguarde o carregamento da loja.');return;}
-  if(window.MENUX_IS_DEMO){document.getElementById('menuxDemoOverlay').hidden=false;return;}
-  const b=el('menuxManualNew');b.disabled=true;
-  try{
-   const [p,a]=await Promise.all([sb.from('products').select('id,name,price,active').eq('restaurant_id',restaurant.id).eq('active',true).order('name'),sb.from('delivery_areas').select('id,name,delivery_fee,active').eq('restaurant_id',restaurant.id).eq('active',true).order('name')]);
-   if(p.error)throw p.error;if(a.error)throw a.error;
-   catalog=p.data||[];regions=a.data||[];
-   if(!catalog.length)throw Error('Cadastre pelo menos um produto ativo no Cardápio antes de criar um pedido manual.');
-   el('menuxManualArea').innerHTML='<option value="">Selecione uma região</option>'+regions.map(x=>'<option value="'+escape(x.id)+'">'+escape(x.name)+' — '+fmt(x.delivery_fee)+'</option>').join('');
-   form.reset();rows.innerHTML='';makeRow();updateFields();modal.hidden=false;el('menuxManualName').focus();
-  }catch(e){alert('Não foi possível abrir o pedido manual: '+e.message)}finally{b.disabled=false}
- }
+ out+='<div class="menux-manual-editor-foot"><div class="menux-manual-stepper"><button type="button" data-qty="-1">−</button><b>'+qty+'</b><button type="button" data-qty="1">＋</button></div><button type="button" class="btn primary" id="menuxManualConfirmProduct">Adicionar · '+fmt(currentEditorTotal())+'</button></div><p id="menuxManualItemError" role="alert" class="menux-manual-item-error"></p>';
+ target.innerHTML=out;target.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function startProduct(id){selected=catalog.find(p=>String(p.id)===String(id));qty=1;selectedChoices=new Map();renderEditor();}
+function validateChoices(){for(const g of selected.option_groups||[]){const count=(selectedChoices.get(String(g.id))||new Map()).size;if(count<Number(g.min_select||0)||count>Number(g.max_select||0))return 'No grupo "'+g.title+'", escolha de '+g.min_select+' a '+g.max_select+' opções.';}return null;}
+function renderCart(){rows.innerHTML=cart.map((c,i)=>'<div class="menux-manual-cart-row"><div><b>'+c.quantity+'× '+safe(c.name)+'</b>'+(c.options.length?'<small>'+c.options.map(o=>'+ '+safe(o.name)).join(' · ')+'</small>':'')+'</div><strong>'+fmt(c.unit*c.quantity)+'</strong><button type="button" class="btn" data-remove="'+i+'" aria-label="Remover item">✕</button></div>').join('')||'<p class="muted small">Adicione os produtos acima para montar o pedido.</p>';
+ el('menuxManualCartCount').textContent=cart.reduce((s,c)=>s+c.quantity,0)+' unidade(s)';recalc();}
+async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da loja.');return;}
+ if(window.MENUX_IS_DEMO){document.getElementById('menuxDemoOverlay').hidden=false;return;}
+ const b=el('menuxManualNew');b.disabled=true;
+ try{const slug=String(restaurant.slug||'');if(!slug)throw Error('Configure o endereço curto (slug) da loja primeiro.');
+  const [p,a]=await Promise.all([sb.rpc('get_public_storefront',{p_slug:slug}),sb.from('delivery_areas').select('id,name,delivery_fee,active').eq('restaurant_id',restaurant.id).eq('active',true).order('name')]);
+  if(p.error)throw p.error;if(a.error)throw a.error;if(!p.data?.store||p.data.store.slug!==slug)throw Error('Não foi possível consultar o cardápio desta loja.');
+  catalog=(p.data.products||[]).map(x=>({...x,option_groups:x.option_groups||[]}));regions=a.data||[];
+  if(!catalog.length)throw Error('Cadastre pelo menos um produto ativo antes de criar um pedido manual.');
+  el('menuxManualArea').innerHTML='<option value="">Selecione uma região</option>'+regions.map(x=>'<option value="'+safe(x.id)+'">'+safe(x.name)+' — '+fmt(x.delivery_fee)+'</option>').join('');
+  form.reset();cart=[];category='Todas';selected=null;selectedChoices=new Map();qty=1;el('menuxManualSearch').value='';renderProducts();renderEditor();renderCart();updateFields();modal.hidden=false;el('menuxManualSearch').focus();
+ }catch(e){alert('Não foi possível abrir o pedido manual: '+e.message)}finally{b.disabled=false;}}
  el('menuxManualNew').addEventListener('click',open);el('menuxManualClose').onclick=close;el('menuxManualCancel').onclick=close;
  modal.addEventListener('click',e=>{if(e.target===modal)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close()});
  el('menuxManualFulfillment').onchange=updateFields;el('menuxManualPayment').onchange=updateFields;el('menuxManualArea').onchange=recalc;
  el('menuxManualPhone').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,11)});
- el('menuxManualAdd').onclick=()=>{if(rows.children.length<30)makeRow()};
- form.addEventListener('submit',async e=>{
-  e.preventDefault();const b=el('menuxManualSave');if(b.disabled)return;
-  const items=[...rows.children].map(r=>({product_id:r.querySelector('select').value,quantity:Number(r.querySelector('input').value)}));
-  if(!items.length||items.some(i=>!dsel(i.product_id)||!Number.isInteger(i.quantity)||i.quantity<1||i.quantity>99)){el('menuxManualFeedback').textContent='Confira os produtos e as quantidades.';return;}
+ el('menuxManualSearch').addEventListener('input',renderProducts);
+ el('menuxManualCategories').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;category=b.dataset.cat;renderProducts()});
+ el('menuxManualProductPicker').addEventListener('click',e=>{const b=e.target.closest('[data-product]');if(b)startProduct(b.dataset.product)});
+ el('menuxManualOptionEditor').addEventListener('change',e=>{const input=e.target.closest('input[data-option]');if(!input||!selected)return;
+  const g=(selected.option_groups||[]).find(x=>String(x.id)===input.dataset.group);if(!g)return;
+  const opt=(g.items||[]).find(x=>String(x.id)===input.dataset.option);if(!opt)return;
+  let choices=selectedChoices.get(String(g.id));if(!choices){choices=new Map();selectedChoices.set(String(g.id),choices)}
+  if(input.checked){if(choices.size>=Number(g.max_select||0)){input.checked=false;el('menuxManualItemError').textContent='Máximo de '+g.max_select+' opções em '+g.title;return;}choices.set(String(opt.id),{group_id:g.id,item_id:opt.id,name:opt.name,price:money(opt.price)});}else choices.delete(String(opt.id));
+  renderEditor();
+ });
+ el('menuxManualOptionEditor').addEventListener('click',e=>{if(e.target.closest('[data-editor-close]')){selected=null;renderEditor();return;}
+  const b=e.target.closest('[data-qty]');if(b){qty=Math.max(1,Math.min(99,qty+Number(b.dataset.qty)));renderEditor();return;}
+  if(!e.target.closest('#menuxManualConfirmProduct')||!selected)return;
+  const err=validateChoices();if(err){el('menuxManualItemError').textContent=err;return;}
+  const options=pickedOptions();const unit=itemUnit(selected,options),signature=String(selected.id)+'|'+options.map(o=>o.group_id+':'+o.item_id).sort().join('|');
+  const existing=cart.find(x=>x.signature===signature);if(existing){if(existing.quantity+qty>99){el('menuxManualItemError').textContent='Máximo de 99 unidades do mesmo item.';return;}existing.quantity+=qty;}
+  else{if(cart.length>=30){el('menuxManualItemError').textContent='Máximo de 30 itens diferentes.';return;}cart.push({signature,product_id:selected.id,name:selected.name,quantity:qty,unit,options});}
+  selected=null;renderEditor();renderCart();el('menuxManualSearch').focus();
+ });
+ rows.addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;cart.splice(Number(b.dataset.remove),1);renderCart()});
+ form.addEventListener('submit',async e=>{e.preventDefault();const b=el('menuxManualSave');if(b.disabled)return;
+  if(!cart.length){el('menuxManualFeedback').textContent='Escolha pelo menos um produto.';el('menuxManualSearch').focus();return;}
   const mode=el('menuxManualFulfillment').value,payment=el('menuxManualPayment').value;
-  const payload={p_restaurant:restaurant.id,p_name:el('menuxManualName').value.trim(),p_phone:el('menuxManualPhone').value.trim(),p_fulfillment:mode,p_address:mode==='delivery'?el('menuxManualAddress').value.trim():'',p_notes:el('menuxManualNotes').value.trim(),p_items:items,p_delivery_area:mode==='delivery'?(el('menuxManualArea').value||null):null,p_payment:payment,p_change_for:payment==='cash'&&el('menuxManualChangeFor').value!==''?Number(el('menuxManualChangeFor').value):null,p_table_number:mode==='table'?el('menuxManualTableNumber').value.trim():null};
-  b.disabled=true;b.textContent='Salvando...';el('menuxManualFeedback').textContent='';
-  try{const {data,error}=await sb.rpc('menux_create_manual_order',payload);if(error)throw error;if(!data?.order_id)throw Error('Pedido não confirmado.');close();el('refreshOrders').click();notice('Pedido manual criado com sucesso: '+(data.daily_number!=null?'#'+String(data.daily_number).padStart(3,'0'):'novo pedido'));}
+  const payload={p_restaurant:restaurant.id,p_name:el('menuxManualName').value.trim(),p_phone:el('menuxManualPhone').value.trim(),p_fulfillment:mode,p_address:mode==='delivery'?el('menuxManualAddress').value.trim():'',p_notes:el('menuxManualNotes').value.trim(),p_items:cart.map(x=>({product_id:x.product_id,quantity:x.quantity,options:x.options.map(o=>({group_id:o.group_id,item_id:o.item_id}))})),p_delivery_area:mode==='delivery'?(el('menuxManualArea').value||null):null,p_payment:payment,p_change_for:payment==='cash'&&el('menuxManualChangeFor').value!==''?Number(el('menuxManualChangeFor').value):null,p_table_number:mode==='table'?el('menuxManualTableNumber').value.trim():null};
+  b.disabled=true;b.textContent='Salvando pedido...';el('menuxManualFeedback').textContent='';
+  try{const {data,error}=await sb.rpc('menux_create_manual_order',payload);if(error)throw error;if(!data?.order_id)throw Error('Pedido não confirmado.');close();el('refreshOrders').click();notice('Pedido manual criado: '+(data.daily_number!=null?'#'+String(data.daily_number).padStart(3,'0'):'novo pedido'));}
   catch(err){el('menuxManualFeedback').textContent='Não foi possível salvar: '+err.message}
   finally{b.disabled=false;b.textContent='Salvar pedido'}
  });
 })();</script>
-</body></html>
+<style id="menux-manual-fast-style">
+.menux-manual-dialog{width:min(1040px,100%);padding:20px;max-height:96dvh}
+.menux-manual-items{padding:17px;border-radius:16px}.menux-manual-toolhead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.menux-manual-search-label{display:block;color:var(--text);font-weight:750;font-size:13px;margin-bottom:6px}
+#menuxManualSearch{width:100%;min-height:47px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:10px 13px;font:inherit}
+.menux-manual-categories{display:flex;gap:7px;overflow-x:auto;padding:12px 0}
+.menux-category-chip{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:99px;padding:8px 13px;white-space:nowrap;cursor:pointer;font-size:12px;font-weight:700}
+.menux-category-chip.selected{background:var(--gold);color:#15120c;border-color:var(--gold)}
+.menux-manual-product-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-height:245px;overflow:auto;padding:2px 0 10px}
+.menux-manual-pick{border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);padding:9px;display:flex;gap:10px;align-items:center;text-align:left;cursor:pointer;min-width:0}
+.menux-manual-pick img,.menux-no-photo{width:43px;height:43px;border-radius:8px;object-fit:cover;background:var(--panel);flex:0 0 43px;display:grid;place-items:center}
+.menux-manual-pick>span:nth-child(2){flex:1;min-width:0}.menux-manual-pick strong{font-size:12px;display:block;line-height:1.35}.menux-manual-pick small{color:var(--gold2);display:block;margin-top:4px}
+.menux-pick-plus{font-size:20px;color:var(--gold2)}
+.menux-manual-option-editor[hidden]{display:none!important}
+.menux-manual-option-editor{border:1px solid var(--gold);background:var(--panel);border-radius:14px;padding:15px;margin:12px 0}
+.menux-manual-editor-head,.menux-manual-group-head,.menux-manual-editor-foot{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.menux-manual-editor-head h3{font-size:18px;margin:4px 0}
+.menux-manual-option-group{margin:15px 0;border-top:1px solid var(--line);padding-top:11px}
+.menux-manual-group-head{font-size:13px;margin-bottom:8px}.menux-manual-group-head span{color:var(--muted);font-size:12px}
+.menux-manual-option{display:flex;align-items:center;gap:11px;padding:10px;margin:4px 0;border:1px solid var(--line);border-radius:9px;cursor:pointer;background:var(--panel2);min-height:44px}
+.menux-manual-option.active{border-color:var(--gold)}.menux-manual-option input{accent-color:var(--gold);width:19px;height:19px;flex:0 0 19px}.menux-manual-option span{flex:1}.menux-manual-option strong{font-size:13px}
+.menux-manual-stepper{display:flex;align-items:center;gap:14px}.menux-manual-stepper button{width:38px;height:38px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);cursor:pointer;font-size:20px}
+.menux-manual-editor-foot{padding-top:13px;border-top:1px solid var(--line)}.menux-manual-item-error{color:#ff9b90;font-size:13px}
+.menux-manual-cart-head{border-top:1px solid var(--line);padding-top:13px;margin-top:9px;display:flex;justify-content:space-between;font-size:14px}
+.menux-manual-cart-row{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}.menux-manual-cart-row>div{flex:1}.menux-manual-cart-row small{display:block;font-size:12px;color:var(--muted);margin-top:3px}.menux-manual-cart-row strong{white-space:nowrap}
+@media(max-width:780px){.menux-manual-product-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:610px){.menux-manual-dialog{padding:15px;max-height:100dvh}.menux-manual-product-picker{grid-template-columns:1fr;max-height:240px}.menux-manual-editor-foot{flex-wrap:wrap}.menux-manual-editor-foot>.primary{flex:1}}
+</style></body></html>
