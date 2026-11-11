@@ -156,7 +156,7 @@
   </div>
   <div id="menuxGrowthTips" class="menux-growth-grid" aria-live="polite"><p class="muted">Carregando sugestões…</p></div>
 </div></section>
-<section class="page" id="orders"><div class="row between"><h2>Central de pedidos</h2><div class="menux-manual-top-actions"><button class="btn primary" type="button" id="menuxManualNew">＋ Pedido manual</button><button class="btn" id="refreshOrders">Atualizar</button></div></div><p class="muted small">Pedidos de hoje, atualizados automaticamente a cada 20 segundos. À meia-noite, a lista reinicia sem apagar o histórico.</p><div class="card" id="menuxMainOrders"><div class="muted small">Carregando pedidos online...</div></div><div id="ordersList" hidden aria-hidden="true"></div></section>
+<section class="page" id="orders"><div class="row between menux-orders-toolbar"><h2 class="menux-orders-subtitle">Central de pedidos</h2><div class="menux-manual-top-actions"><button class="btn primary" type="button" id="menuxManualNew">＋ Pedido manual</button><button class="btn" id="refreshOrders">↻ Atualizar pedidos</button></div></div><p class="muted small menux-orders-helper">Atualização automática a cada 20 segundos · A lista reinicia à meia-noite sem apagar o histórico.</p><div class="card" id="menuxMainOrders"><div class="muted small">Carregando pedidos online...</div></div><div id="ordersList" hidden aria-hidden="true"></div></section>
 <section class="page" id="menu"><div class="row between"><h2>Cardápio</h2><button class="btn primary" id="newProduct">＋ Novo produto</button></div><div class="card" style="overflow-x:auto"><table class="table"><thead><tr><th>PRODUTO</th><th>PREÇO</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody id="productsBody"></tbody></table></div><div class="card" id="productEditor" hidden style="margin-top:15px"><h2 id="productEditorTitle">Novo produto</h2><form id="productForm"><input type="hidden" name="id"><div class="formgrid"><div class="formgroup"><label>Nome *</label><input name="name" required maxlength="150"></div><div class="formgroup"><label>Preço (R$) *</label><input name="price" type="number" min="0" step="0.01" required></div><div class="formgroup"><label>Categoria</label><input name="category" list="menuxCategorySuggestions" autocomplete="off" placeholder="Selecione uma categoria ou digite uma nova" maxlength="100"><datalist id="menuxCategorySuggestions"></datalist><small class="muted">Escolha uma categoria já cadastrada ou digite uma nova.</small></div><div class="formgroup"><label>Foto do produto</label><input type="file" id="productImageFile" accept="image/jpeg,image/png,image/webp" class="field"><small class="muted">Até 5 MB. O envio acontece ao salvar o produto.</small><label>Ou URL pública da imagem (https://)</label><input name="image_url" type="url"></div><div class="formgroup"><label>Descrição</label><textarea name="description" class="field" style="width:100%;min-height:80px"></textarea></div><div class="formgroup"><label>Disponibilidade</label><select name="active"><option value="true">Disponível</option><option value="false">Pausado</option></select></div></div><div class="row" style="margin-top:16px"><button class="btn primary" type="submit">Salvar produto</button><button class="btn" type="button" id="cancelProduct">Cancelar</button></div></form></div><div class="card" id="optionManager" hidden style="margin-top:15px">
 <h2 id="optionManagerTitle">Opções do produto</h2>
 <p class="muted small">Crie grupos independentes. Ex.: Molhos (até 2), Adicionais (até 4), Acompanhamentos (até 1).</p>
@@ -968,7 +968,7 @@ message.textContent=onlineOrders.length+' pedido(s) online · Atualizar para con
 const main=document.getElementById('menuxMainOrders');
 if(main){
 const ordered=onlineOrders.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-main.innerHTML='<div class="menux-orders-header"><b>Pedidos de hoje ('+ordered.length+')</b><button type="button" class="btn" id="menuxMainRefresh">Atualizar pedidos</button></div>'+
+main.innerHTML='<div class="menux-orders-header"><b>Pedidos de hoje <span class="menux-order-count">('+ordered.length+')</span></b><span class="menux-orders-auto-label">● Atualização automática</span></div>'+
 '<div class="menux-orders-grid">'+(ordered.map(o=>{
  const orderItems=items.filter(i=>i.order_id===o.id);
  const itemCount=orderItems.reduce((total,i)=>total+(Number(i.quantity)||0),0);
@@ -993,7 +993,7 @@ main.innerHTML='<div class="menux-orders-header"><b>Pedidos de hoje ('+ordered.l
  }).join('')||'<div class="empty">Nenhum pedido online encontrado.</div>')+'</div>';
 // Guardar os itens do último carregamento para o modal de detalhes.
 window.__menuxOrderDetailItems=items;
-main.querySelector('#menuxMainRefresh').onclick=loadIncoming;
+
 }
 const pendingOrders=onlineOrders.filter(o=>o.status==='pending');
 const alertButton=document.getElementById('menux-incoming-open');
@@ -1882,4 +1882,46 @@ async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da 
 .menux-manual-cart-row{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}.menux-manual-cart-row>div{flex:1}.menux-manual-cart-row small{display:block;font-size:12px;color:var(--muted);margin-top:3px}.menux-manual-cart-row strong{white-space:nowrap}
 @media(max-width:780px){.menux-manual-product-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:610px){.menux-manual-dialog{padding:15px;max-height:100dvh}.menux-manual-product-picker{grid-template-columns:1fr;max-height:240px}.menux-manual-editor-foot{flex-wrap:wrap}.menux-manual-editor-foot>.primary{flex:1}}
-</style></body></html>
+</style>
+<style id="menux-orders-spacious-refinement">
+/* Central de pedidos: uma área de trabalho contínua, sem repetição de Atualizar. */
+@media (min-width: 1051px) {
+ body:has(#orders.page.active) .main{padding:17px 18px 32px!important}
+ body:has(#orders.page.active) .top{margin-bottom:10px!important}
+ #orders.page.active .menux-orders-toolbar{margin:0 0 2px!important;align-items:center}
+ #orders.page.active .menux-orders-subtitle{display:none}
+ #orders.page.active .menux-orders-helper{margin:0 0 9px!important}
+ #orders.page.active #menuxMainOrders{padding:14px!important}
+ #orders.page.active #menuxMainOrders .menux-orders-header{margin:0 0 12px!important;gap:12px}
+ #menuxMainOrders .menux-orders-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important}
+ #menuxMainOrders .menux-orders-grid>.menux-order-card{height:440px!important;min-height:440px!important;max-height:440px!important;padding:17px!important}
+ #menuxMainOrders .menux-orders-grid .menux-order-customer{font-size:19px!important;line-height:1.25!important}
+ #menuxMainOrders .menux-orders-grid .menux-order-meta{font-size:11px!important;line-height:1.4!important}
+ #menuxMainOrders .menux-orders-grid .menux-order-summary{font-size:18px!important}
+ #menuxMainOrders .menux-orders-grid .menux-fulfillment{font-size:13px!important;padding:5px 9px!important}
+ #menuxMainOrders .menux-orders-grid .menux-order-status{font-size:11px!important;padding:5px 8px!important}
+ #menuxMainOrders .menux-orders-grid .menux-payment-mini{font-size:12px!important;padding:8px 10px!important;margin:10px 0 3px!important;line-height:1.4!important}
+ #menuxMainOrders .menux-orders-grid .menux-preview{font-size:14px!important;gap:6px!important;margin-top:10px!important;padding-top:9px!important}
+ #menuxMainOrders .menux-orders-grid .menux-item-primary{font-size:18px!important}
+ #menuxMainOrders .menux-orders-grid .menux-option-line{font-size:13px!important;line-height:1.25!important}
+ #menuxMainOrders .menux-orders-grid .menux-order-actions{padding-top:10px!important;gap:7px!important}
+ #menuxMainOrders .menux-orders-grid .menux-order-actions button{min-height:38px!important;font-size:12px!important;padding:8px 9px!important}
+}
+@media(min-width:761px) and (max-width:1050px){
+ #menuxMainOrders .menux-orders-grid>.menux-order-card{height:440px!important;min-height:440px!important;max-height:440px!important}
+}
+#orders.page.active .menux-orders-toolbar{gap:12px}
+#orders.page.active .menux-manual-top-actions{margin-left:auto}
+#menuxMainOrders .menux-orders-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#menuxMainOrders .menux-orders-auto-label{font-size:12px;color:var(--muted);font-weight:600}
+#menuxMainOrders .menux-order-count{color:var(--gold2)}
+#menuxMainOrders .menux-orders-grid .menux-order-actions{background:transparent!important}
+@media(max-width:760px){
+ #orders.page.active .menux-orders-toolbar{flex-wrap:wrap}
+ #orders.page.active .menux-orders-subtitle{margin-bottom:5px}
+ #orders.page.active .menux-manual-top-actions{margin-left:0;width:100%}
+ #orders.page.active #menuxMainOrders{padding:12px!important}
+ #menuxMainOrders .menux-orders-auto-label{font-size:11px}
+}
+</style>
+</body></html>
