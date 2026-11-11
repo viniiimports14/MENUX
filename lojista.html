@@ -143,10 +143,14 @@
 :root[data-menux-theme="light"] .menux-mobile-menu-btn{background:#fff;color:#232730;border-color:#d3d9e1}
 :root[data-menux-theme="light"] .side.menux-mobile-open{background:#fff}
 :root[data-menux-theme="light"] #menux-sound-toggle,:root[data-menux-theme="light"] #menux-incoming-open{background:#fff;color:#604919}
+</style><style id="menux-support-merchant-css">
+.menux-support-banner[hidden]{display:none!important}.menux-support-banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#2b2417;border:1px solid #a88643;color:#ffdf9a;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px}.menux-support-banner b{letter-spacing:.05em}.menux-support-banner small{display:block;color:#e0ceab;margin-top:4px;font-size:12px}.menux-support-back{white-space:nowrap;background:#d2ad60;color:#18130a;text-decoration:none;border-radius:9px;padding:9px 12px;font-weight:800}
+:root[data-menux-theme="light"] .menux-support-banner{background:#fff8e8;color:#684a16;border-color:#d6b875}:root[data-menux-theme="light"] .menux-support-banner small{color:#715d39}
+@media(max-width:650px){.menux-support-banner{align-items:flex-start;flex-direction:column}}
 </style></head><body><div class="layout">
 <aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <div id="menuxMobileBackdrop" class="menux-mobile-backdrop" aria-hidden="true"></div>
-<main class="main"><div id="menuxDemoBanner" class="menux-demo-banner" hidden><span>👀 <b>DEMONSTRAÇÃO</b> · <span id="menuxDemoBannerName"></span><br><small>Explore as telas. Para cadastrar ou vender, assine um plano MENUX.</small></span><button type="button" class="btn primary" data-demo-open="1">Conhecer planos ↗</button></div><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button><button class="btn" id="logout" title="Sair">Sair</button></div></header>
+<main class="main"><div id="menuxSupportBanner" class="menux-support-banner" hidden role="status"><span><b>🛠️ SUPORTE MENUX</b> · <span id="menuxSupportStore">—</span><small>Você está usando sua conta Master para auxiliar este estabelecimento. As alterações feitas aqui afetam a loja selecionada.</small></span><a href="master.html" class="menux-support-back">← Voltar ao Master</a></div><div id="menuxDemoBanner" class="menux-demo-banner" hidden><span>👀 <b>DEMONSTRAÇÃO</b> · <span id="menuxDemoBannerName"></span><br><small>Explore as telas. Para cadastrar ou vender, assine um plano MENUX.</small></span><button type="button" class="btn primary" data-demo-open="1">Conhecer planos ↗</button></div><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button><button class="btn" id="logout" title="Sair">Sair</button></div></header>
 <div id="feedback" role="status" aria-live="polite"></div>
 <section class="page active" id="overview"><div id="menuxSubscriptionAlert" hidden role="status" aria-live="polite"></div><div class="row between"><div><h2>Visão geral</h2><div class="muted small">Indicadores dos pedidos registrados no Supabase.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div>
 <div class="card menux-growth-panel" style="margin-top:15px" aria-labelledby="menuxGrowthTitle">
@@ -499,12 +503,43 @@ $('period').addEventListener('change',render);$('refreshOrders').addEventListene
 for(const [button,type] of [['newProduct','product'],['newCustomer','customer'],['newArea','area']])$(button).addEventListener('click',()=>editor(type));for(const [button,panel] of [['cancelProduct','productEditor'],['cancelCustomer','customerEditor'],['cancelArea','areaEditor']])$(button).addEventListener('click',()=>$(panel).hidden=true);
 document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b||!restaurant)return;try{for(const [attr,type,data] of [['editProduct','product',products],['editCustomer','customer',customers],['editArea','area',areas]]){const id=b.dataset[attr];if(id){editor(type,data.find(x=>x.id===id));return}}if(b.dataset.toggleProduct){const p=products.find(x=>x.id===b.dataset.toggleProduct);await save('products',{active:!p.active},p.id)}if(b.dataset.deleteProduct){if(!confirm('Excluir este produto? Pedidos antigos manterão o nome e preço registrados.'))return;const {error}=await sb.from('products').delete().eq('id',b.dataset.deleteProduct).eq('restaurant_id',restaurant.id);if(error)throw Error(error.message);await load()}if(b.dataset.deleteArea){if(!confirm('Excluir esta região?'))return;const {error}=await sb.from('delivery_areas').delete().eq('id',b.dataset.deleteArea).eq('restaurant_id',restaurant.id);if(error)throw Error(error.message);await load()}if(b.dataset.order){if(b.dataset.status==='cancelled'&&!confirm('Cancelar este pedido?'))return;const {error}=await sb.from('orders').update({status:b.dataset.status}).eq('id',b.dataset.order).eq('restaurant_id',restaurant.id);if(error)throw Error(error.message);await load();notice('Status atualizado.')}if(b.dataset.print){const o=orders.find(x=>x.id===b.dataset.print);const c=customers.find(x=>x.id===o.customer_id);$('printSheet').innerHTML='<h2>'+esc(restaurant.name)+'</h2><h3>Pedido #'+esc(o.order_number||o.id.slice(0,8))+'</h3><p>'+new Date(o.created_at).toLocaleString('pt-BR')+'</p><p>Cliente: '+esc(c?.name||'Não informado')+'<br>Telefone: '+esc(c?.phone||'—')+'<br>Endereço: '+esc(c?.address||'—')+'</p><hr>'+getItems(o.id).map(x=>'<p>'+x.quantity+'× '+esc(x.product_name)+' — '+money(x.unit_price*x.quantity)+'</p>').join('')+'<hr><b>Total: '+money(o.total)+'</b><p>Observações: '+esc(o.notes||'—')+'</p>';$('printSheet').hidden=false;window.print();$('printSheet').hidden=true}}catch(err){notice(err.message,true)}});
 async function connect(){const cfg=window.MENUX_CONFIG||{};if(!cfg.supabaseUrl?.startsWith('https://')||!cfg.supabaseAnonKey||cfg.supabaseAnonKey.startsWith('COLE_'))throw Error('Configure config.js antes de usar.');sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);}
-async function initSession(){const {data:{user:current},error:authError}=await sb.auth.getUser();if(authError||!current)throw Error('Sessão inválida. Faça login novamente.');user=current;const {data:membership,error}=await sb.from('restaurant_members').select('restaurant_id').eq('user_id',user.id);if(error)throw Error('Não foi possível consultar o vínculo do usuário: '+error.message);if(!membership?.length)throw Error('Este usuário ainda não está vinculado a um restaurante. Crie o vínculo no Supabase.');const ids=membership.map(m=>m.restaurant_id);const {data:stores,error:storeError}=await sb.from('restaurants').select('id,name,slug').in('id',ids);if(storeError)throw Error(storeError.message);restaurants=stores||[];if(!restaurants.length)throw Error('Nenhum restaurante acessível.');restaurant=restaurants[0];
-const {data:demoSub,error:demoErr}=await sb.from('menux_restaurant_subscriptions').select('status').eq('restaurant_id',restaurant.id).maybeSingle();
-if(demoErr)throw Error('Não foi possível verificar sua permissão: '+demoErr.message);
-window.MENUX_IS_DEMO=(demoSub?.status==='demo');
-if(window.MENUX_IS_DEMO){document.getElementById('menuxDemoBanner').hidden=false;document.getElementById('menuxDemoBannerName').textContent=restaurant.name;}
-$('authOverlay').classList.add('hidden');await load();try{await loadStorefront()}catch(err){notice('Execute o SQL de personalização: '+err.message,true)}}
+let menuxSupportSession=false;
+async function initSession(supportStore=null){
+ const {data:{user:current},error:authError}=await sb.auth.getUser();
+ if(authError||!current)throw Error('Sessão inválida. Faça login novamente.');
+ user=current;
+ if(supportStore){
+  // Nunca confiar apenas na URL: o Supabase precisa autorizar a sessão Master.
+  const {data,error}=await sb.rpc('menux_start_support',{p_restaurant:supportStore});
+  if(error)throw Error('Acesso de suporte negado: '+error.message);
+  if(!data?.restaurant_id||data.restaurant_id!==supportStore)throw Error('Acesso de suporte não autorizado.');
+  menuxSupportSession=true;
+  restaurant={id:data.restaurant_id,name:data.name,slug:data.slug};
+  restaurants=[restaurant];
+  document.getElementById('menuxSupportBanner').hidden=false;
+  document.getElementById('menuxSupportStore').textContent=restaurant.name;
+ }else{
+  const {data:membership,error}=await sb.from('restaurant_members').select('restaurant_id').eq('user_id',user.id);
+  if(error)throw Error('Não foi possível consultar o vínculo do usuário: '+error.message);
+  if(!membership?.length)throw Error('Este usuário ainda não está vinculado a um restaurante. Crie o vínculo no Supabase.');
+  const ids=membership.map(m=>m.restaurant_id);
+  const {data:stores,error:storeError}=await sb.from('restaurants').select('id,name,slug').in('id',ids);
+  if(storeError)throw Error(storeError.message);
+  restaurants=stores||[];
+  if(!restaurants.length)throw Error('Nenhum restaurante acessível.');
+  restaurant=restaurants[0];
+ }
+ const {data:demoSub,error:demoErr}=await sb.from('menux_restaurant_subscriptions').select('status').eq('restaurant_id',restaurant.id).maybeSingle();
+ if(demoErr)throw Error('Não foi possível verificar sua permissão: '+demoErr.message);
+ window.MENUX_IS_DEMO=(demoSub?.status==='demo');
+ if(window.MENUX_IS_DEMO){
+  document.getElementById('menuxDemoBanner').hidden=false;
+  document.getElementById('menuxDemoBannerName').textContent=restaurant.name;
+ }
+ $('authOverlay').classList.add('hidden');
+ await load();
+ try{await loadStorefront()}catch(err){notice('Execute o SQL de personalização: '+err.message,true)}
+}
 
 let storefrontSettings=null;
 const MENUX_THEMES={light:['#F6F3EF','#FFFFFF','#29252A'],dark:['#15141A','#25232C','#F8F7F8'],purple:['#F0EAF7','#FFFFFF','#30233F'],rose:['#F9EFF1','#FFFFFF','#4B303A']};
@@ -531,8 +566,16 @@ $('storefrontForm').addEventListener('submit',async e=>{
 $('copyStorefront').addEventListener('click',async()=>{const u=storefrontUrl();if(!u){notice('Defina um slug em Minha loja.',true);return}try{await navigator.clipboard.writeText(u);notice('Link copiado!')}catch{notice('Copie o link exibido na tela.',true)}});
 $('openStorefront').addEventListener('click',()=>{const u=storefrontUrl();if(u)window.open(u,'_blank','noopener');else notice('Defina um slug em Minha loja.',true)});
 
-$('logout').addEventListener('click',async()=>{await sb?.auth.signOut();location.replace('index.html')});
-(async()=>{try{await connect();const {data:{user:u}}=await sb.auth.getUser();if(!u){location.replace('index.html');return;}const {data:admins,error:ae}=await sb.from('platform_admins').select('user_id').eq('user_id',u.id).limit(1);if(ae)throw ae;if(admins?.length){location.replace('master.html');return;}await initSession()}catch(err){$('authError').textContent=err.message}})();
+$('logout').addEventListener('click',async()=>{if(menuxSupportSession){location.replace('master.html');return;}await sb?.auth.signOut();location.replace('index.html')});
+(async()=>{try{await connect();const {data:{user:u}}=await sb.auth.getUser();if(!u){location.replace('index.html');return;}const {data:admins,error:ae}=await sb.from('platform_admins').select('user_id').eq('user_id',u.id).limit(1);if(ae)throw ae;const supportId=new URLSearchParams(location.search).get('support');
+if(supportId){
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(supportId))throw Error('Loja de suporte inválida.');
+ if(!admins?.length)throw Error('Somente o administrador Master pode acessar o modo suporte.');
+ await initSession(supportId);
+}else{
+ if(admins?.length){location.replace('master.html');return;}
+ await initSession();
+}}catch(err){$('authError').textContent=err.message}})();
 setInterval(()=>{if(restaurant&&document.visibilityState==='visible')load()},20000);
 
 let optionProductId=null,optionGroups=[];
