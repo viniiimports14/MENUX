@@ -164,53 +164,41 @@
 @media(max-width:680px){.menux-qr-form-grid{grid-template-columns:1fr 1fr}.menux-qr-form-grid>.formgroup:last-child{grid-column:1/-1}.menux-qr-preview-grid{grid-template-columns:1fr}.menux-qr-paper .menux-qr-code{width:150px;height:150px}.menux-qr-paper .menux-qr-title{font-size:28px}.menux-qr-paper .menux-qr-instruction{font-size:14px}}
 #menuxQrPrintPages{display:none}
 
-/* MENUX • impressão A4 segura: sempre duas plaquinhas por folha.
-   Retrato: lado a lado. Paisagem: uma abaixo da outra.
-   Dimensões em mm com folga para as margens da impressora/Safari. */
+/* MENUX · Impressão: quatro plaquinhas por folha A4, grade 2×2. */
 @media print {
- @page { size:A4 portrait; margin:8mm; }
- /* Isola QR das regras antigas que escondem todos os elementos na impressão
-    de comandas. O QR vive fora do contêiner .layout. */
- body:not(.menux-print-qr) #menuxQrPrintPages { display:none!important; }
- body.menux-print-qr > :not(#menuxQrPrintPages):not(#menuxQrPageStyle) { display:none!important; }
- body.menux-print-qr #menuxQrPrintPages, body.menux-print-qr #menuxQrPrintPages * {
-   visibility:visible!important;
+ @page {size:A4 portrait;margin:8mm;}
+ body:not(.menux-print-qr) #menuxQrPrintPages{display:none!important}
+ body.menux-print-qr > :not(#menuxQrPrintPages):not(#menuxQrPageStyle){display:none!important}
+ body.menux-print-qr #menuxQrPrintPages,body.menux-print-qr #menuxQrPrintPages *{visibility:visible!important}
+ html,body{width:auto!important;min-width:0!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important}
+ body.menux-print-qr #menuxQrPrintPages{display:block!important;position:static!important;width:194mm!important;margin:0!important;padding:0!important;background:#fff!important}
+ #menuxQrPrintPages .menux-qr-print-page{
+  box-sizing:border-box!important;width:194mm!important;height:272mm!important;
+  display:grid!important;grid-template-columns:90mm 90mm!important;
+  grid-template-rows:repeat(2,126mm)!important;
+  gap:7mm 8mm!important;align-items:start!important;justify-content:center!important;
+  padding:0!important;margin:0!important;overflow:hidden!important;
+  break-inside:avoid!important;page-break-inside:avoid!important;
+  break-after:page!important;page-break-after:always!important;
  }
-
- html, body { width:auto!important;min-width:0!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important; }
- body.menux-print-qr #menuxQrPrintPages {display:block!important;position:static!important;width:194mm!important;margin:0!important;padding:0!important;background:#fff!important;}
- #menuxQrPrintPages .menux-qr-print-page {
-   box-sizing:border-box!important;
-   width:194mm!important;height:260mm!important;max-height:260mm!important;
-   padding:0!important;margin:0!important;
-   display:flex!important;align-items:flex-start!important;justify-content:center!important;
-   padding-top:12mm!important;column-gap:7mm!important;row-gap:9mm!important;
-   overflow:hidden!important;
-   break-inside:avoid!important;page-break-inside:avoid!important;
-   break-after:page!important;page-break-after:always!important;
- }
- #menuxQrPrintPages .menux-qr-print-page:last-child { break-after:auto!important;page-break-after:auto!important; }
- #menuxQrPrintPages[data-orientation="portrait"] .menux-qr-print-page{flex-direction:row!important;}
- #menuxQrPrintPages[data-orientation="landscape"] .menux-qr-print-page{flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;}
- #menuxQrPrintPages .menux-qr-paper {
-   display:flex!important;flex-direction:column!important;justify-content:center!important;
-   flex:0 0 auto!important;box-sizing:border-box!important;
-   width:90mm!important;height:120mm!important;
-   min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
-   margin:0!important;padding:7mm!important;gap:4mm!important;
-   border:1px solid #222!important;border-radius:0!important;
-   box-shadow:none!important;background:#fff!important;color:#111!important;
-   aspect-ratio:auto!important;overflow:hidden!important;
-   break-inside:avoid!important;
+ #menuxQrPrintPages .menux-qr-print-page:last-child{break-after:auto!important;page-break-after:auto!important}
+ #menuxQrPrintPages .menux-qr-paper{
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 auto!important;box-sizing:border-box!important;
+  width:90mm!important;height:126mm!important;min-width:0!important;min-height:0!important;
+  max-width:none!important;max-height:none!important;margin:0!important;padding:6mm 5mm!important;gap:3mm!important;
+  border:1px solid #333!important;border-radius:0!important;box-shadow:none!important;
+  background:#fff!important;color:#111!important;aspect-ratio:auto!important;overflow:hidden!important;
+  break-inside:avoid!important;
  }
  #menuxQrPrintPages[data-orientation="landscape"] .menux-qr-paper{
-   width:166mm!important;height:91mm!important;padding:5mm!important;gap:2.5mm!important;
+  width:90mm!important;height:78mm!important;padding:4mm!important;gap:2mm!important;
  }
- #menuxQrPrintPages .menux-qr-title{font-size:23pt!important;line-height:1.1!important;flex:0 0 auto!important}
+ #menuxQrPrintPages .menux-qr-title{font-size:19pt!important;line-height:1.1!important;flex:0 0 auto!important}
  #menuxQrPrintPages .menux-qr-code{width:46mm!important;height:46mm!important;max-width:none!important;flex:0 0 auto!important}
- #menuxQrPrintPages[data-orientation="landscape"] .menux-qr-code{width:37mm!important;height:37mm!important}
- #menuxQrPrintPages .menux-qr-instruction{font-size:10pt!important;line-height:1.2!important;flex:0 0 auto!important}
- #menuxQrPrintPages .menux-qr-brand{font-size:8pt!important;flex:0 0 auto!important}
+ #menuxQrPrintPages[data-orientation="landscape"] .menux-qr-code{width:35mm!important;height:35mm!important}
+ #menuxQrPrintPages .menux-qr-instruction{font-size:9pt!important;line-height:1.2!important;flex:0 0 auto!important}
+ #menuxQrPrintPages .menux-qr-brand{font-size:7.5pt!important;flex:0 0 auto!important}
 }
 </style></head><body><div class="layout">
 <aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="tableqr"><span class="ico">▦</span><span class="navtext">QR Code das mesas</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
@@ -322,7 +310,7 @@
   </div>
   <div class="menux-qr-action-bar"><button class="btn" type="button" id="menuxQrGenerate">Gerar prévia</button><button class="btn primary" type="button" id="menuxQrPrint">🖨️ Imprimir mesas</button></div>
   <p id="menuxQrStatus" class="muted small" role="status" aria-live="polite">Configure as mesas e clique em Gerar prévia.</p>
-  <p class="muted small" style="margin-bottom:0">Folha A4 em retrato, sempre com 2 plaquinhas: no modelo vertical elas ficam lado a lado; no horizontal, uma acima da outra. Ao imprimir ou salvar em PDF, use A4, escala 100% e DESATIVE a opção “Imprimir cabeçalhos e rodapés” no navegador para não mostrar data, link e numeração. O espaço em branco restante é para recortar as duas plaquinhas. O QR Code é gerado no navegador.</p>
+  <p class="muted small" style="margin-bottom:0">Folha A4 com 4 plaquinhas por página (2 em cima e 2 embaixo), para recortar. Ao imprimir ou salvar em PDF, use A4, escala 100% e DESATIVE a opção “Imprimir cabeçalhos e rodapés” no navegador para não mostrar data, link e numeração. As bordas ajudam a recortar as quatro plaquinhas. O QR Code é gerado no navegador.</p>
  </div>
  <div id="menuxQrPreview" class="menux-qr-preview-grid" aria-label="Prévia de plaquinhas"></div>
 </section>
@@ -2167,9 +2155,9 @@ async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da 
  document.getElementById('menuxQrPrint').addEventListener('click',()=>{
   try{
    build();
-   for(let i=0;i<rendered.length;i+=2){
+   for(let i=0;i<rendered.length;i+=4){
     const page=document.createElement('div');page.className='menux-qr-print-page';
-    for(const item of rendered.slice(i,i+2))page.appendChild(makePaper(item.n,item.src,orientation.value));
+    for(const item of rendered.slice(i,i+4))page.appendChild(makePaper(item.n,item.src,orientation.value));
     printPages.appendChild(page);
    }
    document.body.classList.add('menux-print-qr');
