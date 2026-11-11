@@ -70,6 +70,79 @@
 }
 #menuxMainOrders .menux-payment-mini strong{color:#fff;font-weight:800;}
 @media(max-width:580px){#menuxMainOrders .menux-payment-mini{font-size:13px;gap:5px 12px}}
+</style><style id="menux-ui-theme">
+/* MENUX — Tema opcional. Sem alterações em dimensões ou layout. */
+#menux-theme-toggle{position:fixed;bottom:17px;left:17px;z-index:1198;display:flex;align-items:center;justify-content:center;gap:8px;min-height:43px;padding:9px 14px;border:1px solid var(--gold);border-radius:99px;background:var(--panel);color:var(--text);box-shadow:0 5px 20px #0004;cursor:pointer;font:700 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;white-space:nowrap}
+#menux-theme-toggle:hover{border-color:var(--gold2)}#menux-theme-toggle:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(min-width:801px){#menux-theme-toggle{left:251px}}
+@media(max-width:800px){#menux-theme-toggle{left:12px;bottom:75px;padding:10px 12px}}
+@media print{#menux-theme-toggle{display:none!important}}
+:root[data-menux-theme="light"]{color-scheme:light;--bg:#f5f6f8;--panel:#fff;--panel2:#f0f2f5;--line:#d6dbe2;--gold:#9b762b;--gold2:#80601e;--text:#20242b;--muted:#5b6471;--green:#187548;--blue:#225a9b}
+:root[data-menux-theme="light"] body{color:var(--text)}
+:root[data-menux-theme="light"] .side{background:#fff;border-right-color:var(--line)}
+:root[data-menux-theme="light"] .brand b{color:#846524}
+:root[data-menux-theme="light"] .label{color:#657080}
+:root[data-menux-theme="light"] .nav button{color:#374151}
+:root[data-menux-theme="light"] .nav button.active,:root[data-menux-theme="light"] .nav button:hover{background:#f4ebd8;color:#755619}
+:root[data-menux-theme="light"] .sidefoot{color:#647080}
+:root[data-menux-theme="light"] .avatar{background:#f4ebd8;color:#785a1d}
+:root[data-menux-theme="light"] .tag{background:#f2ead9;color:#72531b}
+:root[data-menux-theme="light"] .tag.green{background:#e3f6ea;color:#126b3d}
+:root[data-menux-theme="light"] .tag.blue{background:#e4efff;color:#24589a}
+:root[data-menux-theme="light"] .track{background:#e4e8ed}
+:root[data-menux-theme="light"] .field,:root[data-menux-theme="light"] .formgroup input,:root[data-menux-theme="light"] .formgroup select,:root[data-menux-theme="light"] .formgroup textarea,:root[data-menux-theme="light"] .authCard input{background:#fff;color:#20242b;border-color:#cbd2dc}
+:root[data-menux-theme="light"] input,:root[data-menux-theme="light"] textarea,:root[data-menux-theme="light"] select{color-scheme:light}
+:root[data-menux-theme="light"] input::placeholder,:root[data-menux-theme="light"] textarea::placeholder{color:#697382}
+:root[data-menux-theme="light"] .notice{background:#e7f6ed;color:#12643c}
+:root[data-menux-theme="light"] #feedback{background:#fff7e7;color:#785818;border-color:#d5b46c}
+:root[data-menux-theme="light"] #authOverlay{background:#f5f6f8ef}
+:root[data-menux-theme="light"] #catalogProducts .menux-product-choice{background:#fff;border-color:#aab3bf;color:#20242b}
+:root[data-menux-theme="light"] #catalogProducts .menux-product-choice:has(input:checked){background:#faf0d9;border-color:#a17c33}
+:root[data-menux-theme="light"] #catalogProducts input.menux-check{background:white;border-color:#657080}
+:root[data-menux-theme="light"] #catalogProducts input.menux-check:checked{background:#a6843e;border-color:#a6843e}
+:root[data-menux-theme="light"] #catalogGroups .menux-cat-arrow{background:#fff7e7;color:#71551b;border-color:#bc9852}
+:root[data-menux-theme="light"] #catalogProducts input.menux-check:focus-visible{outline-color:#74561e}
+:root[data-menux-theme="light"] .menux-report-filters input,:root[data-menux-theme="light"] .menux-report-filters select{background:#fff;border-color:#cbd2dc;color:#20242b}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-order-card,
+:root[data-menux-theme="light"] #menuxMainOrders .menux-orders-grid>.menux-order-card{background:#fff;border-color:#d3d7df;color:#20242b}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-order-id{color:#24252b}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-order-meta{color:#5b6471}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-order-status{color:#72531a;background:#f2ead9}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-preview{color:#20242b;border-top-color:#dde1e7}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-preview-product{border-bottom-color:#e6e9ee}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-preview-options,
+:root[data-menux-theme="light"] #menuxMainOrders .menux-orders-grid .menux-preview-options{color:#4e5664}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-view-details{color:#785716;border-color:#b3914a}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-more-notice,
+:root[data-menux-theme="light"] #menuxMainOrders .menux-orders-grid .menux-more-notice{color:#715318;background:#fff8e9;border-color:#dcc28c}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-more-notice strong{color:#715318}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-payment-mini{background:#fff8e9;color:#634b20;border-color:#d8bc84}
+:root[data-menux-theme="light"] #menuxMainOrders .menux-payment-mini strong{color:#22252d}
+:root[data-menux-theme="light"] #menuxOrderDialog{background:#fff;color:#20242b;border-color:#bfab7f}
+:root[data-menux-theme="light"] #menuxOrderDialog .menux-detail-head h2{color:#20242b}
+:root[data-menux-theme="light"] #menuxOrderDialog .menux-detail-close{background:#f0f2f5;color:#20242b;border-color:#cbd2dc}
+:root[data-menux-theme="light"] #menuxOrderDialog .menux-detail-section{border-top-color:#d5dbe3}
+:root[data-menux-theme="light"] #menuxOrderDialog .menux-detail-section h3{color:#856323}
+:root[data-menux-theme="light"] #menuxOrderDialog .menux-detail-product{border-bottom-color:#e2e5eb}
+:root[data-menux-theme="light"] #menuxOrderDialog .menux-detail-option{color:#4f5965}
+:root[data-menux-theme="light"] #menuxOrderDialog a.menux-map-link{color:#76571b;border-color:#bf9a50}
+:root[data-menux-theme="light"] #menux-incoming{background:#fff;color:#22252d;border-color:#c9a45a;box-shadow:0 12px 38px #0003}
+:root[data-menux-theme="light"] .menux-plan-modal,:root[data-menux-theme="light"] .menux-demo-dialog{background:#fff;color:#20242b}
+:root[data-menux-theme="light"] .menux-plan-modal h2,:root[data-menux-theme="light"] .menux-demo-dialog h2{color:#20242b}
+:root[data-menux-theme="light"] .menux-plan-tag,:root[data-menux-theme="light"] .menux-demo-tag{color:#8b6723}
+:root[data-menux-theme="light"] .menux-plan-price{color:#846222}
+:root[data-menux-theme="light"] .menux-plan-modal p,:root[data-menux-theme="light"] .menux-plan-price small,:root[data-menux-theme="light"] .menux-demo-dialog p{color:#56616e}
+:root[data-menux-theme="light"] .menux-plan-list li{border-color:#d7dce3}
+:root[data-menux-theme="light"] .menux-plan-close,:root[data-menux-theme="light"] .menux-demo-x{background:#edf0f4;color:#242832}
+:root[data-menux-theme="light"] .menux-demo-dialog .menux-demo-check{background:#fff6e5;color:#665022}
+:root[data-menux-theme="light"] .menux-demo-later{color:#526071}
+:root[data-menux-theme="light"] .menux-demo-banner{background:#fff6e3;color:#694d18;border-color:#ceac68}
+:root[data-menux-theme="light"] .menux-demo-banner small{color:#6c5c3d}
+:root[data-menux-theme="light"] .menux-growth-tip{background:#fafbfc}
+:root[data-menux-theme="light"] .menux-growth-tag{color:#805f1c}
+:root[data-menux-theme="light"] .menux-mobile-menu-btn{background:#fff;color:#232730;border-color:#d3d9e1}
+:root[data-menux-theme="light"] .side.menux-mobile-open{background:#fff}
+:root[data-menux-theme="light"] #menux-sound-toggle,:root[data-menux-theme="light"] #menux-incoming-open{background:#fff;color:#604919}
 </style></head><body><div class="layout">
 <aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <div id="menuxMobileBackdrop" class="menux-mobile-backdrop" aria-hidden="true"></div>
@@ -1564,4 +1637,31 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now(
    }
  },true);
 })();
-</script></body></html>
+</script>
+<button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button>
+<script>
+(function(){
+ const key='menux_lojista_theme_v1';
+ const root=document.documentElement;
+ const button=document.getElementById('menux-theme-toggle');
+ const meta=document.querySelector('meta[name="theme-color"]');
+ function apply(theme){
+  const isLight=theme==='light';
+  if(isLight)root.setAttribute('data-menux-theme','light');
+  else root.removeAttribute('data-menux-theme');
+  button.textContent=isLight?'🌙 Modo escuro':'☀️ Modo claro';
+  button.setAttribute('aria-pressed',String(isLight));
+  button.title=isLight?'Voltar para o modo escuro':'Ativar o modo claro';
+  if(meta)meta.setAttribute('content',isLight?'#f5f6f8':'#0d0e10');
+ }
+ let theme='dark';
+ try{if(localStorage.getItem(key)==='light')theme='light'}catch(e){}
+ apply(theme);
+ button.addEventListener('click',()=>{
+  theme=root.hasAttribute('data-menux-theme')?'dark':'light';
+  apply(theme);
+  try{localStorage.setItem(key,theme)}catch(e){}
+ });
+})();
+</script>
+</body></html>
