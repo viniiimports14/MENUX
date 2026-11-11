@@ -988,7 +988,7 @@ main.innerHTML='<div class="menux-orders-header"><b>Pedidos de hoje <span class=
  const action=({pending:['accepted','Aceitar pedido'],accepted:['preparing','Iniciar preparo'],preparing:['ready','Marcar pronto'],ready:[o.fulfillment==='delivery'?'out_for_delivery':'completed',o.fulfillment==='delivery'?'Saiu para entrega':'Concluir'],out_for_delivery:['completed','Concluir']})[o.status];
  const manualBadge=o.source==='manual'?'<span class="menux-manual-badge">✍️ MANUAL</span>':'';
  const fulfillmentLabel=o.fulfillment==='delivery'?'🚚 ENTREGA':o.fulfillment==='pickup'?'🏪 RETIRADA':o.fulfillment==='table'||o.fulfillment==='dine_in'?'🍽️ MESA'+(o.table_number?' '+escapeHtml(o.table_number):''):'📋 '+escapeHtml(o.fulfillment||'Atendimento');
- return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div>'+manualBadge+'<div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div>'+paymentPreview+'<div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div>'+moreNotice+'<div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Ver detalhes do pedido</button><button type="button" class="btn" data-print-online="'+o.id+'">🖨 Imprimir</button>'+
+ return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div>'+manualBadge+'<div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div>'+paymentPreview+'<div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div>'+moreNotice+'<div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Detalhes</button><button type="button" class="btn" data-print-online="'+o.id+'">🖨 Imprimir</button>'+
 (action?'<button type="button" class="btn primary" data-incoming="'+o.id+'" data-newstatus="'+action[0]+'">'+action[1]+'</button> <button type="button" class="btn" data-incoming="'+o.id+'" data-newstatus="cancelled">Cancelar</button>':'')+'</div></article>';
  }).join('')||'<div class="empty">Nenhum pedido online encontrado.</div>')+'</div>';
 // Guardar os itens do último carregamento para o modal de detalhes.
@@ -1922,6 +1922,73 @@ async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da 
  #orders.page.active .menux-manual-top-actions{margin-left:0;width:100%}
  #orders.page.active #menuxMainOrders{padding:12px!important}
  #menuxMainOrders .menux-orders-auto-label{font-size:11px}
+}
+</style>
+
+<style id="menux-six-orders-fit">
+/* Grade 3x2 na Central: 6 cartões completos com as quatro ações sempre acessíveis.
+   O conteúdo extenso rola somente dentro da prévia, nunca sobre os botões. */
+@media(min-width:1100px){
+ body:has(#orders.page.active) .main{padding:10px 14px 18px!important}
+ body:has(#orders.page.active) .top{margin-bottom:3px!important;min-height:0!important}
+ body:has(#orders.page.active) .top h1{font-size:22px!important;margin:0!important}
+ body:has(#orders.page.active) .top .eyebrow{display:none!important}
+ #orders.page.active .menux-orders-toolbar{margin:0 0 1px!important}
+ #orders.page.active .menux-orders-helper{margin:0 0 6px!important;font-size:11px!important}
+ #orders.page.active #menuxMainOrders{padding:10px!important}
+ #orders.page.active #menuxMainOrders .menux-orders-header{margin:0 0 9px!important;font-size:15px!important}
+ #menuxMainOrders .menux-orders-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;align-items:stretch!important}
+ #menuxMainOrders .menux-orders-grid>.menux-order-card{
+  height:clamp(278px,calc((100dvh - 240px) / 2),318px)!important;
+  min-height:0!important;max-height:none!important;overflow:hidden!important;
+  padding:12px!important;display:flex!important;flex-direction:column!important;
+ }
+ #menuxMainOrders .menux-orders-grid .menux-order-top{gap:8px!important}
+ #menuxMainOrders .menux-orders-grid .menux-fulfillment{font-size:12px!important;line-height:1.15!important;padding:4px 7px!important;margin-bottom:4px!important}
+ #menuxMainOrders .menux-orders-grid .menux-order-customer{font-size:16px!important;margin:1px 0 2px!important;line-height:1.2!important}
+ #menuxMainOrders .menux-orders-grid .menux-order-meta{font-size:10px!important;line-height:1.2!important;margin-top:4px!important}
+ #menuxMainOrders .menux-orders-grid .menux-order-summary{font-size:16px!important;gap:3px!important;max-width:43%}
+ #menuxMainOrders .menux-orders-grid .menux-order-status{font-size:10px!important;padding:4px 7px!important}
+ #menuxMainOrders .menux-orders-grid .menux-payment-mini{
+  display:flex!important;flex-wrap:wrap!important;font-size:11px!important;
+  line-height:1.22!important;padding:6px 8px!important;margin:6px 0 0!important;gap:3px 9px!important
+ }
+ #menuxMainOrders .menux-orders-grid .menux-preview{
+  flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;
+  overflow-x:hidden!important;align-content:start!important;
+  gap:3px!important;margin-top:6px!important;padding-top:6px!important;
+  font-size:12px!important;scrollbar-width:thin!important;
+ }
+ #menuxMainOrders .menux-orders-grid .menux-products-title{font-size:10px!important;margin-bottom:2px!important}
+ #menuxMainOrders .menux-orders-grid .menux-preview-product{padding:0 0 3px!important;line-height:1.2!important}
+ #menuxMainOrders .menux-orders-grid .menux-item-primary{font-size:15px!important;line-height:1.2!important}
+ #menuxMainOrders .menux-orders-grid .menux-preview-options{font-size:11px!important;line-height:1.22!important;margin:3px 0 0!important}
+ #menuxMainOrders .menux-orders-grid .menux-option-line{font-size:11px!important;line-height:1.15!important;padding:1px 0!important}
+ #menuxMainOrders .menux-orders-grid .menux-more-notice{flex:0 0 auto!important;font-size:10px!important;margin-top:3px!important;padding:3px 5px!important;max-height:28px;overflow:hidden}
+ #menuxMainOrders .menux-orders-grid .menux-order-actions{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  flex:0 0 auto!important;align-items:stretch!important;margin-top:0!important;
+  padding:7px 0 0!important;gap:5px!important;background:transparent!important
+ }
+ #menuxMainOrders .menux-orders-grid .menux-order-actions button{
+  width:100%!important;min-width:0!important;min-height:31px!important;
+  font-size:11px!important;line-height:1.1!important;padding:6px!important;
+  flex:none!important;white-space:normal!important
+ }
+ #menuxMainOrders .menux-orders-grid .menux-view-details{flex:none!important}
+ #orders.page.active #menuxMainOrders + div{margin-top:8px!important}
+}
+@media(min-width:1100px) and (max-height:720px){
+ #menuxMainOrders .menux-orders-grid>.menux-order-card{height:285px!important}
+}
+@media(min-width:761px) and (max-width:1099px){
+ #menuxMainOrders .menux-orders-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #menuxMainOrders .menux-orders-grid>.menux-order-card{height:350px!important;min-height:0!important;overflow:hidden!important}
+ #menuxMainOrders .menux-orders-grid .menux-preview{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+}
+@media(max-width:760px){
+ #menuxMainOrders .menux-orders-grid>.menux-order-card{height:auto!important;min-height:0!important;overflow:visible!important}
+ #menuxMainOrders .menux-orders-grid .menux-preview{overflow:visible!important}
 }
 </style>
 </body></html>
