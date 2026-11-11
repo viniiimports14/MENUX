@@ -203,7 +203,16 @@
 #tracking-modal .tracking-error{padding:18px;border-radius:15px;border:1px solid #dc262644;background:#dc262610}
 #tracking-modal .tracking-error p{margin:8px 0 0;font-size:13px}
 @media(max-width:640px){#tracking-modal .tracking-summary{grid-template-columns:1fr 1fr;padding-bottom:12px}#tracking-modal .tracking-summary>div{padding:11px 12px}#tracking-modal .tracking-number{font-size:20px}#tracking-modal .tracking-brief-text{font-size:12px}#tracking-modal .tracking-compact-status{padding:13px}#tracking-modal .tracking-products-title{padding:13px 14px}#tracking-modal .tracking-product{padding:13px 14px;gap:9px}#tracking-modal .tracking-totals{padding:12px 14px}}
-</style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><h2>Nosso cardápio</h2><div id="products">Aguarde...</div></main><div class="product-detail" id="product-detail" role="dialog" aria-modal="true" aria-label="Personalizar produto" hidden>
+
+/* MENUX: boas-vindas e acesso ao acompanhamento via conta Google. */
+.menux-welcome{background:var(--store-card);color:var(--store-text);border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);border-radius:18px;padding:19px 22px;display:flex;gap:14px;align-items:center;justify-content:space-between;margin-bottom:20px}
+.menux-welcome-kicker{font-size:10px;font-weight:850;letter-spacing:.14em;color:var(--accent)}
+.menux-welcome h2{font-size:clamp(19px,3vw,25px);letter-spacing:-.025em;line-height:1.25;margin:5px 0}
+.menux-welcome p{color:var(--store-muted);font-size:13px;margin:0}
+.menux-welcome button{border:1.5px solid var(--accent);background:var(--accent);color:white;border-radius:12px;padding:12px 15px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;min-height:44px}
+.menux-welcome button:disabled{opacity:.65;cursor:wait}
+@media(max-width:560px){.menux-welcome{padding:17px;align-items:stretch;flex-direction:column}.menux-welcome button{width:100%}}
+</style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><section id="menux-welcome" class="menux-welcome" aria-live="polite"><div><span class="menux-welcome-kicker">BEM-VINDO À NOSSA LOJA</span><h2 id="menux-welcome-title">Olá! Seja bem-vindo(a)!</h2><p id="menux-welcome-detail">Escolha seus favoritos e faça seu pedido.</p></div><button id="menux-my-orders" type="button">📦 Meus pedidos</button></section><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><h2>Nosso cardápio</h2><div id="products">Aguarde...</div></main><div class="product-detail" id="product-detail" role="dialog" aria-modal="true" aria-label="Personalizar produto" hidden>
 <div class="detail-panel"><div class="detail-top"><b>Detalhe do produto</b><button id="close-detail" type="button" aria-label="Fechar detalhes">×</button></div><div id="detail-body"></div>
 <div class="detail-footer"><div><strong id="detail-total"></strong><div class="detail-note">Escolha suas opções e adicione ao carrinho</div></div><button type="button" id="detail-confirm">Adicionar ao carrinho</button></div></div></div><button class="tracking-shortcut" id="tracking-shortcut" type="button" hidden aria-label="Acompanhar meu último pedido">📦 Acompanhar pedido</button><button class="checkout-fab" id="open-cart" type="button">🛒 Carrinho (0)</button>
 <div id="menux-add-choice" class="menux-add-choice" role="dialog" aria-modal="true" aria-labelledby="menux-add-title" aria-describedby="menux-add-description" hidden>
@@ -390,6 +399,21 @@ const menuxPhoneModal=$('menux-phone-modal');
 const menuxAuthChoice=$('menux-auth-choice');
 let menuxGoogleUser=null,menuxCloudProfile=null,menuxCloudAddressesLoaded=false,menuxUseGoogle=false;
 function menuxPendingCartKey(){return 'menux:google-cart:'+checkoutSlug;}
+function menuxShowWelcome(name){
+ const clean=String(name||'').trim();
+ const first=clean.split(/\s+/)[0]||'';
+ $('menux-welcome-title').textContent=first?'Olá, '+first+'! Seja bem-vindo(a)!':'Olá! Seja bem-vindo(a)!';
+ $('menux-welcome-detail').textContent=first?'Que bom ter você de volta! Confira seus pedidos ou escolha algo gostoso.':'Escolha seus favoritos e faça seu pedido.';
+}
+function menuxGoogleDisplayName(){return menuxCloudProfile?.name||menuxGoogleUser?.user_metadata?.full_name||menuxGoogleUser?.user_metadata?.name||'';}
+async function menuxStartGoogleTrackingSignIn(){
+ if(!checkoutSb||!checkoutSlug)throw Error('Cardápio ainda carregando.');
+ sessionStorage.setItem('menux:tracking-google-return:'+checkoutSlug,'1');
+ const redirect=location.origin+location.pathname+'?slug='+encodeURIComponent(checkoutSlug);
+ const {error}=await checkoutSb.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirect}});
+ if(error)throw error;
+}
+
 async function menuxBeginCartAccess(){
  if(!cart.length)return;
  $('menux-auth-error').textContent='';menuxAuthChoice.hidden=false;
@@ -427,8 +451,17 @@ async function menuxLoadCloudRecentOrder(){
  return {id:data.order_id,token:data.tracking_token,created_at:data.created_at};
 }
 async function menuxSyncTrackingShortcutFromCloud(){
- if(!menuxGoogleUser||!checkoutSb||!checkoutSlug)return;
- try{const ref=await menuxLoadCloudRecentOrder();if(ref)setTrackingShortcut(ref,true);}catch(e){console.warn('MENUX: rastreio em nuvem indisponível',e)}
+ if(!menuxGoogleUser||!checkoutSb||!checkoutSlug)return null;
+ try{
+  const ref=await menuxLoadCloudRecentOrder();
+  if(ref)setTrackingShortcut(ref,true);
+  else clearTrackingShortcut();
+  return ref;
+ }catch(e){
+  clearTrackingShortcut();
+  console.warn('MENUX: rastreio em nuvem indisponível',e);
+  throw e;
+ }
 }
 async function menuxSaveRecentOrderForGoogle(order){
  if(!menuxGoogleUser||!order?.id||!order?.tracking_token)return;
@@ -440,6 +473,7 @@ async function menuxOpenGoogleCart(){
  menuxUseGoogle=true;menuxAuthChoice.hidden=true;
  try{
   await menuxLoadGoogleProfile();
+  menuxShowWelcome(menuxGoogleDisplayName());
   menuxCurrentPhone=menuxCloudProfile.phone||'';
   checkoutForm.elements.customer_phone.value=menuxCurrentPhone;
   menuxProfileToForm(menuxCloudProfile);
@@ -461,19 +495,36 @@ async function menuxRestoreGoogleSession(){
   const provider=user?.app_metadata?.provider;
   const providers=user?.app_metadata?.providers||[];
   if(user&&(provider==='google'||providers.includes('google')))menuxGoogleUser=user;
-  const wanted=sessionStorage.getItem('menux:google-return:'+checkoutSlug)==='1';
-  if(wanted&&menuxGoogleUser){
-   sessionStorage.removeItem('menux:google-return:'+checkoutSlug);
-   let pending;try{pending=JSON.parse(sessionStorage.getItem(menuxPendingCartKey())||'null')}catch(e){}
-   sessionStorage.removeItem(menuxPendingCartKey());
-   if(pending&&Date.now()-pending.at<15*60*1000&&Array.isArray(pending.items)){
-    const ids=new Set(publicProducts.map(p=>String(p.id)));
-    cart=pending.items.filter(item=>ids.has(String(item.product_id))&&Number.isInteger(item.quantity)&&item.quantity>0&&item.quantity<=99&&Array.isArray(item.options)).slice(0,30);
+  else menuxGoogleUser=null;
+  const cartReturn=sessionStorage.getItem('menux:google-return:'+checkoutSlug)==='1';
+  const trackingReturn=sessionStorage.getItem('menux:tracking-google-return:'+checkoutSlug)==='1';
+  if(trackingReturn)sessionStorage.removeItem('menux:tracking-google-return:'+checkoutSlug);
+  if(menuxGoogleUser){
+   menuxShowWelcome(menuxGoogleDisplayName());
+   // A conta Google é prioritária. Nunca mostrar um pedido local de outra sessão.
+   clearTrackingShortcut();
+   if(cartReturn){
+    sessionStorage.removeItem('menux:google-return:'+checkoutSlug);
+    let pending;try{pending=JSON.parse(sessionStorage.getItem(menuxPendingCartKey())||'null')}catch(e){}
+    sessionStorage.removeItem(menuxPendingCartKey());
+    if(pending&&Date.now()-pending.at<15*60*1000&&Array.isArray(pending.items)){
+     const ids=new Set(publicProducts.map(p=>String(p.id)));
+     cart=pending.items.filter(item=>ids.has(String(item.product_id))&&Number.isInteger(item.quantity)&&item.quantity>0&&item.quantity<=99&&Array.isArray(item.options)).slice(0,30);
+    }
    }
-   if(cart.length)await menuxOpenGoogleCart();
-   else await menuxSyncTrackingShortcutFromCloud();
-  }else if(menuxGoogleUser){
-   await menuxSyncTrackingShortcutFromCloud();
+   if(cart.length&&cartReturn)await menuxOpenGoogleCart();
+   // Só itens registrados na conta aparecem no botão Meus pedidos.
+   let ref=null;
+   try{ref=await menuxSyncTrackingShortcutFromCloud()}catch(e){
+    $('menux-welcome-detail').textContent='Sua conta Google está conectada, mas os pedidos não puderam ser consultados agora.';
+   }
+   if(trackingReturn){
+    if(ref)openTracking(ref);
+    else $('menux-welcome-detail').textContent='Nenhum pedido associado a esta conta Google nesta loja.';
+   }
+  }else{
+   menuxShowWelcome('');
+   // Visitantes continuam podendo acompanhar o último pedido neste navegador.
   }
  }catch(e){console.warn('MENUX: retorno do Google',e)}
 }
@@ -685,9 +736,10 @@ document.getElementById('open-tracking').onclick=()=>openTracking({id:confirmedO
 document.getElementById('tracking-close').onclick=()=>{trackingModal.hidden=true;clearInterval(trackingTimer)};
 document.getElementById('tracking-refresh').onclick=refreshTracking;
 document.getElementById('tracking-whatsapp').onclick=()=>document.getElementById('share-whatsapp').click();
-// Botão fixo para reabrir o acompanhamento, inclusive em outro aparelho quando o cliente usa Google.
+// A sessão Google autenticada substitui o atalho do navegador; visitantes usam o atalho local.
 let shortcutOrder=null;
 const trackingShortcut=document.getElementById('tracking-shortcut');
+function clearTrackingShortcut(){shortcutOrder=null;trackingShortcut.hidden=true;trackingShortcut.dataset.source='';}
 function setTrackingShortcut(ref,fromCloud){
   if(!ref?.id||!ref?.token)return;
   shortcutOrder={id:ref.id,token:ref.token,daily_number:ref.daily_number};
@@ -697,6 +749,21 @@ function setTrackingShortcut(ref,fromCloud){
   if(fromCloud)trackingShortcut.dataset.source='cloud';
 }
 trackingShortcut.addEventListener('click',()=>{if(shortcutOrder)openTracking(shortcutOrder)});
+$('menux-my-orders').addEventListener('click',async()=>{
+ const btn=$('menux-my-orders');btn.disabled=true;
+ try{
+  if(!checkoutSb||!checkoutSlug)throw Error('O cardápio ainda está carregando.');
+  if(!menuxGoogleUser){
+   await menuxStartGoogleTrackingSignIn();
+   return;
+  }
+  const ref=await menuxSyncTrackingShortcutFromCloud();
+  if(ref){openTracking(ref);return;}
+  $('menux-welcome-detail').textContent='Ainda não há pedidos salvos nesta conta Google nesta loja. Pedidos antigos feitos antes desta atualização podem não aparecer.';
+ }catch(e){$('menux-welcome-detail').textContent='Não foi possível consultar seus pedidos: '+(e.message||e)}
+ finally{btn.disabled=false}
+});
+
 try{
   const slug=new URLSearchParams(location.search).get('slug');
   const saved=JSON.parse(localStorage.getItem('menux:last:'+slug)||'null');
