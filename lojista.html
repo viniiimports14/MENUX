@@ -72,10 +72,10 @@
 @media(max-width:580px){#menuxMainOrders .menux-payment-mini{font-size:13px;gap:5px 12px}}
 </style><style id="menux-ui-theme">
 /* MENUX — Tema opcional. Sem alterações em dimensões ou layout. */
-#menux-theme-toggle{position:fixed;bottom:17px;left:17px;z-index:1198;display:flex;align-items:center;justify-content:center;gap:8px;min-height:43px;padding:9px 14px;border:1px solid var(--gold);border-radius:99px;background:var(--panel);color:var(--text);box-shadow:0 5px 20px #0004;cursor:pointer;font:700 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;white-space:nowrap}
+#menux-theme-toggle{position:static;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:7px 10px;border:1px solid var(--gold);border-radius:10px;background:var(--panel);color:var(--text);box-shadow:none;cursor:pointer;font:700 12px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;white-space:nowrap}
 #menux-theme-toggle:hover{border-color:var(--gold2)}#menux-theme-toggle:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-@media(min-width:801px){#menux-theme-toggle{left:251px}}
-@media(max-width:800px){#menux-theme-toggle{left:12px;bottom:75px;padding:10px 12px}}
+.top .user{flex-wrap:wrap;justify-content:flex-end;gap:8px}
+@media(max-width:640px){#menux-theme-toggle{min-height:34px;padding:7px 9px;font-size:11px}.top .user{gap:6px}.top .username{max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 @media print{#menux-theme-toggle{display:none!important}}
 :root[data-menux-theme="light"]{color-scheme:light;--bg:#f5f6f8;--panel:#fff;--panel2:#f0f2f5;--line:#d6dbe2;--gold:#9b762b;--gold2:#80601e;--text:#20242b;--muted:#5b6471;--green:#187548;--blue:#225a9b}
 :root[data-menux-theme="light"] body{color:var(--text)}
@@ -146,7 +146,7 @@
 </style></head><body><div class="layout">
 <aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <div id="menuxMobileBackdrop" class="menux-mobile-backdrop" aria-hidden="true"></div>
-<main class="main"><div id="menuxDemoBanner" class="menux-demo-banner" hidden><span>👀 <b>DEMONSTRAÇÃO</b> · <span id="menuxDemoBannerName"></span><br><small>Explore as telas. Para cadastrar ou vender, assine um plano MENUX.</small></span><button type="button" class="btn primary" data-demo-open="1">Conhecer planos ↗</button></div><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button class="btn" id="logout" title="Sair">Sair</button></div></header>
+<main class="main"><div id="menuxDemoBanner" class="menux-demo-banner" hidden><span>👀 <b>DEMONSTRAÇÃO</b> · <span id="menuxDemoBannerName"></span><br><small>Explore as telas. Para cadastrar ou vender, assine um plano MENUX.</small></span><button type="button" class="btn primary" data-demo-open="1">Conhecer planos ↗</button></div><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button><button class="btn" id="logout" title="Sair">Sair</button></div></header>
 <div id="feedback" role="status" aria-live="polite"></div>
 <section class="page active" id="overview"><div id="menuxSubscriptionAlert" hidden role="status" aria-live="polite"></div><div class="row between"><div><h2>Visão geral</h2><div class="muted small">Indicadores dos pedidos registrados no Supabase.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div>
 <div class="card menux-growth-panel" style="margin-top:15px" aria-labelledby="menuxGrowthTitle">
@@ -1638,7 +1638,19 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now(
  },true);
 })();
 </script>
-<button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button>
+<style>
+/* MENUX — Horário de funcionamento no tema claro: mesma estrutura, paleta legível. */
+:root[data-menux-theme="light"] .menux-hours-day{
+ background:#f9fafc!important;color:#222833!important;border-color:#d4dae3!important;
+}
+:root[data-menux-theme="light"] .menux-hours-day label{color:#252c38!important}
+:root[data-menux-theme="light"] .menux-hours-day input[type="time"]{
+ background:#fff!important;color:#1f2937!important;border-color:#b6c0ce!important;color-scheme:light!important;
+}
+:root[data-menux-theme="light"] .menux-hours-day input[type="time"]::-webkit-calendar-picker-indicator{filter:none!important;opacity:1}
+:root[data-menux-theme="light"] .menux-hours-day input[type="checkbox"]{accent-color:#9b762b}
+:root[data-menux-theme="light"] #menuxHoursMsg{color:#79591c!important}
+</style>
 <script>
 (function(){
  const key='menux_lojista_theme_v1';
