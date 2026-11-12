@@ -228,7 +228,29 @@
 .menux-store-contact-actions a:first-child:not([hidden]){background:var(--accent);color:white}
 .menux-store-contact-actions a[hidden]{display:none!important}
 @media(max-width:480px){.menux-contact-dialog{padding:20px}}
-</style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><section id="menux-welcome" class="menux-welcome" aria-live="polite"><div><span class="menux-welcome-kicker">BEM-VINDO À NOSSA LOJA</span><h2 id="menux-welcome-title">Olá! Seja bem-vindo(a)!</h2><p id="menux-welcome-detail">Escolha seus favoritos e faça seu pedido.</p></div><button id="menux-my-orders" type="button">📦 Meus pedidos</button></section><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><div id="menux-store-contact" hidden><button id="menux-contact-open" type="button" aria-haspopup="dialog" aria-controls="menux-contact-modal">📍 Onde estamos · Contato</button></div>
+</style>
+<style id="menux-menu-spacing-compact">
+/* Ritmo mais compacto antes do cardápio, sem alterar checkout ou janelas. */
+.wrap{margin-top:16px}
+.wrap .menux-welcome{margin-bottom:10px}
+.wrap>.notice{margin-bottom:10px;padding:10px 13px}
+#menux-store-contact{margin:0 0 6px!important}
+.wrap>h2{margin:8px 0 8px;line-height:1.2}
+#products{gap:8px}
+#products .category-navigation{margin:4px 0 12px;gap:8px}
+#products .category-navigation a{padding:7px 13px}
+#products .menu-category{margin-bottom:22px}
+#products .menu-category-title{margin:0 0 10px;padding-bottom:7px}
+@media(max-width:600px){
+ .wrap{margin-top:12px}
+ .wrap .menux-welcome{margin-bottom:9px}
+ #menux-store-contact{margin-bottom:4px!important}
+ #products .category-navigation{margin-bottom:10px;gap:6px}
+ #products .category-navigation a{padding:7px 11px}
+ #products .menu-category-title{margin-bottom:8px}
+}
+</style>
+</head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><section id="menux-welcome" class="menux-welcome" aria-live="polite"><div><span class="menux-welcome-kicker">BEM-VINDO À NOSSA LOJA</span><h2 id="menux-welcome-title">Olá! Seja bem-vindo(a)!</h2><p id="menux-welcome-detail">Escolha seus favoritos e faça seu pedido.</p></div><button id="menux-my-orders" type="button">📦 Meus pedidos</button></section><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><div id="menux-store-contact" hidden><button id="menux-contact-open" type="button" aria-haspopup="dialog" aria-controls="menux-contact-modal">📍 Onde estamos · Contato</button></div>
 <div id="menux-contact-modal" role="dialog" aria-modal="true" aria-labelledby="menux-contact-heading" hidden>
  <div class="menux-contact-dialog">
   <button id="menux-contact-close" type="button" aria-label="Fechar contato">×</button>
