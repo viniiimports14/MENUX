@@ -1088,7 +1088,7 @@ main.innerHTML='<div class="menux-orders-header"><b>Pedidos de hoje <span class=
  const visibleOptions=firstOptions.slice(0,6);
  const hasMore=orderItems.length>1||firstOptions.length>6;
  const preview=firstItem?'<div class="menux-preview-product"><div class="menux-item-primary">'+escapeHtml(firstItem.quantity)+'× '+escapeHtml(firstItem.product_name)+'</div>'+(visibleOptions.length?'<div class="menux-preview-options"><span class="menux-options-caption">Complementos e adicionais</span>'+visibleOptions.map(x=>'<div class="menux-option-line">+ '+escapeHtml(x.name)+(Number(x.price)>0?' · '+moneyIncoming(x.price):'')+'</div>').join('')+'</div>':'')+'</div>':'<div class="menux-preview-product">Nenhum produto carregado.</div>';
- const moreNotice=hasMore?'<div class="menux-more-notice"><strong>… Tem mais no pedido!</strong><span>'+ (orderItems.length>1?'Mais de um produto ou outros complementos.':'Outros complementos e adicionais.') +' Clique em <b>Ver detalhes do pedido</b> para conferir tudo.</span></div>':'';
+ const moreNotice=hasMore?'<div class="menux-more-notice" role="note"><strong>+ Mais itens neste pedido</strong><span>Confira todos os produtos e complementos em <b>Detalhes</b>.</span></div>':'';
  const paymentNames={pix:'PIX',cash:'Dinheiro',credit_card:'Cartão de crédito',debit_card:'Cartão de débito'};
  const paymentLabel=paymentNames[o.payment_method]||'Não informado';
  const changeValue=o.change_for==null||o.change_for===''?null:Number(o.change_for);
@@ -1099,7 +1099,7 @@ main.innerHTML='<div class="menux-orders-header"><b>Pedidos de hoje <span class=
  const action=({pending:['accepted','Aceitar pedido'],accepted:['preparing','Iniciar preparo'],preparing:['ready','Marcar pronto'],ready:[o.fulfillment==='delivery'?'out_for_delivery':'completed',o.fulfillment==='delivery'?'Saiu para entrega':'Concluir'],out_for_delivery:['completed','Concluir']})[o.status];
  const manualBadge=o.source==='manual'?'<span class="menux-manual-badge">✍️ MANUAL</span>':'';
  const fulfillmentLabel=o.fulfillment==='delivery'?'🚚 ENTREGA':o.fulfillment==='pickup'?'🏪 RETIRADA':o.fulfillment==='table'||o.fulfillment==='dine_in'?'🍽️ MESA'+(o.table_number?' '+escapeHtml(o.table_number):''):'📋 '+escapeHtml(o.fulfillment||'Atendimento');
- return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div>'+manualBadge+'<div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div>'+paymentPreview+'<div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+'</div>'+moreNotice+'<div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Detalhes</button><button type="button" class="btn" data-print-online="'+o.id+'">🖨 Imprimir</button>'+
+ return '<article class="menux-order-card"><div class="menux-order-top"><div><div class="menux-fulfillment">'+fulfillmentLabel+'</div>'+manualBadge+'<div class="menux-order-customer">'+escapeHtml(o.customer_name)+'</div><div class="menux-order-meta">Pedido '+escapeHtml(menuxOrderNumber(o))+' · '+escapeHtml(new Date(o.created_at).toLocaleString('pt-BR'))+' · '+itemCount+' item(ns)</div></div><div class="menux-order-summary"><span class="menux-order-status">'+escapeHtml(statusNames[o.status]||o.status)+'</span><strong>'+moneyIncoming(o.total)+'</strong></div></div>'+paymentPreview+'<div class="menux-preview"><div class="menux-products-title">PREPARAR</div>'+preview+moreNotice+'</div><div class="menux-order-actions"><button type="button" class="btn menux-view-details" data-view-order="'+o.id+'">🔎 Detalhes</button><button type="button" class="btn" data-print-online="'+o.id+'">🖨 Imprimir</button>'+
 (action?'<button type="button" class="btn primary" data-incoming="'+o.id+'" data-newstatus="'+action[0]+'">'+action[1]+'</button> <button type="button" class="btn" data-incoming="'+o.id+'" data-newstatus="cancelled">Cancelar</button>':'')+'</div></article>';
  }).join('')||'<div class="empty">Nenhum pedido online encontrado.</div>')+'</div>';
 // Guardar os itens do último carregamento para o modal de detalhes.
@@ -2190,5 +2190,21 @@ async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da 
  }
  #menuxMainOrders .menux-orders-grid .menux-order-actions button{min-height:36px!important;font-size:12px!important}
 }
+</style>
+
+<style id="menux-more-items-notice-fix">
+/* O aviso fica dentro da área rolável da prévia, sem cortar a mensagem ou os botões. */
+#menuxMainOrders .menux-orders-grid .menux-preview .menux-more-notice {
+ display:flex!important;flex-direction:column!important;gap:3px!important;
+ position:static!important;height:auto!important;max-height:none!important;
+ overflow:visible!important;white-space:normal!important;flex:0 0 auto!important;
+ font-size:11px!important;line-height:1.3!important;padding:7px 9px!important;
+ margin:8px 0 4px!important;
+}
+#menuxMainOrders .menux-orders-grid .menux-preview .menux-more-notice strong,
+#menuxMainOrders .menux-orders-grid .menux-preview .menux-more-notice span {
+ display:block!important;white-space:normal!important;line-height:1.3!important;
+}
+#menuxMainOrders .menux-orders-grid .menux-preview {scrollbar-width:thin!important;}
 </style>
 </body></html>
