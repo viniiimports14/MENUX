@@ -250,7 +250,11 @@
  #products .menu-category-title{margin-bottom:8px}
 }
 </style>
-</head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><section id="menux-welcome" class="menux-welcome" aria-live="polite"><div><span class="menux-welcome-kicker">BEM-VINDO À NOSSA LOJA</span><h2 id="menux-welcome-title">Olá! Seja bem-vindo(a)!</h2><p id="menux-welcome-detail">Escolha seus favoritos e faça seu pedido.</p></div><button id="menux-my-orders" type="button">📦 Meus pedidos</button></section><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><div id="menux-store-contact" hidden><button id="menux-contact-open" type="button" aria-haspopup="dialog" aria-controls="menux-contact-modal">📍 Onde estamos · Contato</button></div>
+<style id="menux-google-session-compact-style">
+#menux-welcome{position:relative}
+#menux-customer-signout:not([hidden]){border:0;background:transparent;color:var(--store-muted);font-size:12px;font-weight:650;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:7px 3px;align-self:center}
+@media(max-width:680px){#menux-customer-signout:not([hidden]){font-size:11px}}
+</style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><section id="menux-welcome" class="menux-welcome" aria-live="polite"><div><span class="menux-welcome-kicker">BEM-VINDO À NOSSA LOJA</span><h2 id="menux-welcome-title">Olá! Seja bem-vindo(a)!</h2><p id="menux-welcome-detail">Escolha seus favoritos e faça seu pedido.</p></div><button id="menux-my-orders" type="button">📦 Meus pedidos</button><button id="menux-customer-signout" type="button" hidden aria-label="Sair da conta Google">Sair da conta</button></section><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><div id="menux-store-contact" hidden><button id="menux-contact-open" type="button" aria-haspopup="dialog" aria-controls="menux-contact-modal">📍 Onde estamos · Contato</button></div>
 <div id="menux-contact-modal" role="dialog" aria-modal="true" aria-labelledby="menux-contact-heading" hidden>
  <div class="menux-contact-dialog">
   <button id="menux-contact-close" type="button" aria-label="Fechar contato">×</button>
@@ -507,17 +511,56 @@ async function menuxStartGoogleTrackingSignIn(){
  if(error)throw error;
 }
 
+async function menuxCheckGoogleSession(){
+ if(!checkoutSb)return false;
+ const {data,error}=await checkoutSb.auth.getSession();
+ if(error)throw error;
+ const user=data?.session?.user||null;
+ const providers=user?.app_metadata?.providers||[];
+ const isGoogle=!!user&&(user.app_metadata?.provider==='google'||providers.includes('google'));
+ if(isGoogle){
+  const changed=menuxGoogleUser?.id!==user.id;
+  menuxGoogleUser=user;
+  if(changed){menuxCloudProfile=null;menuxCloudAddressesLoaded=false;}
+  menuxShowWelcome(menuxGoogleDisplayName());
+  $('menux-customer-signout').hidden=false;
+ }else{
+  menuxGoogleUser=null;
+  menuxCloudProfile=null;menuxCloudAddressesLoaded=false;
+  $('menux-customer-signout').hidden=true;
+ }
+ return isGoogle;
+}
 async function menuxBeginCartAccess(){
  if(!cart.length)return;
- $('menux-auth-error').textContent='';menuxAuthChoice.hidden=false;
+ $('menux-auth-error').textContent='';
+ try{
+  // A sessão Google persistida no navegador é reutilizada automaticamente.
+  if(await menuxCheckGoogleSession()){
+   await menuxOpenGoogleCart();
+   return;
+  }
+ }catch(e){console.warn('MENUX: não foi possível conferir sessão Google',e)}
+ // Apenas visitantes sem sessão ativa escolhem entre Google e continuar sem cadastro.
+ menuxAuthChoice.hidden=false;
 }
+$('menux-customer-signout').onclick=async()=>{
+ try{
+  await checkoutSb.auth.signOut({scope:'local'});
+  menuxGoogleUser=null;menuxUseGoogle=false;menuxCloudProfile=null;menuxCloudAddressesLoaded=false;
+  $('menux-customer-signout').hidden=true;
+  menuxShowWelcome('');
+  clearTrackingShortcut();
+  try{const saved=JSON.parse(localStorage.getItem('menux:last:'+checkoutSlug)||'null');if(saved)setTrackingShortcut(saved,false)}catch(e){}
+ }catch(e){console.warn('MENUX: não foi possível sair da conta',e)}
+};
 $('menux-auth-close').onclick=()=>menuxAuthChoice.hidden=true;
 menuxAuthChoice.addEventListener('click',e=>{if(e.target===menuxAuthChoice)menuxAuthChoice.hidden=true;});
 $('menux-auth-guest').onclick=()=>{menuxUseGoogle=false;menuxAuthChoice.hidden=true;menuxOpenPhoneStep();};
 $('menux-auth-google').onclick=async()=>{
  const b=$('menux-auth-google');b.disabled=true;$('menux-auth-error').textContent='';
  try{
-  if(menuxGoogleUser){menuxUseGoogle=true;await menuxOpenGoogleCart();return;}
+  if(await menuxCheckGoogleSession()){menuxUseGoogle=true;await menuxOpenGoogleCart();return;}
   if(!checkoutSb||!checkoutSlug)throw Error('Cardápio ainda carregando.');
   sessionStorage.setItem(menuxPendingCartKey(),JSON.stringify({items:cart,at:Date.now()}));
   sessionStorage.setItem('menux:google-return:'+checkoutSlug,'1');
@@ -584,12 +627,7 @@ async function menuxOpenGoogleCart(){
 }
 async function menuxRestoreGoogleSession(){
  try{
-  const {data:{session}}=await checkoutSb.auth.getSession();
-  const user=session?.user;
-  const provider=user?.app_metadata?.provider;
-  const providers=user?.app_metadata?.providers||[];
-  if(user&&(provider==='google'||providers.includes('google')))menuxGoogleUser=user;
-  else menuxGoogleUser=null;
+  await menuxCheckGoogleSession();
   const cartReturn=sessionStorage.getItem('menux:google-return:'+checkoutSlug)==='1';
   const trackingReturn=sessionStorage.getItem('menux:tracking-google-return:'+checkoutSlug)==='1';
   if(trackingReturn)sessionStorage.removeItem('menux:tracking-google-return:'+checkoutSlug);
@@ -879,7 +917,7 @@ $('menux-my-orders').addEventListener('click',async()=>{
  const btn=$('menux-my-orders');btn.disabled=true;
  try{
   if(!checkoutSb||!checkoutSlug)throw Error('O cardápio ainda está carregando.');
-  if(!menuxGoogleUser){
+  if(!(await menuxCheckGoogleSession())){
    await menuxStartGoogleTrackingSignIn();
    return;
   }
