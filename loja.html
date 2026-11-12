@@ -213,23 +213,53 @@
 .menux-welcome button:disabled{opacity:.65;cursor:wait}
 @media(max-width:560px){.menux-welcome{padding:17px;align-items:stretch;flex-direction:column}.menux-welcome button{width:100%}}
 </style><style>
-/* Endereço comercial e WhatsApp no cardápio */
-#menux-store-contact[hidden]{display:none!important}
-#menux-store-contact{background:var(--store-card);color:var(--store-text);border:1px solid color-mix(in srgb,var(--store-text) 14%,transparent);border-radius:18px;padding:20px;margin:20px 0 28px}
-#menux-store-contact h2{margin:0 0 9px;font-size:21px}
-#menux-store-contact p{margin:0 0 15px;line-height:1.6;overflow-wrap:anywhere}
-.menux-store-contact-actions{display:flex;flex-wrap:wrap;gap:10px}
-.menux-store-contact-actions a{display:inline-flex;align-items:center;justify-content:center;text-align:center;gap:8px;border-radius:11px;padding:12px 16px;min-height:46px;text-decoration:none;font-weight:750;border:1.5px solid var(--accent);color:var(--accent)}
-.menux-store-contact-actions a:first-child{background:var(--accent);color:#fff}
+/* Contato minimalista: apenas um botão na página, dados em janela sob demanda. */
+#menux-store-contact[hidden],#menux-contact-modal[hidden]{display:none!important}
+#menux-store-contact{display:flex;justify-content:flex-end;margin:-8px 0 14px;padding:0;background:transparent;border:0}
+#menux-contact-open{border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:999px;background:var(--store-card);color:var(--accent);padding:8px 14px;font:inherit;font-size:13px;font-weight:750;min-height:38px;cursor:pointer}
+#menux-contact-open:hover{background:color-mix(in srgb,var(--accent) 7%,var(--store-card))}
+#menux-contact-modal{position:fixed;inset:0;z-index:12000;padding:16px;background:#0009;backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center}
+.menux-contact-dialog{position:relative;background:var(--store-card);color:var(--store-text);width:min(460px,100%);max-height:85dvh;overflow:auto;border:1px solid color-mix(in srgb,var(--store-text) 13%,transparent);border-radius:20px;padding:24px;box-shadow:0 20px 70px #0005}
+.menux-contact-dialog h2{font-size:22px;margin:0 44px 12px 0}
+.menux-contact-dialog p{font-size:14px;line-height:1.6;color:var(--store-text);overflow-wrap:anywhere;margin:0 0 18px}
+#menux-contact-close{position:absolute;top:14px;right:14px;width:38px;height:38px;display:grid;place-items:center;border:0;border-radius:10px;background:color-mix(in srgb,var(--store-text) 7%,var(--store-card));color:var(--store-text);font-size:23px;cursor:pointer}
+.menux-store-contact-actions{display:grid;gap:9px}
+.menux-store-contact-actions a{display:flex;align-items:center;justify-content:center;text-align:center;gap:8px;border-radius:11px;padding:12px 16px;min-height:46px;text-decoration:none;font-weight:750;border:1.5px solid var(--accent);color:var(--accent)}
+.menux-store-contact-actions a:first-child:not([hidden]){background:var(--accent);color:white}
 .menux-store-contact-actions a[hidden]{display:none!important}
-@media(max-width:480px){#menux-store-contact{padding:16px}.menux-store-contact-actions a{width:100%}}
-</style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><section id="menux-welcome" class="menux-welcome" aria-live="polite"><div><span class="menux-welcome-kicker">BEM-VINDO À NOSSA LOJA</span><h2 id="menux-welcome-title">Olá! Seja bem-vindo(a)!</h2><p id="menux-welcome-detail">Escolha seus favoritos e faça seu pedido.</p></div><button id="menux-my-orders" type="button">📦 Meus pedidos</button></section><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><section id="menux-store-contact" hidden aria-labelledby="menux-contact-heading">
-<h2 id="menux-contact-heading">📍 Onde estamos</h2>
-<p id="menux-store-address"></p>
-<div class="menux-store-contact-actions">
-<a id="menux-store-map" href="#" target="_blank" rel="noopener noreferrer" hidden>📍 Abrir no Google Maps</a>
-<a id="menux-store-whatsapp" href="#" target="_blank" rel="noopener noreferrer" hidden>💬 Falar pelo WhatsApp</a>
-</div></section><h2>Nosso cardápio</h2><div id="products">Aguarde...</div></main><div class="product-detail" id="product-detail" role="dialog" aria-modal="true" aria-label="Personalizar produto" hidden>
+@media(max-width:480px){.menux-contact-dialog{padding:20px}}
+</style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><section id="menux-welcome" class="menux-welcome" aria-live="polite"><div><span class="menux-welcome-kicker">BEM-VINDO À NOSSA LOJA</span><h2 id="menux-welcome-title">Olá! Seja bem-vindo(a)!</h2><p id="menux-welcome-detail">Escolha seus favoritos e faça seu pedido.</p></div><button id="menux-my-orders" type="button">📦 Meus pedidos</button></section><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><div id="menux-store-contact" hidden><button id="menux-contact-open" type="button" aria-haspopup="dialog" aria-controls="menux-contact-modal">📍 Onde estamos · Contato</button></div>
+<div id="menux-contact-modal" role="dialog" aria-modal="true" aria-labelledby="menux-contact-heading" hidden>
+ <div class="menux-contact-dialog">
+  <button id="menux-contact-close" type="button" aria-label="Fechar contato">×</button>
+  <h2 id="menux-contact-heading">📍 Onde estamos</h2>
+  <p id="menux-store-address"></p>
+  <div class="menux-store-contact-actions">
+   <a id="menux-store-map" href="#" target="_blank" rel="noopener noreferrer" hidden>📍 Abrir no Google Maps</a>
+   <a id="menux-store-whatsapp" href="#" target="_blank" rel="noopener noreferrer" hidden>💬 Falar pelo WhatsApp</a>
+  </div>
+ </div>
+</div><script>
+(()=>{
+ const modal=document.getElementById('menux-contact-modal');
+ const open=document.getElementById('menux-contact-open');
+ const close=document.getElementById('menux-contact-close');
+ const hide=()=>{modal.hidden=true;open.focus()};
+ open.addEventListener('click',()=>{modal.hidden=false;close.focus()});
+ close.addEventListener('click',hide);
+ modal.addEventListener('click',e=>{if(e.target===modal)hide()});
+ document.addEventListener('keydown',e=>{
+  if(modal.hidden)return;
+  if(e.key==='Escape'){e.preventDefault();hide();}
+  if(e.key==='Tab'){
+   const controls=[...modal.querySelectorAll('button,a:not([hidden])')];
+   const first=controls[0],last=controls[controls.length-1];
+   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+  }
+ });
+})();
+</script><h2>Nosso cardápio</h2><div id="products">Aguarde...</div></main><div class="product-detail" id="product-detail" role="dialog" aria-modal="true" aria-label="Personalizar produto" hidden>
 <div class="detail-panel"><div class="detail-top"><b>Detalhe do produto</b><button id="close-detail" type="button" aria-label="Fechar detalhes">×</button></div><div id="detail-body"></div>
 <div class="detail-footer"><div><strong id="detail-total"></strong><div class="detail-note">Escolha suas opções e adicione ao carrinho</div></div><button type="button" id="detail-confirm">Adicionar ao carrinho</button></div></div></div><button class="tracking-shortcut" id="tracking-shortcut" type="button" hidden aria-label="Acompanhar meu último pedido">📦 Acompanhar pedido</button><button class="checkout-fab" id="open-cart" type="button">🛒 Carrinho (0)</button>
 <div id="menux-add-choice" class="menux-add-choice" role="dialog" aria-modal="true" aria-labelledby="menux-add-title" aria-describedby="menux-add-description" hidden>
