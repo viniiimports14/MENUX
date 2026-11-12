@@ -200,7 +200,31 @@
  #menuxQrPrintPages .menux-qr-instruction{font-size:9pt!important;line-height:1.2!important;flex:0 0 auto!important}
  #menuxQrPrintPages .menux-qr-brand{font-size:7.5pt!important;flex:0 0 auto!important}
 }
-</style></head><body><div class="layout">
+</style>
+<style id="menux-storefront-compact-2026">
+#storefront .menux-compact-storefront{padding:18px;max-width:1000px}
+#storefront .menux-store-compact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#storefront .menux-store-colors{display:flex;flex-wrap:wrap;gap:16px;margin:16px 0;align-items:flex-start}
+#storefront .menux-store-colors .formgroup{flex:0 0 98px}
+#storefront .menux-store-colors label{font-size:12px;color:var(--muted);font-weight:650;white-space:nowrap}
+#storefront .menux-store-colors input[type=color]{
+  display:block;width:64px;height:46px;margin-top:6px;padding:3px;
+  border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer
+}
+#storefront .menux-compact-preview-wrap{margin:0 0 16px}
+#storefront .menux-compact-theme-preview{width:min(100%,300px);border:1px solid var(--line);border-radius:11px;padding:11px;display:grid;gap:8px;font-size:13px;min-height:0}
+#storefront .menux-store-image-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+#storefront .menux-store-image-box{border:1px solid var(--line);border-radius:13px;padding:12px;min-width:0}
+#storefront .menux-store-image-box>label{display:block;font-weight:700;margin-bottom:8px;font-size:13px}
+#storefront .menux-store-image-preview{height:112px;width:100%;max-width:240px;background:var(--panel2);border:1px dashed var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px}
+#storefront .menux-logo-preview{max-width:150px}
+#storefront .menux-store-image-preview img{height:100%;width:100%;object-fit:contain}
+#storefront .menux-cover-preview img{object-fit:cover;border-radius:6px}
+#storefront .menux-store-image-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+#storefront .menux-store-image-actions .btn{font-size:12px;padding:7px 10px}
+@media(max-width:640px){#storefront .menux-store-compact-grid,#storefront .menux-store-image-grid{grid-template-columns:1fr}#storefront .menux-store-colors{gap:12px}#storefront .menux-store-colors .formgroup{flex-basis:65px}#storefront .menux-store-colors input[type=color]{width:58px;height:42px}}
+</style>
+</head><body><div class="layout">
 <aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="tableqr"><span class="ico">▦</span><span class="navtext">QR Code das mesas</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <div id="menuxMobileBackdrop" class="menux-mobile-backdrop" aria-hidden="true"></div>
 <main class="main"><div id="menuxSupportBanner" class="menux-support-banner" hidden role="status"><span><b>🛠️ SUPORTE MENUX</b> · <span id="menuxSupportStore">—</span><small>Você está usando sua conta Master para auxiliar este estabelecimento. As alterações feitas aqui afetam a loja selecionada.</small></span><a href="master.html" class="menux-support-back">← Voltar ao Master</a></div><div id="menuxDemoBanner" class="menux-demo-banner" hidden><span>👀 <b>DEMONSTRAÇÃO</b> · <span id="menuxDemoBannerName"></span><br><small>Explore as telas. Para cadastrar ou vender, assine um plano MENUX.</small></span><button type="button" class="btn primary" data-demo-open="1">Conhecer planos ↗</button></div><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button><button class="btn" id="logout" title="Sair">Sair</button></div></header>
@@ -272,7 +296,71 @@
 <div class="card" style="margin-top:16px"><h2>Histórico de pedidos online</h2><p class="muted small">Este histórico permanece disponível mesmo quando a aba Pedidos mostra somente o dia atual. O filtro de situação abaixo não altera os indicadores acima.</p><div style="overflow-x:auto"><table class="table menux-report-table"><thead><tr><th>DATA</th><th>Nº</th><th>CLIENTE</th><th>ATENDIMENTO</th><th>STATUS</th><th>TOTAL</th></tr></thead><tbody id="menuxReportHistory"><tr><td colspan="6">Carregando…</td></tr></tbody></table></div></div>
 </section>
 <section class="page" id="delivery"><div class="row between"><h2>Entregas e regiões</h2><button class="btn primary" id="newArea">＋ Adicionar região</button></div><p class="muted small">Taxas fixas por região. Cálculo por quilômetro ainda não está implementado.</p><div class="card" id="areaEditor" hidden><form id="areaForm"><input type="hidden" name="id"><div class="formgrid"><div class="formgroup"><label>Nome do bairro / região *</label><input name="name" required></div><div class="formgroup"><label>Taxa (R$) *</label><input name="delivery_fee" type="number" min="0" step="0.01" required></div><div class="formgroup"><label>Disponibilidade</label><select name="active"><option value="true">Ativa</option><option value="false">Inativa</option></select></div></div><div class="row" style="margin-top:15px"><button class="btn primary">Salvar região</button><button class="btn" type="button" id="cancelArea">Cancelar</button></div></form></div><div class="card" style="margin-top:15px"><table class="table"><thead><tr><th>REGIÃO</th><th>TAXA</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody id="areasBody"></tbody></table></div></section>
-<section class="page" id="storefront"><div class="card" style="margin-bottom:16px"><h2>Seu link de divulgação</h2><p id="storefrontLink" style="overflow-wrap:anywhere" class="gold">Cadastre o slug em Minha loja primeiro.</p><button class="btn" id="copyStorefront">Copiar link</button> <button class="btn" id="openStorefront">Abrir cardápio</button><p class="muted small">Compartilhe este link com seus clientes para acessar o cardápio e fazer pedidos.</p></div><h2>Personalização do site da loja</h2><p class="muted small">Configure seu cardápio público. Envie imagens diretamente do seu dispositivo ou utilize links HTTPS públicos.</p><div class="card"><form id="storefrontForm"><div class="formgrid"><div class="formgroup"><label>Modelo visual</label><select name="template"><option value="classic">Clássico</option><option value="modern">Moderno</option><option value="minimal">Minimalista</option></select></div><div class="formgroup"><label>Cor principal</label><input type="color" name="primary_color" value="#7b2cbf" style="height:46px"></div><div class="formgroup" style="grid-column:1/-1"><label>Tema do fundo do cardápio</label><select id="themePreset" name="color_theme"><option value="light">Claro elegante</option><option value="dark">Escuro premium</option><option value="purple">Roxo suave</option><option value="rose">Rosé</option><option value="custom">Cores personalizadas</option></select></div><div class="formgroup"><label>Cor do fundo</label><input type="color" name="background_color" value="#F6F3EF"></div><div class="formgroup"><label>Cor dos cartões dos produtos</label><input type="color" name="card_color" value="#FFFFFF"></div><div class="formgroup"><label>Cor dos textos</label><input type="color" name="text_color" value="#29252A"></div><div class="formgroup" style="grid-column:1/-1"><label>Prévia das cores</label><div id="themePreview" style="padding:16px;border-radius:12px;background:#F6F3EF;color:#29252A"><div style="font-weight:700;margin-bottom:10px">Nosso cardápio</div><div id="themePreviewCard" style="background:#fff;padding:13px;border-radius:10px"><strong>Produto de exemplo</strong><div style="font-size:12px;opacity:.8">Descrição do produto</div></div></div></div><div class="formgroup"><label>Enviar foto de capa</label><input type="file" id="coverImageFile" accept="image/jpeg,image/png,image/webp" class="field"><label>Ou URL da foto de capa (https://)</label><input name="cover_url" type="url" placeholder="https://..."></div><div class="formgroup"><label>Enviar logotipo</label><input type="file" id="logoImageFile" accept="image/jpeg,image/png,image/webp" class="field"><label>Ou URL do logotipo (https://)</label><input name="logo_url" type="url" placeholder="https://..."></div><div class="formgroup"><label>Descrição da loja</label><input name="description" maxlength="300" placeholder="Os melhores sabores..."></div></div><button class="btn primary" style="margin-top:16px">Salvar personalização</button></form></div></section>
+<section class="page" id="storefront">
+<div class="card" style="margin-bottom:14px">
+  <h2>Seu link de divulgação</h2>
+  <p id="storefrontLink" style="overflow-wrap:anywhere" class="gold">Carregando link...</p>
+  <div class="row" style="flex-wrap:wrap"><button class="btn" id="copyStorefront">Copiar link</button><button class="btn" id="openStorefront">Abrir cardápio</button></div>
+</div>
+<h2>Personalização do site da loja</h2>
+<div class="card menux-compact-storefront">
+<form id="storefrontForm">
+  <div class="menux-store-compact-grid">
+    <div class="formgroup"><label>Modelo visual</label>
+      <select name="template"><option value="classic">Clássico</option><option value="modern">Moderno</option><option value="minimal">Minimalista</option></select>
+    </div>
+    <div class="formgroup"><label>Tema do cardápio</label>
+      <select id="themePreset" name="color_theme"><option value="light">Claro elegante</option><option value="dark">Escuro premium</option><option value="purple">Roxo suave</option><option value="rose">Rosé</option><option value="custom">Cores personalizadas</option></select>
+    </div>
+  </div>
+  <div class="menux-store-colors" aria-label="Cores do cardápio">
+    <div class="formgroup"><label for="menuxPrimaryColor">Principal</label><input id="menuxPrimaryColor" type="color" name="primary_color" value="#7b2cbf"></div>
+    <div class="formgroup"><label for="menuxBgColor">Fundo</label><input id="menuxBgColor" type="color" name="background_color" value="#F6F3EF"></div>
+    <div class="formgroup"><label for="menuxCardColor">Cartões</label><input id="menuxCardColor" type="color" name="card_color" value="#FFFFFF"></div>
+    <div class="formgroup"><label for="menuxTextColor">Textos</label><input id="menuxTextColor" type="color" name="text_color" value="#29252A"></div>
+  </div>
+  <div class="menux-compact-preview-wrap">
+    <span class="muted small">Prévia das cores</span>
+    <div id="themePreview" class="menux-compact-theme-preview" style="background:#F6F3EF;color:#29252A">
+      <strong>Nosso cardápio</strong>
+      <div id="themePreviewCard" style="background:#FFFFFF;padding:10px;border-radius:9px">
+        <strong>Produto de exemplo</strong><div style="font-size:12px;opacity:.8">Descrição do produto</div>
+      </div>
+    </div>
+  </div>
+  <div class="menux-store-image-grid">
+    <div class="menux-store-image-box">
+      <label>Foto de capa</label>
+      <div class="menux-store-image-preview menux-cover-preview">
+        <img id="menuxCoverPreview" alt="Prévia da foto de capa" hidden>
+        <span id="menuxCoverPlaceholder" class="muted small">Sem foto de capa</span>
+      </div>
+      <input type="file" id="coverImageFile" accept="image/jpeg,image/png,image/webp" hidden>
+      <div class="menux-store-image-actions">
+        <button type="button" class="btn" id="menuxCoverChange">Trocar imagem</button>
+        <button type="button" class="btn" id="menuxCoverDelete">Apagar</button>
+      </div>
+    </div>
+    <div class="menux-store-image-box">
+      <label>Logotipo</label>
+      <div class="menux-store-image-preview menux-logo-preview">
+        <img id="menuxLogoPreview" alt="Prévia do logotipo" hidden>
+        <span id="menuxLogoPlaceholder" class="muted small">Sem logotipo</span>
+      </div>
+      <input type="file" id="logoImageFile" accept="image/jpeg,image/png,image/webp" hidden>
+      <div class="menux-store-image-actions">
+        <button type="button" class="btn" id="menuxLogoChange">Trocar imagem</button>
+        <button type="button" class="btn" id="menuxLogoDelete">Apagar</button>
+      </div>
+    </div>
+  </div>
+  <div class="formgroup" style="margin-top:16px">
+    <label>Descrição da loja</label><input name="description" maxlength="300" placeholder="Uma breve descrição do estabelecimento">
+  </div>
+  <p class="muted small">As imagens são atualizadas ao clicar em Salvar. Para configurar WhatsApp e endereço, acesse Minha loja.</p>
+  <button class="btn primary" style="margin-top:10px" type="submit">Salvar personalização</button>
+</form>
+</div></section>
 <section class="page" id="hours"><h2>Horário de funcionamento</h2><p class="muted small">Configure os dias e horários em que a loja recebe pedidos. Fuso horário: Brasília (America/Sao_Paulo).</p>
 <div class="card" style="max-width:920px"><form id="menuxHoursForm">
  <label class="menux-hours-toggle"><input id="menuxHoursEnabled" type="checkbox"> Ativar controle automático por horário</label>
@@ -639,25 +727,89 @@ $('themePreset').addEventListener('change',e=>{const f=$('storefrontForm'),color
 for(const key of ['background_color','card_color','text_color'])$('storefrontForm').elements[key].addEventListener('input',()=>{$('themePreset').value='custom';refreshThemePreview()});
 function storefrontUrl(){return restaurant?.slug?new URL('loja.html?slug='+encodeURIComponent(restaurant.slug),location.href).href:null}
 function updateStorefrontLink(){const url=storefrontUrl();$('storefrontLink').textContent=url||'Cadastre o slug em Minha loja primeiro.';}
-async function loadStorefront(){const {data,error}=await sb.from('storefront_settings').select('*').eq('restaurant_id',restaurant.id).maybeSingle();if(error)throw error;storefrontSettings=data||{};const f=$('storefrontForm');for(const key of ['template','primary_color','cover_url','logo_url','description']){if(f.elements[key])f.elements[key].value=storefrontSettings[key]||({template:'classic',primary_color:'#7b2cbf'}[key]||'')}for(const key of ['background_color','card_color','text_color'])f.elements[key].value=storefrontSettings[key]||({background_color:'#F6F3EF',card_color:'#FFFFFF',text_color:'#29252A'}[key]);$('themePreset').value=storefrontSettings.color_theme||'light';
+// Prévia temporária das imagens: exclusões e trocas só são aplicadas quando salvar.
+const menuxImageChanges={cover:{remove:false,previewUrl:null},logo:{remove:false,previewUrl:null}};
+function menuxSetImagePreview(kind,url){
+ const img=$(kind==='cover'?'menuxCoverPreview':'menuxLogoPreview');
+ const msg=$(kind==='cover'?'menuxCoverPlaceholder':'menuxLogoPlaceholder');
+ if(url){img.src=url;img.hidden=false;msg.hidden=true;}
+ else {img.removeAttribute('src');img.hidden=true;msg.hidden=false;}
+}
+function menuxImageRefresh(kind){
+ const state=menuxImageChanges[kind];
+ const field=kind==='cover'?'cover_url':'logo_url';
+ const url=state.remove?null:(state.previewUrl||(storefrontSettings?.[field]||null));
+ menuxSetImagePreview(kind,url);
+}
+for(const kind of ['cover','logo']){
+ const input=$(kind==='cover'?'coverImageFile':'logoImageFile');
+ $(kind==='cover'?'menuxCoverChange':'menuxLogoChange').addEventListener('click',()=>input.click());
+ input.addEventListener('change',()=>{
+   if(!input.files?.[0])return;
+   const f=input.files[0];
+   if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024){
+     notice('Escolha uma imagem JPG, PNG ou WEBP de até 5 MB.',true);input.value='';return;
+   }
+   if(menuxImageChanges[kind].previewUrl)URL.revokeObjectURL(menuxImageChanges[kind].previewUrl);
+   menuxImageChanges[kind].previewUrl=URL.createObjectURL(f);
+   menuxImageChanges[kind].remove=false;
+   menuxImageRefresh(kind);
+ });
+ $(kind==='cover'?'menuxCoverDelete':'menuxLogoDelete').addEventListener('click',()=>{
+   if(menuxImageChanges[kind].previewUrl)URL.revokeObjectURL(menuxImageChanges[kind].previewUrl);
+   menuxImageChanges[kind].previewUrl=null;
+   menuxImageChanges[kind].remove=true;
+   input.value='';
+   menuxImageRefresh(kind);
+ });
+}
+async function loadStorefront(){
+ const {data,error}=await sb.from('storefront_settings').select('*').eq('restaurant_id',restaurant.id).maybeSingle();
+ if(error)throw error;storefrontSettings=data||{};
+ const f=$('storefrontForm');
+ for(const key of ['template','primary_color','description']){
+   if(f.elements[key])f.elements[key].value=storefrontSettings[key]||({template:'classic',primary_color:'#7b2cbf'}[key]||'');
+ }
+ for(const key of ['background_color','card_color','text_color']){
+   f.elements[key].value=storefrontSettings[key]||({background_color:'#F6F3EF',card_color:'#FFFFFF',text_color:'#29252A'}[key]);
+ }
+ $('themePreset').value=storefrontSettings.color_theme||'light';
  const c=$('menuxStoreContactForm');
  if(c){for(const key of ['whatsapp','address_zip','address_street','address_number','address_neighborhood','address_complement','address_city','address_state']){
    if(c.elements[key])c.elements[key].value=storefrontSettings[key]||'';
  }}
- refreshThemePreview();updateStorefrontLink()}
+ for(const kind of ['cover','logo'])menuxImageRefresh(kind);
+ refreshThemePreview();updateStorefrontLink();
+}
 $('storefrontForm').addEventListener('submit',async e=>{
  e.preventDefault();if(!restaurant)return;
  const b=e.submitter;if(b)b.disabled=true;
- const d={};for(const key of ['template','primary_color','cover_url','logo_url','description'])d[key]=e.target.elements[key]?.value||null;
- for(const k of ['cover_url','logo_url','description'])d[k]=d[k]?.trim()||null;
- d.color_theme=e.target.elements.color_theme.value;for(const key of ['background_color','card_color','text_color'])d[key]=e.target.elements[key].value;
+ const d={};
+ for(const key of ['template','primary_color','description'])d[key]=e.target.elements[key]?.value||null;
+ d.description=d.description?.trim()||null;
+ d.color_theme=e.target.elements.color_theme.value;
+ for(const key of ['background_color','card_color','text_color'])d[key]=e.target.elements[key].value;
  try{
-  if($('coverImageFile').files[0])d.cover_url=await uploadMenuxImage($('coverImageFile').files[0],'capas');
-  if($('logoImageFile').files[0])d.logo_url=await uploadMenuxImage($('logoImageFile').files[0],'logos');
+  for(const [kind,fileId,field,folder] of [
+    ['cover','coverImageFile','cover_url','capas'],
+    ['logo','logoImageFile','logo_url','logos']
+  ]){
+    const file=$(fileId).files?.[0];
+    if(menuxImageChanges[kind].remove)d[field]=null;
+    else if(file)d[field]=await uploadMenuxImage(file,folder);
+    // Sem mudança: preserve imagem existente (não enviar null).
+  }
   const {error}=await sb.from('storefront_settings').upsert({restaurant_id:restaurant.id,...d},{onConflict:'restaurant_id'});
   if(error)throw error;
-  notice('Personalização salva!');$('coverImageFile').value='';$('logoImageFile').value='';await loadStorefront();
- }catch(err){notice('Erro ao salvar: '+err.message,true)}finally{if(b)b.disabled=false}
+  for(const kind of ['cover','logo']){
+   if(menuxImageChanges[kind].previewUrl)URL.revokeObjectURL(menuxImageChanges[kind].previewUrl);
+   menuxImageChanges[kind].previewUrl=null;
+   menuxImageChanges[kind].remove=false;
+  }
+  $('coverImageFile').value='';$('logoImageFile').value='';
+  await loadStorefront();notice('Personalização salva!');
+ }catch(err){notice('Erro ao salvar: '+err.message,true)}
+ finally{if(b)b.disabled=false}
 });
 $('menuxStoreContactForm').addEventListener('submit',async e=>{
  e.preventDefault();if(!restaurant)return;
