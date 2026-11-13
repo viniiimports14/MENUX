@@ -381,12 +381,12 @@
  <div id="menuxHoursMsg" role="status" style="margin:12px 0;color:#e3c77f"></div>
  <button type="submit" class="btn primary">Salvar horários</button>
  </form></div></section>
-<section class="page" id="printing"><h2>Impressão de pedidos</h2><div class="grid two"><div class="card"><h2>Formato da comanda</h2><p class="muted">Escolha a largura da bobina usada pela impressora. A configuração fica salva neste navegador.</p><label for="menuxPrintWidth">Largura da bobina</label><select class="field" id="menuxPrintWidth"><option value="80">80 mm — térmica maior</option><option value="58">58 mm — térmica compacta</option></select><p class="muted small">Na Central de Pedidos, clique em <b>Imprimir</b> ou <b>Ver detalhes → Imprimir comanda</b>.</p><button class="btn primary" data-go="orders">Ir para pedidos</button></div><div class="card"><h2>Como imprimir</h2><p class="muted">A MENUX abre a impressão do navegador. Escolha sua impressora e configure papel de 58 mm ou 80 mm no driver, conforme o modelo.</p><p class="muted small">A impressão automática sem confirmação depende de um aplicativo/serviço específico e ainda não está disponível. Para reimprimir, use o mesmo botão.</p></div></div>
+<section class="page" id="printing"><h2>Impressão de pedidos</h2><div class="grid two"><div class="card"><h2>Formato da comanda</h2><p class="muted">Escolha o papel da impressora. A configuração fica salva neste navegador.</p><label for="menuxPrintWidth">Tamanho do papel</label><select class="field" id="menuxPrintWidth"><option value="80">80 mm — térmica maior</option><option value="58">58 mm — térmica compacta</option><option value="A4">A4 — impressora comum (210 × 297 mm)</option></select><p class="muted small">Na Central de Pedidos, clique em <b>Imprimir</b> ou <b>Ver detalhes → Imprimir comanda</b>.</p><button class="btn primary" data-go="orders">Ir para pedidos</button></div><div class="card"><h2>Como imprimir</h2><p class="muted">A MENUX abre a impressão do navegador. Escolha sua impressora e configure o papel de 58 mm, 80 mm ou A4 conforme a impressora.</p><p class="muted small">A impressão automática sem confirmação depende de um aplicativo/serviço específico e ainda não está disponível. Para reimprimir, use o mesmo botão.</p></div></div>
 <div class="card" style="margin-top:18px" id="menuxAutoPrintSettings">
 <h2>🖨️ Impressão automática gratuita — Windows</h2>
-<p class="muted">Sem QZ Tray e sem licença paga. O computador precisa executar o <b>Impressor MENUX</b> (programa local gratuito) e a impressora deve estar instalada no Windows e aceitar comandos ESC/POS.</p>
+<p class="muted">Sem QZ Tray e sem licença paga. O computador precisa executar o <b>Impressor MENUX</b> (programa local gratuito) e a impressora deve estar instalada no Windows. As térmicas devem aceitar ESC/POS; a A4 usa o driver normal do Windows.</p>
 <div class="formgrid">
- <div class="formgroup"><label>Chave do Impressor MENUX (visível na janela do programa)</label><input id="menuxAutoPrintToken" type="password" autocomplete="off" placeholder="Cole a chave gerada no Windows"></div>
+ <div class="formgroup"><label>Chave do Impressor MENUX (da instalação inicial)</label><input id="menuxAutoPrintToken" type="password" autocomplete="off" placeholder="Cole a chave gerada no Windows"></div>
  <div class="formgroup"><label>Impressora instalada no Windows</label><select class="field" id="menuxAutoPrintPrinter" style="width:100%"><option value="">Conecte ao impressor para listar</option></select></div>
 </div>
 <div class="row" style="flex-wrap:wrap;margin-top:14px">
@@ -1132,6 +1132,8 @@ $('catalogForm').addEventListener('submit',async e=>{
  #printSheet {display:block!important;position:absolute!important;top:0!important;left:0!important;background:white!important;color:black!important;margin:0!important;padding:0!important;width:var(--menux-thermal-width,76mm)!important;max-width:none!important;box-shadow:none!important;}
  body[data-menux-paper="58"] #printSheet {--menux-thermal-width:54mm;}
  body[data-menux-paper="80"] #printSheet {--menux-thermal-width:76mm;}
+ body[data-menux-paper="A4"] #printSheet {--menux-thermal-width:190mm;padding:10mm!important;}
+ body[data-menux-paper="A4"] #printSheet .m-thermal {font-size:14px;line-height:1.55;}
  #printSheet .m-thermal {font:normal 12px/1.36 Arial,Helvetica,sans-serif;color:#000!important;overflow-wrap:anywhere;}
  #printSheet .m-heading {font-size:17px;font-weight:800;}
  #printSheet .m-order {font-size:23px;font-weight:900;margin:6px 0;}
@@ -1390,12 +1392,12 @@ document.getElementById('menuxOrderDialog')?.addEventListener('click',event=>{if
 
 // Comanda térmica dos pedidos online (impressão manual pelo navegador).
 const printWidthSelect=document.getElementById('menuxPrintWidth');
-try{const saved=localStorage.getItem('menux_print_width');if(['58','80'].includes(saved))printWidthSelect.value=saved;}catch(e){}
+try{const saved=localStorage.getItem('menux_print_width');if(['58','80','A4'].includes(saved))printWidthSelect.value=saved;}catch(e){}
 printWidthSelect?.addEventListener('change',()=>{try{localStorage.setItem('menux_print_width',printWidthSelect.value)}catch(e){}});
 function printOnlineOrder(order){
  const details=(window.__menuxOrderDetailItems||[]).filter(i=>i.order_id===order.id);
  if(!details.length){alert('Os itens deste pedido ainda não foram carregados. Clique em Atualizar pedidos e tente novamente.');return;}
- const width=printWidthSelect?.value==='58'?58:80;
+ const width=printWidthSelect?.value==='A4'?'A4':(printWidthSelect?.value==='58'?58:80);
  const isDelivery=order.fulfillment==='delivery';
  const kind=isDelivery?'ENTREGA':order.fulfillment==='table'?'MESA '+String(order.table_number||''):'RETIRADA';
  const pay=({pix:'PIX',cash:'Dinheiro',credit_card:'Cartão de crédito',debit_card:'Cartão de débito'})[order.payment_method]||'Não informado';
@@ -1697,7 +1699,7 @@ async function connect(){
  const id=typeof restaurant!=='undefined'&&restaurant?.id;
  if(!id){say('Entre no painel de uma loja antes de conectar.',true);return}
  loadPrefs(id);
- if(!tokenInput.value.trim()){say('Copie a chave da janela do Impressor MENUX no Windows.',true);return}
+ if(!tokenInput.value.trim()){say('Cole a chave da configuração inicial do MENUX Print.',true);return}
  say('Conectando à impressora local...');
  const data=await agent('/printers');
  const old=printer.value||localStorage.getItem(storeKey(id,'printer'))||'';
@@ -1722,7 +1724,7 @@ el('menuxAutoPrintEnable').addEventListener('click',async()=>{
    localStorage.setItem(storeKey(id,'token'),tokenInput.value.trim());
    localStorage.setItem(storeKey(id,'printer'),printer.value);
    localStorage.setItem(storeKey(id,'on'),'true');
-   say('Impressão automática ATIVA. Novos pedidos serão impressos no Windows.');
+   say('Impressão automática ATIVA. Novos pedidos serão enviados ao driver Windows enquanto este painel estiver aberto.');
  }catch(e){say(e.message,true)}
 });
 el('menuxAutoPrintDisable').addEventListener('click',()=>{
@@ -1759,11 +1761,11 @@ window.menuxAutoPrintPoll=async(orders,items,rest)=>{
      if(!its.length)continue;
      try{
        const data=await agent('/print',{
-         printer:printer.value,width:el('menuxPrintWidth')?.value==='58'?58:80,
+         printer:printer.value,width:el('menuxPrintWidth')?.value==='A4'?'A4':(el('menuxPrintWidth')?.value==='58'?58:80),
          order:{...order,store_name:rest.name},items:its
        },11000);
        known.add(order.id);keepSeen();
-       say('🖨️ Comanda '+(order.daily_number?'#'+String(order.daily_number).padStart(3,'0'):'')+' enviada para a impressora!');
+       say('🖨️ Comanda '+(order.daily_number?'#'+String(order.daily_number).padStart(3,'0'):'')+' aceita pelo driver de impressão (não é confirmação de papel impresso).');
      }catch(e){say('⚠️ Pedido novo sem impressão: '+e.message+' Use Imprimir na Central de Pedidos.',true);break;}
    }
  }finally{busy=false}
