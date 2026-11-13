@@ -409,15 +409,15 @@
 <h2>🖨️ Impressão automática — Windows</h2>
 <p class="muted">Para receber pedidos automaticamente, mantenha o painel aberto e o MENUX Print em execução no Windows. A4 utiliza o driver instalado; térmicas precisam ser compatíveis com ESC/POS.</p>
 <div class="menux-print-download" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:16px;margin:14px 0 18px;border:1px solid var(--line);border-radius:14px">
- <div style="flex:1 1 260px"><strong>MENUX Print para Windows — versão de testes</strong><p class="muted small" style="margin:6px 0 0">Baixe o pacote, extraia e execute <code>INSTALAR_MENUX_PRINT.bat</code>. Esta versão ainda exige Python 3 instalado e não é o instalador único definitivo.</p></div>
- <a class="btn primary" href="./MENUX_Print_Windows_Teste.zip" download="MENUX_Print_Windows_Teste.zip" style="text-decoration:none">⬇ Baixar MENUX Print</a>
+ <div style="flex:1 1 260px"><strong>MENUX Print para Windows — versão de testes</strong><p class="muted small" style="margin:6px 0 0">Baixe o pacote, extraia e execute <code>INSTALAR_MENUX_PRINT.bat</code>. Esta versão de diagnóstico exige Python 3. O botão Testar impressora A4 verifica a fila sem criar pedidos.</p></div>
+ <a class="btn primary" href="./MENUX_Print_Windows_Diagnostico.zip" download="MENUX_Print_Windows_Diagnostico.zip" style="text-decoration:none">⬇ Baixar MENUX Print</a>
 </div>
 <div class="formgrid">
  <div class="formgroup"><label>Chave do Impressor MENUX (da instalação inicial)</label><input id="menuxAutoPrintToken" type="password" autocomplete="off" placeholder="Cole a chave gerada no Windows"></div>
  <div class="formgroup"><label>Impressora instalada no Windows</label><select class="field" id="menuxAutoPrintPrinter" style="width:100%"><option value="">Conecte ao impressor para listar</option></select></div>
 </div>
 <div class="row" style="flex-wrap:wrap;margin-top:14px">
-<button type="button" class="btn" id="menuxAutoPrintConnect">Conectar e listar impressoras</button>
+<button type="button" class="btn" id="menuxAutoPrintConnect">Conectar e listar impressoras</button><button type="button" class="btn" id="menuxPrintTestA4" style="margin-left:6px">🧾 Testar impressora A4</button>
 <button type="button" class="btn primary" id="menuxAutoPrintEnable">Ativar impressão automática</button>
 <button type="button" class="btn" id="menuxAutoPrintDisable">Desativar</button>
 </div>
@@ -1737,6 +1737,21 @@ async function connect(){
  say(data.printers.length?'Conectado! Escolha sua impressora.':'Nenhuma impressora foi encontrada no Windows.',!data.printers.length);
 }
 el('menuxAutoPrintConnect').addEventListener('click',()=>connect().catch(e=>say(e.message,true)));
+el('menuxPrintTestA4').addEventListener('click',async()=>{
+ const b=el('menuxPrintTestA4');b.disabled=true;
+ try{
+  const id=typeof restaurant!=='undefined'&&restaurant?.id;
+  if(!id)throw new Error('Selecione uma loja antes de testar.');
+  loadPrefs(id);
+  if(el('menuxPrintWidth')?.value!=='A4')throw new Error('Para testar a Epson L395, selecione A4 no tamanho do papel.');
+  if(!printer.value)throw new Error('Selecione a impressora Epson L395 (ou outra impressora A4).');
+  if(!tokenInput.value.trim())throw new Error('Informe a chave do MENUX Print.');
+  say('Enviando página de teste ao driver do Windows…');
+  const data=await agent('/test',{printer:printer.value,width:'A4'},20000);
+  say('Teste enviado ao driver do Windows. Confira a fila da impressora e se o papel saiu inteiro.');
+ }catch(e){say('Falha no teste A4: '+e.message,true)}
+ finally{b.disabled=false}
+});
 el('menuxAutoPrintEnable').addEventListener('click',async()=>{
  const id=typeof restaurant!=='undefined'&&restaurant?.id;
  if(!id){say('Aguarde o carregamento da loja.',true);return}
@@ -1792,6 +1807,10 @@ window.menuxAutoPrintPoll=async(orders,items,rest)=>{
          order:{...order,store_name:rest.name},items:its
        },11000);
        known.add(order.id);keepSeen();
+       if(data.status==='ja_enviado_anteriormente'){
+         say('Pedido já havia sido encaminhado ao driver anteriormente. Para testar novamente, use Testar impressora A4.');
+         continue;
+       }
        say('🖨️ Comanda '+(order.daily_number?'#'+String(order.daily_number).padStart(3,'0'):'')+' aceita pelo driver de impressão (não é confirmação de papel impresso).');
      }catch(e){say('⚠️ Pedido novo sem impressão: '+e.message+' Use Imprimir na Central de Pedidos.',true);break;}
    }
