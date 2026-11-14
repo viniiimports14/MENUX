@@ -1,1 +1,66 @@
+name: MENUX - Versao automatica
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'menux-version.json'
+      - 'README.md'
+      - '**/*.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: menux-versao-main
+  cancel-in-progress: false
+
+jobs:
+  atualizar-versao:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar ultima versao da main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Sincronizar HTML e manifest de versao
+        shell: bash
+        run: |
+          python3 - <<'PYBUILD'
+          from pathlib import Path
+          import os, re, json, datetime
+
+          panel = Path('lojista.html')
+          if not panel.is_file():
+              raise SystemExit('ERRO: lojista.html deve estar na raiz da branch main.')
+          html = panel.read_text(encoding='utf-8')
+          marker = r'(<meta\s+name="menux-build"\s+content=")[^"]+("\s*/?>)'
+          if len(re.findall(marker, html)) != 1:
+              raise SystemExit('ERRO: deve existir um unico meta menux-build em lojista.html.')
+
+          # Identificador distinto a cada execução, inclusive commits muito proximos.
+          version = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ') + '-' + os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT']
+          html = re.sub(marker, lambda m: m.group(1) + version + m.group(2), html, count=1)
+          panel.write_text(html, encoding='utf-8')
+          Path('menux-version.json').write_text(json.dumps({'version': version}, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+          print('Nova versao MENUX:',version)
+          PYBUILD
+
+      - name: Publicar os dois arquivos no mesmo commit
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add lojista.html menux-version.json
+          if git diff --cached --quiet; then
+            echo 'Nenhuma alteracao de versao necessaria.'
+            exit 0
+          fi
+          git commit -m 'chore: sincronizar versao publicada da MENUX [skip ci]'
+          git push origin HEAD:main
 
