@@ -355,7 +355,7 @@
  <div class="formgroup"><label>Produto de presente</label><select name="gift_product_id" id="menuxPromoGift"><option value="">Selecione para brindes</option></select></div>
  <div class="formgroup"><label>Começa em</label><input type="datetime-local" name="starts_at"></div>
  <div class="formgroup"><label>Termina em</label><input type="datetime-local" name="ends_at"></div>
- <div class="formgroup"><label>Status</label><select name="active"><option value="true">Ativo (para futura utilização)</option><option value="false">Desativado</option></select></div>
+ <div class="formgroup"><label>Status</label><select name="active"><option value="true">Ativo</option><option value="false">Desativado</option></select></div>
  </div><div class="row" style="gap:9px;flex-wrap:wrap;margin-top:16px"><button type="submit" class="btn primary">Salvar cupom</button><button type="button" class="btn" id="menuxPromoClear">Limpar</button></div></form></div>
  <div class="card" style="margin-top:16px"><h2>Cupons cadastrados</h2><div id="menuxPromoList"><p class="muted">Abra esta aba para carregar seus cupons.</p></div></div>
  <div class="card" style="margin-top:16px"><h2>🎁 Fidelidade e premiação</h2><p class="muted">Estamos preparando recompensas por número de compras, valor gasto e clientes que mais compram em um período escolhido. Os prêmios dependerão de identificação confiável e validação dos pedidos concluídos.</p><p class="muted small">Nesta etapa, os prêmios ainda não são distribuídos automaticamente. Vamos habilitá-los após integrar e testar o resgate no checkout.</p></div>
@@ -2752,6 +2752,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-menux-clie
 #menuxPromoList .menux-promo-line{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:13px 0;flex-wrap:wrap}
 #menuxPromoList .menux-promo-line:last-child{border-bottom:0}
 #menuxPromoList .menux-promo-line small{display:block;color:var(--muted);line-height:1.6;margin-top:4px}
+#menuxPromoList .menux-promo-delete{border-color:#b76363;color:#ffbcbc;background:#402326}#menuxPromoList .menux-promo-delete:hover{background:#653034}
 @media(max-width:900px){#promotions .formgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){#promotions .formgrid{grid-template-columns:1fr}}
 </style>
@@ -2768,7 +2769,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-menux-clie
   const [res,prods]=await Promise.all([sb.from('menux_promo_coupons').select('*').eq('restaurant_id',restaurant.id).order('created_at',{ascending:false}).limit(300),sb.from('products').select('id,name').eq('restaurant_id',restaurant.id).order('name').limit(500)]);
   if(res.error)throw res.error;if(prods.error)throw prods.error;data=res.data||[];
   el('menuxPromoGift').innerHTML='<option value="">Selecione para brindes</option>'+(prods.data||[]).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join('');
-  el('menuxPromoList').innerHTML=data.length?data.map(c=>'<div class="menux-promo-line"><div><b>'+esc(c.code)+'</b> · '+esc(fmt(c))+' <span class="tag">'+(c.active?'Ativo':'Desativado')+'</span><small>Compra mínima: '+money(c.min_order)+' · Usos: '+(c.max_uses||'sem limite')+' · Por cliente: '+(c.per_customer_limit||'sem limite')+'<br>Válido: '+esc(date(c.starts_at))+' até '+esc(date(c.ends_at))+'</small></div><div class="row" style="flex-wrap:wrap"><button class="btn" type="button" data-promo-edit="'+c.id+'">Editar</button><button class="btn" type="button" data-promo-toggle="'+c.id+'">'+(c.active?'Desativar':'Ativar')+'</button></div></div>').join(''):'<p class="muted">Nenhum cupom cadastrado.</p>';
+  el('menuxPromoList').innerHTML=data.length?data.map(c=>'<div class="menux-promo-line"><div><b>'+esc(c.code)+'</b> · '+esc(fmt(c))+' <span class="tag">'+(c.active?'Ativo':'Desativado')+'</span><small>Compra mínima: '+money(c.min_order)+' · Usos: '+(c.max_uses||'sem limite')+' · Por cliente: '+(c.per_customer_limit||'sem limite')+'<br>Válido: '+esc(date(c.starts_at))+' até '+esc(date(c.ends_at))+'</small></div><div class="row" style="flex-wrap:wrap"><button class="btn" type="button" data-promo-edit="'+c.id+'">Editar</button><button class="btn" type="button" data-promo-toggle="'+c.id+'">'+(c.active?'Desativar':'Ativar')+'</button><button class="btn menux-promo-delete" type="button" data-promo-delete="'+c.id+'" aria-label="Excluir cupom '+esc(c.code)+'">Excluir</button></div></div>').join(''):'<p class="muted">Nenhum cupom cadastrado.</p>';
  }
  function clear(){form.reset();form.elements.id.value='';el('menuxPromoFormTitle').textContent='Novo cupom'}
  function edit(c){clear();el('menuxPromoFormTitle').textContent='Editar cupom: '+c.code;for(const k of ['id','code','kind','amount','max_discount','min_order','max_uses','per_customer_limit','gift_product_id','active']){
@@ -2785,10 +2786,24 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-menux-clie
   if(starts&&ends&&new Date(ends)<=new Date(starts))throw Error('O término deve ser posterior ao início.');
   const obj={restaurant_id:restaurant.id,code,kind,amount:['percent','fixed'].includes(kind)?amount:0,max_discount:kind==='percent'?maxDisc:null,min_order:min,max_uses:maxUses,per_customer_limit:f.per_customer_limit.value==='1'?1:null,gift_product_id:kind==='free_product'?f.gift_product_id.value:null,starts_at:starts,ends_at:ends,active:f.active.value==='true'};
   const q=f.id.value?sb.from('menux_promo_coupons').update(obj).eq('id',f.id.value).eq('restaurant_id',restaurant.id):sb.from('menux_promo_coupons').insert(obj);
-  const r=await q;if(r.error)throw r.error;clear();await load();notice('Cupom salvo. Ainda não está habilitado no carrinho.');
+  const r=await q;if(r.error)throw r.error;clear();await load();notice('Cupom salvo com sucesso.');
  }catch(e){warn(e)}finally{btn.disabled=false;}});
- el('menuxPromoList').addEventListener('click',async ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.promoEdit||b.dataset.promoToggle,c=data.find(x=>x.id===id);if(!c)return;
-  if(b.dataset.promoEdit){edit(c);return}b.disabled=true;try{const r=await sb.from('menux_promo_coupons').update({active:!c.active}).eq('id',id).eq('restaurant_id',restaurant.id);if(r.error)throw r.error;await load()}catch(e){warn(e)}finally{b.disabled=false}});
+ el('menuxPromoList').addEventListener('click',async ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.promoEdit||b.dataset.promoToggle||b.dataset.promoDelete,c=data.find(x=>x.id===id);if(!c||!restaurant||!sb)return;
+  if(b.dataset.promoEdit){edit(c);return}
+  if(b.dataset.promoDelete){
+   if(!window.confirm('Deseja excluir permanentemente o cupom "'+c.code+'"? Esta ação não pode ser desfeita.'))return;
+   b.disabled=true;
+   try{
+    const r=await sb.from('menux_promo_coupons').delete().eq('id',id).eq('restaurant_id',restaurant.id).select('id');
+    if(r.error)throw r.error;
+    if(!r.data?.length)throw Error('O cupom não foi excluído. Confira as permissões da loja.');
+    if(form.elements.id.value===id)clear();
+    await load();notice('Cupom excluído com sucesso.');
+   }catch(e){warn(e)}finally{b.disabled=false}
+   return;
+  }
+  b.disabled=true;try{const r=await sb.from('menux_promo_coupons').update({active:!c.active}).eq('id',id).eq('restaurant_id',restaurant.id);if(r.error)throw r.error;await load()}catch(e){warn(e)}finally{b.disabled=false}
+ });
  el('menuxPromoClear').addEventListener('click',clear);
  el('menuxPromoReload').addEventListener('click',()=>load().catch(warn));
  document.querySelector('[data-page="promotions"]').addEventListener('click',()=>load().catch(warn));
