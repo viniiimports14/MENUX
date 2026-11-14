@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111"><title>MENUX Food | Gestão</title>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="menux-build" content="2026.11.14.1"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111"><title>MENUX Food | Gestão</title>
 <style>
 :root{--bg:#0d0e10;--panel:#17191d;--panel2:#202329;--line:#2b2e34;--gold:#c9a45a;--gold2:#e3c77f;--text:#f5f3ee;--muted:#a4a6ad;--green:#69c994;--blue:#83aee8}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:235px;background:#111214;border-right:1px solid var(--line);padding:22px 14px;z-index:3}.brand{display:flex;align-items:center;gap:10px;padding:2px 10px 25px}.mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#e4c77d,#9c7737);color:#111;display:grid;place-items:center;font-weight:900;font-size:20px}.brand b{font-size:21px;letter-spacing:3px;color:var(--gold2)}.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:1.7px}.label{font-size:10px;color:#747780;letter-spacing:1.5px;padding:13px 11px 6px}.nav button{display:flex;gap:12px;align-items:center;width:100%;border:0;background:none;color:#b9bbc1;padding:12px;border-radius:10px;text-align:left;margin:2px 0;cursor:pointer}.nav button.active,.nav button:hover{background:#29251d;color:var(--gold2)}.ico{width:19px;text-align:center}.sidefoot{position:absolute;bottom:20px;left:24px;color:#858790;font-size:11px}.main{margin-left:235px;width:calc(100% - 235px);padding:25px 30px 45px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:1.8px}.top h1{font-size:26px;margin:3px 0}.user{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}.avatar{width:36px;height:36px;border-radius:50%;background:#3a3325;color:var(--gold2);display:grid;place-items:center;font-weight:700}.page{display:none}.page.active{display:block}.muted{color:var(--muted)}.small{font-size:12px}.grid{display:grid;gap:15px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0}.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px}.statlabel{color:var(--muted);font-size:12px}.statvalue{font-size:25px;font-weight:700;margin:7px 0 3px}.positive{color:var(--green);font-size:11px}.gold{color:var(--gold2)}.two{grid-template-columns:1.4fr 1fr}h2{font-size:17px;margin:0 0 15px}.row{display:flex;gap:12px;align-items:center}.between{justify-content:space-between}.chart{height:195px;display:flex;align-items:end;gap:12px;padding:12px 5px 0;border-bottom:1px solid var(--line)}.barcol{flex:1;height:100%;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:8px}.bar{width:min(32px,80%);background:linear-gradient(180deg,#e0c477,#94703a);border-radius:6px 6px 2px 2px}.barcol span{font-size:10px;color:var(--muted)}.tag{font-size:10px;border-radius:20px;padding:5px 9px;background:#29251d;color:var(--gold2);white-space:nowrap}.tag.green{background:#193226;color:var(--green)}.tag.blue{background:#1d2a3c;color:var(--blue)}.list{display:flex;flex-direction:column;gap:13px}.item{display:flex;justify-content:space-between;gap:10px}.track{height:7px;background:#30333a;border-radius:8px;overflow:hidden;margin-top:6px}.fill{height:100%;background:var(--gold);border-radius:8px}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:9px 13px;border-radius:9px;cursor:pointer}.primary{background:var(--gold);color:#17130b;border-color:var(--gold);font-weight:700}.field{background:#111317;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px 11px;min-width:130px}.order{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.order:last-child{border:0}.table{width:100%;border-collapse:collapse;font-size:13px}.table th{text-align:left;color:var(--muted);font-size:11px;padding:10px 8px;border-bottom:1px solid var(--line)}.table td{padding:13px 8px;border-bottom:1px solid var(--line)}.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}.formgroup label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}.formgroup input,.formgroup select{width:100%;background:#111317;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px}.switchrow{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.switch{appearance:none;width:42px;height:24px;background:#444;border-radius:20px;position:relative;cursor:pointer}.switch:checked{background:#94733c}.switch:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s}.switch:checked:before{left:21px}.notice{display:none;padding:12px;background:#1d2c23;color:#8ed7aa;border-radius:9px;margin-top:12px;font-size:12px}
 @media(max-width:800px){.side{width:65px;padding:15px 7px}.brand{padding:0 6px 20px}.brandtext,.label,.navtext,.sidefoot{display:none}.nav button{justify-content:center;padding:13px 4px}.main{margin-left:65px;width:calc(100% - 65px);padding:18px 14px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.user .username{display:none}}
@@ -273,11 +273,35 @@
 #customers .menux-clients-missing{opacity:.75}
 @media(max-width:750px){#customers .menux-clients-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#customers .menux-client-filters,#customers .menux-client-detail-grid{grid-template-columns:1fr}}
 </style>
+
+<style id="menux-ops-styles">
+#menuxOpsBanners{position:relative;z-index:4;display:grid;gap:10px;margin:0 0 15px}
+.menux-ops-banner{border-radius:12px;padding:15px;border:1px solid;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;font-size:14px}
+.menux-ops-banner[hidden]{display:none!important}
+.menux-ops-banner strong{display:block;font-size:16px;margin-bottom:5px}
+.menux-ops-banner p{margin:0;line-height:1.5}
+.menux-ops-update{background:#262418;color:#f8e2a7;border-color:#caa24e}
+.menux-ops-down{background:#321f23;color:#ffd0d0;border-color:#d26a6a}
+.menux-ops-slow{background:#29271b;color:#ffe6ad;border-color:#af9556}
+.menux-ops-banner .btn{flex:0 0 auto;min-height:41px;font-weight:750}
+#menuxOrdersHealthLabel{display:inline-flex;align-items:center;gap:6px;font-size:12px;margin-left:8px}
+#menuxOrdersHealthLabel[data-state=ok]{color:var(--green)}
+#menuxOrdersHealthLabel[data-state=error]{color:#ffaaaa}
+#menuxOrdersHealthLabel[data-state=checking]{color:var(--muted)}
+:root[data-menux-theme="light"] .menux-ops-update{background:#fff6de;color:#624819;border-color:#c7a258}
+:root[data-menux-theme="light"] .menux-ops-down{background:#ffebeb;color:#8c2828;border-color:#d26a6a}
+:root[data-menux-theme="light"] .menux-ops-slow{background:#fff5e0;color:#70551b;border-color:#af9556}
+@media print{#menuxOpsBanners,#menuxOrdersHealthLabel{display:none!important}}
+</style>
 </head><body><div class="layout">
 <aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button><button data-page="ideas"><span class="ico">✧</span><span class="navtext">Ideias e Melhorias</span></button><button data-page="promotions"><span class="ico">🎟</span><span class="navtext">Cupons e Fidelidade</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="tableqr"><span class="ico">▦</span><span class="navtext">QR Code das mesas</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <div id="menuxMobileBackdrop" class="menux-mobile-backdrop" aria-hidden="true"></div>
 <main class="main"><div id="menuxSupportBanner" class="menux-support-banner" hidden role="status"><span><b>🛠️ SUPORTE MENUX</b> · <span id="menuxSupportStore">—</span><small>Você está usando sua conta Master para auxiliar este estabelecimento. As alterações feitas aqui afetam a loja selecionada.</small></span><a href="master.html" class="menux-support-back">← Voltar ao Master</a></div><div id="menuxDemoBanner" class="menux-demo-banner" hidden><span>👀 <b>DEMONSTRAÇÃO</b> · <span id="menuxDemoBannerName"></span><br><small>Explore as telas. Para cadastrar ou vender, assine um plano MENUX.</small></span><button type="button" class="btn primary" data-demo-open="1">Conhecer planos ↗</button></div><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button><button class="btn" id="logout" title="Sair">Sair</button></div></header>
-<div id="feedback" role="status" aria-live="polite"></div>
+<div id="menuxOpsBanners" aria-live="polite">
+  <section class="menux-ops-banner menux-ops-update" id="menuxVersionBanner" hidden role="status"><div><strong>🔄 Nova versão da MENUX disponível</strong><p>Atualize esta página para receber as melhorias. Seus pedidos continuam registrados no servidor.</p></div><button type="button" id="menuxVersionReload" class="btn primary">Atualizar agora</button></section>
+  <section class="menux-ops-banner menux-ops-down" id="menuxOrdersDownBanner" hidden role="alert"><div><strong>⚠️ Não conseguimos confirmar novos pedidos</strong><p id="menuxOrdersDownText">A conexão com os pedidos falhou. Os pedidos podem continuar chegando ao servidor. Verifique a internet e tente reconectar.</p></div><button type="button" id="menuxOrdersRetry" class="btn">Tentar reconectar</button></section>
+  <section class="menux-ops-banner menux-ops-slow" id="menuxOrdersSlowBanner" hidden role="status"><div><strong>⏳ Conferindo conexão com os pedidos</strong><p>A consulta está demorando. Verifique sua internet e mantenha a página aberta.</p></div></section>
+</div><div id="feedback" role="status" aria-live="polite"></div>
 <section class="page active" id="overview"><div id="menuxSubscriptionAlert" hidden role="status" aria-live="polite"></div><div class="row between"><div><h2>Visão geral</h2><div class="muted small">Acompanhe os resultados e os pedidos do seu estabelecimento.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div>
 <div class="card menux-growth-panel" style="margin-top:15px" aria-labelledby="menuxGrowthTitle">
   <div class="row between" style="align-items:center;gap:12px;flex-wrap:wrap">
@@ -286,7 +310,7 @@
   </div>
   <div id="menuxGrowthTips" class="menux-growth-grid" aria-live="polite"><p class="muted">Carregando sugestões…</p></div>
 </div></section>
-<section class="page" id="orders"><div class="row between menux-orders-toolbar"><h2 class="menux-orders-subtitle">Central de pedidos</h2><div class="menux-manual-top-actions"><button class="btn primary" type="button" id="menuxManualNew">＋ Pedido manual</button><button class="btn" id="refreshOrders">↻ Atualizar pedidos</button></div></div><p class="muted small menux-orders-helper">Atualização automática a cada 20 segundos · A lista reinicia à meia-noite sem apagar o histórico.</p><div class="card" id="menuxMainOrders"><div class="muted small">Carregando pedidos online...</div></div><div id="ordersList" hidden aria-hidden="true"></div></section>
+<section class="page" id="orders"><div class="row between menux-orders-toolbar"><h2 class="menux-orders-subtitle">Central de pedidos</h2><div class="menux-manual-top-actions"><button class="btn primary" type="button" id="menuxManualNew">＋ Pedido manual</button><button class="btn" id="refreshOrders">↻ Atualizar pedidos</button></div></div><p class="muted small menux-orders-helper">Atualização automática a cada 20 segundos · A lista reinicia à meia-noite sem apagar o histórico.</p><span id="menuxOrdersHealthLabel" data-state="checking">● Aguardando primeira consulta...</span><div class="card" id="menuxMainOrders"><div class="muted small">Carregando pedidos online...</div></div><div id="ordersList" hidden aria-hidden="true"></div></section>
 <section class="page" id="menu"><div class="row between"><h2>Cardápio</h2><button class="btn primary" id="newProduct">＋ Novo produto</button></div><div class="card" style="overflow-x:auto"><table class="table"><thead><tr><th>PRODUTO</th><th>PREÇO</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody id="productsBody"></tbody></table></div><div class="card" id="productEditor" hidden style="margin-top:15px"><h2 id="productEditorTitle">Novo produto</h2><form id="productForm"><input type="hidden" name="id"><div class="formgrid"><div class="formgroup"><label>Nome *</label><input name="name" required maxlength="150"></div><div class="formgroup"><label>Preço (R$) *</label><input name="price" type="number" min="0" step="0.01" required></div><div class="formgroup"><label>Categoria</label><input name="category" list="menuxCategorySuggestions" autocomplete="off" placeholder="Selecione uma categoria ou digite uma nova" maxlength="100"><datalist id="menuxCategorySuggestions"></datalist><small class="muted">Escolha uma categoria já cadastrada ou digite uma nova.</small></div><div class="formgroup"><label>Foto do produto</label><input type="file" id="productImageFile" accept="image/jpeg,image/png,image/webp" class="field"><small class="muted">Até 5 MB. O envio acontece ao salvar o produto.</small><label>Ou URL pública da imagem (https://)</label><input name="image_url" type="url"></div><div class="formgroup"><label>Descrição</label><textarea name="description" class="field" style="width:100%;min-height:80px"></textarea></div><div class="formgroup"><label>Disponibilidade</label><select name="active"><option value="true">Disponível</option><option value="false">Pausado</option></select></div></div><div class="row" style="margin-top:16px"><button class="btn primary" type="submit">Salvar produto</button><button class="btn" type="button" id="cancelProduct">Cancelar</button></div></form></div><section class="card menux-variants-manager" id="menuxVariantsManager" hidden style="margin-top:15px">
 <div class="row between" style="flex-wrap:wrap"><div><h2 id="menuxVariantsTitle">Variações do produto</h2><p class="muted small">Opcional: use M, G, P, 500 ml, ou qualquer nome. Se não cadastrar variações, o produto continua com preço único.</p></div><button type="button" class="btn" id="menuxVariantsClose">Fechar</button></div>
 <div id="menuxVariantsRows"></div>
@@ -1402,7 +1426,7 @@ document.addEventListener('keydown',function(event){
 },{capture:true});
 // Somente na Central de Pedidos: começa um novo dia às 00:00 no horário de Brasília.
 function menuxToday(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=t=>parts.find(p=>p.type===t)?.value;return `${get('year')}-${get('month')}-${get('day')}`;}
-async function loadIncoming(){if(typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant){message.textContent='Aguarde o carregamento da loja e tente novamente.';return;}const day=menuxToday();const {data,error}=await sb.from('menux_checkout_orders').select('*').eq('restaurant_id',restaurant.id).eq('order_day',day).order('created_at',{ascending:false}).limit(100);if(error){message.textContent='Não foi possível consultar pedidos online: '+error.message;return;}onlineOrders=data||[];const ids=onlineOrders.map(o=>o.id);let items=[];if(ids.length){const r=await sb.from('menux_checkout_order_items').select('*').eq('restaurant_id',restaurant.id).in('order_id',ids);if(r.error){message.textContent='Erro ao carregar itens: '+r.error.message;return;}items=r.data||[];}if(window.menuxAutoPrintPoll)void window.menuxAutoPrintPoll(onlineOrders,items,restaurant);
+async function loadIncoming(){if(typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant){message.textContent='Aguarde o carregamento da loja e tente novamente.';return;}const day=menuxToday();const {data,error}=await sb.from('menux_checkout_orders').select('*').eq('restaurant_id',restaurant.id).eq('order_day',day).order('created_at',{ascending:false}).limit(100);if(error){message.textContent='Não foi possível consultar pedidos online: '+error.message;throw new Error(error.message);}onlineOrders=data||[];const ids=onlineOrders.map(o=>o.id);let items=[];if(ids.length){const r=await sb.from('menux_checkout_order_items').select('*').eq('restaurant_id',restaurant.id).in('order_id',ids);if(r.error){message.textContent='Erro ao carregar itens: '+r.error.message;throw new Error(r.error.message);}items=r.data||[];}if(window.menuxAutoPrintPoll)void window.menuxAutoPrintPoll(onlineOrders,items,restaurant);
 message.textContent=onlineOrders.length+' pedido(s) online · Atualizar para consultar novos pedidos';
 const main=document.getElementById('menuxMainOrders');
 if(main){
@@ -1570,12 +1594,13 @@ async function refreshMenuxOrders(){
    const todayOrders=orders.filter(o=>{const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(o.created_at));const get=t=>parts.find(p=>p.type===t)?.value;return `${get('year')}-${get('month')}-${get('day')}`===today;});
    legacy.innerHTML=todayOrders.map(o=>orderHtml(o,true)).join('')||'<div class="empty">Nenhum outro pedido de hoje.</div>';
   }
-  await loadIncoming()}
- catch(err){
+  await loadIncoming();
+  window.menuxOrdersHealth?.ok();
+ } catch(err){
    console.error('MENUX - erro ao carregar pedidos:',err);
-   if(panel)panel.innerHTML='<div class="muted">Falha ao carregar pedidos: '+escapeHtml(err?.message||'Erro desconhecido')+'</div>';
- }
- finally{menuxBusy=false}
+   window.menuxOrdersHealth?.fail(err);
+   // Mantém a última listagem visível; não mostra pedidos desatualizados como atuais.
+ } finally{menuxBusy=false}
 }
 // Listener específico dos botões de status dos pedidos online.
 document.addEventListener('click',async event=>{
@@ -2883,4 +2908,68 @@ async function menuxLoadLoyaltyMerchantHistory(){
   el.innerHTML=rows.length?'<div style="overflow-x:auto"><table class="table"><thead><tr><th>Campanha</th><th>Cliente</th><th>Código</th><th>Emitido</th><th>Situação</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.campaign)+'</td><td>'+esc(x.customer_name||'Nome não informado')+'</td><td>'+esc(x.code)+'</td><td>'+esc(new Date(x.issued_at).toLocaleDateString('pt-BR'))+'</td><td>'+(x.used?'Resgatado':'Disponível / expirado')+'</td></tr>').join('')+'</tbody></table></div>':'Nenhuma recompensa emitida nesta loja.';
  }catch(e){el.textContent='Histórico indisponível: '+(e.message||e);}
 }
-</script></body></html>
+</script><script id="menux-ops-monitor">
+(function(){
+  'use strict';
+  const currentVersion=document.querySelector('meta[name="menux-build"]')?.content||'';
+  const versionBanner=document.getElementById('menuxVersionBanner');
+  const downBanner=document.getElementById('menuxOrdersDownBanner');
+  const slowBanner=document.getElementById('menuxOrdersSlowBanner');
+  const healthLabel=document.getElementById('menuxOrdersHealthLabel');
+  const downText=document.getElementById('menuxOrdersDownText');
+  let failedAt=0,lastOkAt=0,inFlight=false,seenVersion='';
+  const ACTIVE_MS=65000; // consulta normal de 20 s + tolerância para abas suspensas
+  function updateVersion(){
+    const url=new URL('menux-version.json',document.baseURI);
+    url.searchParams.set('t',Date.now().toString());
+    fetch(url,{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(12000)})
+      .then(r=>{if(!r.ok)throw Error('Versão indisponível');return r.json()})
+      .then(d=>{
+        if(typeof d.version!=='string'||!d.version.trim())return;
+        seenVersion=d.version;
+        versionBanner.hidden=(d.version===currentVersion);
+      })
+      .catch(()=>{/* Sem falsos avisos se GitHub ou rede estiver indisponível */});
+  }
+  function markStatus(state,label){
+    if(!healthLabel)return;
+    healthLabel.dataset.state=state;
+    healthLabel.textContent=label;
+  }
+  function ok(){
+    failedAt=0;lastOkAt=Date.now();downBanner.hidden=true;slowBanner.hidden=true;
+    markStatus('ok','● Pedidos conectados · '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+  }
+  function fail(error){
+    failedAt=failedAt||Date.now();
+    downBanner.hidden=false;slowBanner.hidden=true;
+    downText.textContent='A última consulta de pedidos falhou. Novos pedidos podem não aparecer nesta tela. Verifique sua conexão e clique em Tentar reconectar.';
+    markStatus('error','● Falha na consulta dos pedidos');
+  }
+  window.menuxOrdersHealth={ok,fail};
+  document.getElementById('menuxOrdersRetry')?.addEventListener('click',()=>{
+    document.getElementById('refreshOrders')?.click();
+  });
+  document.getElementById('menuxVersionReload')?.addEventListener('click',()=>{
+    if(!confirm('Atualizar a MENUX agora? Salve alterações de formulários antes de continuar.'))return;
+    window.location.reload();
+  });
+  window.addEventListener('offline',()=>{
+    downBanner.hidden=false;slowBanner.hidden=true;
+    downText.textContent='O dispositivo está sem conexão. Não é possível confirmar novos pedidos até a internet voltar.';
+    markStatus('error','● Sem internet');
+  });
+  window.addEventListener('online',()=>document.getElementById('menuxOrdersRetry')?.click());
+  // Detectar abas suspensas e consultas há muito tempo sem confirmação.
+  setInterval(()=>{
+    if(document.visibilityState!=='visible'||!navigator.onLine||!lastOkAt)return;
+    if(Date.now()-lastOkAt>ACTIVE_MS && !failedAt){
+      slowBanner.hidden=false;
+      markStatus('checking','● Consulta atrasada');
+    }
+  },10000);
+  updateVersion();setInterval(updateVersion,30000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')updateVersion()});
+})();
+</script>
+</body></html>
