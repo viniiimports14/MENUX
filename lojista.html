@@ -258,7 +258,22 @@
 .menux-idea-bubble.admin{border-color:var(--gold,#c9a45a);background:rgba(201,164,90,.08)}
 .menux-idea-status{font-size:12px;font-weight:700;color:var(--gold,#c9a45a)}
 @media(max-width:700px){.menux-ideas-layout{grid-template-columns:1fr}.menux-ideas-list{max-height:250px}}
-</style></head><body><div class="layout">
+</style><style id="menux-customers-history-v1">
+#customers .menux-customer-hub,#customers .menux-client-details{margin:0 0 18px;padding:20px}
+#customers .menux-clients-summary{margin:14px 0;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#customers .menux-clients-summary>div{padding:14px;background:var(--panel2,#202127);border:1px solid var(--line,#38383b);border-radius:10px;min-width:0}
+#customers .menux-clients-summary strong{display:block;font-size:20px;margin-top:5px;overflow-wrap:anywhere}
+#customers .menux-client-filters{display:grid;grid-template-columns:minmax(0,2fr) minmax(180px,1fr);gap:12px;margin:12px 0}
+#customers .menux-client-detail-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:18px}
+#customers .menux-client-favorites .menux-client-fav{padding:9px 2px;border-bottom:1px solid var(--line,#38383b);display:flex;justify-content:space-between;gap:12px}
+#customers .menux-client-order{border:1px solid var(--line,#38383b);border-radius:11px;padding:12px;margin:8px 0}
+#customers .menux-client-order summary{cursor:pointer;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:650}
+#customers .menux-client-order ul{padding-left:18px;margin:9px 0 0}
+#customers .menux-client-order li{margin:4px 0}
+#customers .menux-clients-missing{opacity:.75}
+@media(max-width:750px){#customers .menux-clients-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#customers .menux-client-filters,#customers .menux-client-detail-grid{grid-template-columns:1fr}}
+</style>
+</head><body><div class="layout">
 <aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button><button data-page="ideas"><span class="ico">✧</span><span class="navtext">Ideias e Melhorias</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="tableqr"><span class="ico">▦</span><span class="navtext">QR Code das mesas</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <div id="menuxMobileBackdrop" class="menux-mobile-backdrop" aria-hidden="true"></div>
 <main class="main"><div id="menuxSupportBanner" class="menux-support-banner" hidden role="status"><span><b>🛠️ SUPORTE MENUX</b> · <span id="menuxSupportStore">—</span><small>Você está usando sua conta Master para auxiliar este estabelecimento. As alterações feitas aqui afetam a loja selecionada.</small></span><a href="master.html" class="menux-support-back">← Voltar ao Master</a></div><div id="menuxDemoBanner" class="menux-demo-banner" hidden><span>👀 <b>DEMONSTRAÇÃO</b> · <span id="menuxDemoBannerName"></span><br><small>Explore as telas. Para cadastrar ou vender, assine um plano MENUX.</small></span><button type="button" class="btn primary" data-demo-open="1">Conhecer planos ↗</button></div><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button><button class="btn" id="logout" title="Sair">Sair</button></div></header>
@@ -340,7 +355,18 @@
  <div class="menux-ideas-layout"><div id="menuxIdeasList" class="menux-ideas-list"><p class="muted">Abra esta aba para carregar.</p></div>
  <div id="menuxIdeasThread" class="menux-ideas-thread"><p class="muted">Selecione uma sugestão para ler as respostas.</p></div></div></div>
 </section>
-<section class="page" id="customers"><h2>Clientes</h2><div class="grid stats"><div class="card"><div class="statlabel">Clientes cadastrados</div><div class="statvalue" id="customerCount">0</div></div><div class="card"><div class="statlabel">Clientes com pedidos</div><div class="statvalue" id="customerBuyers">0</div></div><div class="card"><div class="statlabel">Pedidos com cliente</div><div class="statvalue" id="linkedOrders">0</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue" id="customerTicket">R$ 0,00</div></div></div><div class="row between" style="margin-bottom:12px"><h2>Cadastro de clientes</h2><button class="btn primary" id="newCustomer">＋ Novo cliente</button></div><div class="card" id="customerEditor" hidden><form id="customerForm"><input type="hidden" name="id"><div class="formgrid"><div class="formgroup"><label>Nome *</label><input name="name" required></div><div class="formgroup"><label>Telefone</label><input name="phone"></div><div class="formgroup"><label>Endereço</label><input name="address"></div></div><div class="row" style="margin-top:15px"><button class="btn primary">Salvar cliente</button><button type="button" class="btn" id="cancelCustomer">Cancelar</button></div></form></div><div class="card" style="overflow-x:auto;margin-top:15px"><table class="table"><thead><tr><th>CLIENTE</th><th>TELEFONE</th><th>PEDIDOS</th><th>AÇÕES</th></tr></thead><tbody id="customersBody"></tbody></table></div></section>
+<section class="page" id="customers"><h2>Clientes</h2>
+<div class="card menux-customer-hub" id="menuxCustomerHub">
+  <div class="row between" style="gap:12px;flex-wrap:wrap"><div><h2>Clientes e histórico de compras</h2><p class="muted small">Pedidos do cardápio e pedidos manuais desta loja. Compras são associadas pelo WhatsApp informado.</p></div><button type="button" class="btn primary" id="menuxClientsRefresh">↻ Atualizar histórico</button></div>
+  <div class="grid stats menux-clients-summary"><div><div class="statlabel">Clientes identificados</div><strong id="menuxClientsUnique">—</strong></div><div><div class="statlabel">Pedidos registrados</div><strong id="menuxClientsOrders">—</strong></div><div><div class="statlabel">Compras concluídas</div><strong id="menuxClientsDone">—</strong></div><div><div class="statlabel">Valor concluído</div><strong id="menuxClientsRevenue">—</strong></div></div>
+  <div class="menux-client-filters"><div class="formgroup"><label for="menuxClientSearch">Buscar por nome ou WhatsApp</label><input id="menuxClientSearch" placeholder="Nome, número ou últimos dígitos"></div><div class="formgroup"><label for="menuxClientSort">Ordenar</label><select id="menuxClientSort"><option value="recent">Último pedido</option><option value="count">Mais compras concluídas</option><option value="spent">Maior valor concluído</option><option value="name">Nome</option></select></div></div>
+  <p class="muted small" id="menuxClientFeedback" role="status">Abra esta aba para consultar os clientes.</p>
+  <div style="overflow-x:auto"><table class="table"><thead><tr><th>CLIENTE</th><th>WHATSAPP</th><th>PEDIDOS</th><th>CONCLUÍDOS</th><th>TOTAL CONCLUÍDO</th><th>ÚLTIMO PEDIDO</th><th>AÇÕES</th></tr></thead><tbody id="menuxClientsRows"><tr><td colspan="7">Aguardando carregamento.</td></tr></tbody></table></div>
+</div>
+<div class="card menux-client-details" id="menuxClientDetails" hidden aria-live="polite"><div class="row between" style="flex-wrap:wrap;gap:10px"><div><h2 id="menuxClientDetailName">Histórico do cliente</h2><p id="menuxClientDetailPhone" class="muted small"></p></div><button class="btn" type="button" id="menuxClientClose">Fechar detalhes</button></div>
+<div class="grid stats menux-clients-summary"><div><div class="statlabel">Pedidos</div><strong id="menuxClientDetailOrders">0</strong></div><div><div class="statlabel">Concluídos</div><strong id="menuxClientDetailDone">0</strong></div><div><div class="statlabel">Total concluído</div><strong id="menuxClientDetailSpent">R$ 0,00</strong></div><div><div class="statlabel">Ticket médio concluído</div><strong id="menuxClientDetailAverage">R$ 0,00</strong></div></div>
+<div class="menux-client-detail-grid"><div><h3>Produtos mais pedidos</h3><p class="muted small">Quantidade comprada em pedidos concluídos.</p><div id="menuxClientFavorites" class="menux-customer-favorites">Carregando…</div></div><div><h3>Histórico de pedidos</h3><div id="menuxClientOrderHistory">Carregando…</div></div></div><p class="muted small">Valores de pedidos concluídos, inclusive entrega. Não comprovam recebimento de pagamento. O WhatsApp informado no pedido não é uma identidade verificada.</p></div>
+<h2 style="margin-top:24px">Cadastro manual de clientes</h2><p class="muted small">Os pedidos novos aparecem automaticamente acima. O cadastro manual abaixo é mantido para compatibilidade com os registros anteriores.</p><div style="display:none"><h2>Clientes</h2></div><div class="grid stats"><div class="card"><div class="statlabel">Clientes cadastrados</div><div class="statvalue" id="customerCount">0</div></div><div class="card"><div class="statlabel">Clientes com pedidos</div><div class="statvalue" id="customerBuyers">0</div></div><div class="card"><div class="statlabel">Pedidos com cliente</div><div class="statvalue" id="linkedOrders">0</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue" id="customerTicket">R$ 0,00</div></div></div><div class="row between" style="margin-bottom:12px"><h2>Cadastro de clientes</h2><button class="btn primary" id="newCustomer">＋ Novo cliente</button></div><div class="card" id="customerEditor" hidden><form id="customerForm"><input type="hidden" name="id"><div class="formgrid"><div class="formgroup"><label>Nome *</label><input name="name" required></div><div class="formgroup"><label>Telefone</label><input name="phone"></div><div class="formgroup"><label>Endereço</label><input name="address"></div></div><div class="row" style="margin-top:15px"><button class="btn primary">Salvar cliente</button><button type="button" class="btn" id="cancelCustomer">Cancelar</button></div></form></div><div class="card" style="overflow-x:auto;margin-top:15px"><table class="table"><thead><tr><th>CLIENTE</th><th>TELEFONE</th><th>PEDIDOS</th><th>AÇÕES</th></tr></thead><tbody id="customersBody"></tbody></table></div></section>
 <section class="page" id="analytics"><div class="row between" style="flex-wrap:wrap"><div><h2>Relatórios e histórico de vendas</h2><p class="muted small">Dados dos pedidos online da MENUX. Faturamento considera somente pedidos concluídos, e não comprova pagamento recebido.</p></div><button type="button" class="btn" id="menuxReportExport">⬇ Exportar CSV</button></div>
 <div class="card menux-report-filters"><div class="formgroup"><label for="menuxReportStart">De</label><input id="menuxReportStart" type="date"></div><div class="formgroup"><label for="menuxReportEnd">Até</label><input id="menuxReportEnd" type="date"></div><div class="formgroup"><label for="menuxReportStatus">Situação no histórico</label><select id="menuxReportStatus"><option value="all">Todos</option><option value="pending">Recebido</option><option value="accepted">Aceito</option><option value="preparing">Preparando</option><option value="ready">Pronto</option><option value="out_for_delivery">Saiu para entrega</option><option value="completed">Concluído</option><option value="cancelled">Cancelado</option></select></div><button type="button" class="btn primary" id="menuxReportApply">Consultar</button></div>
 <p id="menuxReportMsg" class="muted small" role="status">Selecione Análises completas para carregar os relatórios.</p>
@@ -2607,4 +2633,98 @@ async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da 
  $i('menuxIdeasRefresh').addEventListener('click',()=>load().catch(err));
  document.querySelector('[data-page="ideas"]').addEventListener('click',()=>load().catch(err));
 })();
-</script></body></html>
+</script><script id="menux-customer-history-v1">
+(function(){
+'use strict';
+const el=id=>document.getElementById(id);
+const h=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+const brl=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);
+const complete=new Set(['completed','delivered','finished','finalizado','concluido','concluído']);
+const names={pending:'Recebido',accepted:'Aceito',preparing:'Preparando',ready:'Pronto',out_for_delivery:'Saiu para entrega',completed:'Concluído',cancelled:'Cancelado'};
+const phoneKey=value=>{
+ let d=String(value||'').replace(/\D/g,'');if(d.startsWith('55')&&(d.length===12||d.length===13))d=d.slice(2);
+ // DDD + 8/9 dígitos; número informado, ainda não verificado.
+ return (d.length===10||d.length===11)&&d[0]!=='0'&&d[1]!=='0'?d:null;
+};
+let grouped=new Map(),ordersCache=[],currentKey='',loading=false,limited=false;
+function shortDate(v){try{return new Date(v).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});}catch{return '—'}}
+function formatPhone(p){let d=phoneKey(p);return d?('('+d.slice(0,2)+') '+d.slice(2,d.length-4)+'-'+d.slice(-4)):'Não informado';}
+async function allCheckoutOrders(){
+ const out=[];const size=250;const max=8000;
+ for(let start=0;start<max;start+=size){
+  const {data,error}=await sb.from('menux_checkout_orders')
+   .select('id,restaurant_id,customer_name,customer_phone,created_at,order_day,daily_number,total,status,fulfillment,source')
+   .eq('restaurant_id',restaurant.id).order('created_at',{ascending:false}).range(start,start+size-1);
+  if(error)throw error;
+  out.push(...(data||[]));if((data||[]).length<size)return {rows:out,limited:false};
+ }
+ return {rows:out,limited:true};
+}
+function rebuild(){
+ grouped=new Map();
+ ordersCache.forEach(o=>{
+  const phone=phoneKey(o.customer_phone);
+  // Sem WhatsApp confiável: cada pedido é separado; nunca juntar apenas pelo nome.
+  const key=phone?'tel:'+phone:'pedido:'+o.id;
+  if(!grouped.has(key))grouped.set(key,{key,phone,name:o.customer_name||'Cliente sem nome',orders:[],last:o.created_at});
+  const c=grouped.get(key);c.orders.push(o);
+  if(String(o.created_at)>String(c.last)){c.name=o.customer_name||c.name;c.last=o.created_at;}
+ });
+ for(const c of grouped.values()){
+  c.done=c.orders.filter(o=>complete.has(String(o.status||'').toLowerCase()));
+  c.spent=c.done.reduce((s,o)=>s+Number(o.total||0),0);
+ }
+ el('menuxClientsUnique').textContent=[...grouped.values()].filter(c=>c.phone).length;
+ el('menuxClientsOrders').textContent=ordersCache.length;
+ el('menuxClientsDone').textContent=ordersCache.filter(o=>complete.has(String(o.status||'').toLowerCase())).length;
+ el('menuxClientsRevenue').textContent=brl(ordersCache.filter(o=>complete.has(String(o.status||'').toLowerCase())).reduce((s,o)=>s+Number(o.total||0),0));
+ draw();
+}
+function draw(){
+ const term=el('menuxClientSearch').value.trim().toLowerCase().replace(/\s+/g,' '),digits=term.replace(/\D/g,'');
+ let a=[...grouped.values()].filter(c=>!term||String(c.name||'').toLowerCase().includes(term)||(digits.length>=3&&String(c.phone||'').includes(digits)));
+ const sort=el('menuxClientSort').value;
+ a.sort((x,y)=>sort==='count'?y.done.length-x.done.length||y.spent-x.spent:sort==='spent'?y.spent-x.spent||y.done.length-x.done.length:sort==='name'?x.name.localeCompare(y.name,'pt-BR'):String(y.last).localeCompare(String(x.last)));
+ el('menuxClientsRows').innerHTML=a.slice(0,300).map(c=>'<tr class="'+(!c.phone?'menux-clients-missing':'')+'"><td><strong>'+h(c.name)+'</strong></td><td>'+h(c.phone?formatPhone(c.phone):'Sem WhatsApp válido')+'</td><td>'+c.orders.length+'</td><td>'+c.done.length+'</td><td>'+brl(c.spent)+'</td><td>'+h(shortDate(c.last))+'</td><td><button type="button" class="btn" data-menux-client-history="'+h(c.key)+'">Ver histórico</button></td></tr>').join('')||'<tr><td colspan="7">Nenhum cliente encontrado.</td></tr>';
+ const more=a.length>300?' Exibindo os primeiros 300 clientes; use a busca para encontrar outros.':'';
+ el('menuxClientFeedback').textContent=a.length+' registro(s) nesta consulta.'+more+(limited?' Atenção: limite de 8.000 pedidos atingido; os totais podem estar incompletos.':'')+' Pedidos sem WhatsApp válido ficam separados.';
+}
+async function load(){if(loading||!sb||!restaurant?.id)return;loading=true;el('menuxClientsRefresh').disabled=true;el('menuxClientFeedback').textContent='Carregando histórico desta loja…';
+ try{const result=await allCheckoutOrders();ordersCache=result.rows;limited=result.limited;rebuild();}
+ catch(err){console.error('MENUX Clientes:',err);el('menuxClientFeedback').textContent='Não foi possível carregar o histórico: '+(err.message||err);}
+ finally{loading=false;el('menuxClientsRefresh').disabled=false;}
+}
+async function itemsFor(orders){const ids=orders.map(o=>o.id);const out=[];for(let i=0;i<ids.length;i+=75){const {data,error}=await sb.from('menux_checkout_order_items').select('order_id,product_name,quantity,unit_price,options').eq('restaurant_id',restaurant.id).in('order_id',ids.slice(i,i+75));if(error)throw error;out.push(...(data||[]));}return out;}
+function optionText(v){if(!v)return '';let opts=v;if(typeof opts==='string'){try{opts=JSON.parse(opts)}catch{return ''}}if(!Array.isArray(opts))return '';return opts.map(x=>String(x?.name||x?.option_name||x?.label||'').trim()).filter(Boolean).join(', ')}
+async function detail(key){
+ const c=grouped.get(key);if(!c)return;currentKey=key;
+ el('menuxClientDetails').hidden=false;el('menuxClientDetailName').textContent=c.name;
+ el('menuxClientDetailPhone').textContent=c.phone?'WhatsApp informado: '+formatPhone(c.phone):'Pedido sem WhatsApp válido — não associado a outros clientes';
+ el('menuxClientDetailOrders').textContent=c.orders.length;
+ el('menuxClientDetailDone').textContent=c.done.length;
+ el('menuxClientDetailSpent').textContent=brl(c.spent);
+ el('menuxClientDetailAverage').textContent=brl(c.done.length?c.spent/c.done.length:0);
+ el('menuxClientFavorites').textContent='Carregando produtos…';el('menuxClientOrderHistory').textContent='Carregando pedidos…';
+ el('menuxClientDetails').scrollIntoView({behavior:'smooth',block:'start'});
+ try{
+  const its=await itemsFor(c.orders);if(key!==currentKey)return;
+  const byOrder=new Map();for(const x of its){if(!byOrder.has(x.order_id))byOrder.set(x.order_id,[]);byOrder.get(x.order_id).push(x);}
+  const sums=new Map();for(const o of c.done){for(const x of byOrder.get(o.id)||[]){const n=String(x.product_name||'Produto');sums.set(n,(sums.get(n)||0)+Number(x.quantity||0));}}
+  const fav=[...sums.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8);
+  el('menuxClientFavorites').innerHTML=fav.length?fav.map(([name,n])=>'<div class="menux-client-fav"><span>'+h(name)+'</span><strong>'+n+' un.</strong></div>').join(''):'<p class="muted small">Sem produtos em pedidos concluídos.</p>';
+  el('menuxClientOrderHistory').innerHTML=c.orders.map(o=>{
+   const no=o.daily_number?'#'+String(o.daily_number).padStart(3,'0'):'#'+String(o.id).slice(0,8).toUpperCase();
+   const list=byOrder.get(o.id)||[];
+   const products=list.length?'<ul>'+list.map(x=>'<li>'+Number(x.quantity||0)+'× '+h(x.product_name)+' — '+brl(Number(x.unit_price||0)*Number(x.quantity||0))+(optionText(x.options)?'<div class="muted small">Adicionais: '+h(optionText(x.options))+'</div>':'')+'</li>').join('')+'</ul>':'<p class="muted small">Itens não encontrados.</p>';
+   return '<details class="menux-client-order"><summary><span>'+h(no)+' · '+h(shortDate(o.created_at))+' · '+h(names[o.status]||o.status)+'</span><strong>'+brl(o.total)+'</strong></summary>'+products+'</details>';
+  }).join('')||'<p class="muted">Nenhum pedido encontrado.</p>';
+ }catch(e){if(key===currentKey){el('menuxClientFavorites').textContent='Não foi possível consultar os produtos.';el('menuxClientOrderHistory').textContent='Erro ao carregar itens: '+(e.message||e);}}
+}
+el('menuxClientsRefresh').addEventListener('click',load);
+el('menuxClientSearch').addEventListener('input',draw);
+el('menuxClientSort').addEventListener('change',draw);
+el('menuxClientClose').addEventListener('click',()=>{currentKey='';el('menuxClientDetails').hidden=true});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-menux-client-history]');if(b)void detail(b.dataset.menuxClientHistory);const nav=e.target.closest('[data-page="customers"]');if(nav)setTimeout(load,0);});
+})();
+</script>
+</body></html>
