@@ -262,7 +262,12 @@
 .menux-coupon-feedback{font-size:13px;margin:8px 0;min-height:1.1em;color:var(--store-muted)}
 .menux-coupon-feedback.is-error{color:#c32929}
 @media(max-width:400px){#menux-coupon-apply{min-width:84px}}
-</style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><section id="menux-welcome" class="menux-welcome" aria-live="polite"><div><span class="menux-welcome-kicker">BEM-VINDO À NOSSA LOJA</span><h2 id="menux-welcome-title">Olá! Seja bem-vindo(a)!</h2><p id="menux-welcome-detail">Escolha seus favoritos e faça seu pedido.</p></div><button id="menux-my-orders" type="button">📦 Meus pedidos</button><button id="menux-customer-signout" type="button" hidden aria-label="Sair da conta Google">Sair da conta</button></section><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><div id="menux-store-contact" hidden><button id="menux-contact-open" type="button" aria-haspopup="dialog" aria-controls="menux-contact-modal">📍 Onde estamos · Contato</button></div>
+</style><style id="menux-public-loyalty-css">
+.menux-public-loyalty{margin:16px 0;padding:18px;background:var(--store-card);color:var(--store-text);border:1px solid var(--store-border,#dddddd55);border-radius:16px}
+.menux-public-loyalty[hidden]{display:none!important}.menux-public-loyalty h2{font-size:19px;margin:0 0 12px}.menux-public-loyalty-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}
+.menux-public-loyalty-item{border:1px solid var(--store-border,#dddddd55);border-radius:12px;padding:13px;background:color-mix(in srgb,var(--store-card) 93%,var(--accent))}.menux-public-loyalty-item strong{display:block;font-size:15px;margin-bottom:6px}.menux-public-loyalty-item span{font-size:13px;color:var(--store-muted)}
+.menux-public-loyalty-note{font-size:12px;line-height:1.5;color:var(--store-muted);margin:12px 0 0}
+</style></head><body><header><div class="cover" id="cover"></div><div class="head"><img class="logo" id="logo" alt="Logo da loja"><div><h1 id="name">Carregando loja...</h1><div class="muted" id="description"></div></div></div></header><main class="wrap"><section id="menux-welcome" class="menux-welcome" aria-live="polite"><div><span class="menux-welcome-kicker">BEM-VINDO À NOSSA LOJA</span><h2 id="menux-welcome-title">Olá! Seja bem-vindo(a)!</h2><p id="menux-welcome-detail">Escolha seus favoritos e faça seu pedido.</p></div><button id="menux-my-orders" type="button">📦 Meus pedidos</button><button id="menux-customer-signout" type="button" hidden aria-label="Sair da conta Google">Sair da conta</button></section><div class="notice">Monte seu pedido e finalize diretamente por aqui. Depois, se desejar, envie uma cópia pelo WhatsApp.</div><section id="menux-public-loyalty" class="menux-public-loyalty" hidden aria-labelledby="menux-public-loyalty-title"><h2 id="menux-public-loyalty-title">🎁 Programa de fidelidade</h2><div id="menux-public-loyalty-list" aria-live="polite"></div><p class="menux-public-loyalty-note">Campanhas informativas. O acompanhamento individual e o resgate dos benefícios ainda não estão disponíveis. Nenhum prêmio é liberado automaticamente nesta etapa.</p></section><div class="menux-closed-banner" id="menux-closed-banner" role="status" hidden><strong>🔒 Loja fechada no momento</strong><p id="menux-closed-message">Confira nossos horários e volte quando estivermos abertos.</p><span>O cardápio continua disponível para consulta. Novos pedidos estão desativados.</span></div><div id="menux-store-contact" hidden><button id="menux-contact-open" type="button" aria-haspopup="dialog" aria-controls="menux-contact-modal">📍 Onde estamos · Contato</button></div>
 <div id="menux-contact-modal" role="dialog" aria-modal="true" aria-labelledby="menux-contact-heading" hidden>
  <div class="menux-contact-dialog">
   <button id="menux-contact-close" type="button" aria-label="Fechar contato">×</button>
@@ -386,7 +391,7 @@ document.getElementById('products').addEventListener('click',e=>{
 },true);
 </script><script>
 let publicProducts=[];let checkoutSb=null,checkoutSlug=null,storeWhatsapp="",cart=[];let menuxDeliveryAreas=[];let menuxAreasReady=false;const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-(async()=>{try{const slug=new URLSearchParams(location.search).get('slug');if(!slug||!/^[a-z0-9-]+$/.test(slug))throw Error('Link da loja inválido.');const cfg=window.MENUX_CONFIG;const sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);checkoutSb=sb;checkoutSlug=slug;loadMenuxDeliveryAreas();menuxRefreshHours();setInterval(menuxRefreshHours,30000);const {data,error}=await sb.rpc('get_public_storefront',{p_slug:slug});if(error)throw error;if(!data?.store)throw Error('Loja não encontrada. Confira o endereço.');const s=data.store;
+(async()=>{try{const slug=new URLSearchParams(location.search).get('slug');if(!slug||!/^[a-z0-9-]+$/.test(slug))throw Error('Link da loja inválido.');const cfg=window.MENUX_CONFIG;const sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);checkoutSb=sb;checkoutSlug=slug;loadMenuxDeliveryAreas();menuxRefreshHours();setInterval(menuxRefreshHours,30000);const {data,error}=await sb.rpc('get_public_storefront',{p_slug:slug});if(error)throw error;if(!data?.store)throw Error('Loja não encontrada. Confira o endereço.');const s=data.store;void menuxLoadPublicLoyalty();
  // Carrega somente os dados comerciais que o lojista decidiu tornar públicos.
  try{
  const {data:publicContact,error:contactError}=await sb.rpc('menux_public_store_contact',{p_slug:slug});
@@ -990,4 +995,28 @@ try{
   const saved=JSON.parse(localStorage.getItem('menux:last:'+slug)||'null');
   setTrackingShortcut(saved,false);
 }catch(e){}
-</script><style>.menux-closed-banner[hidden]{display:none!important}.menux-closed-banner{border:2px solid var(--accent);background:var(--store-card);color:var(--store-text);padding:19px;margin:14px 0 24px;border-radius:16px;line-height:1.5}.menux-closed-banner strong{display:block;font-size:20px}.menux-closed-banner p{margin:7px 0}.menux-closed-banner span{font-size:14px;color:var(--store-muted)}</style></body></html>
+</script><style>.menux-closed-banner[hidden]{display:none!important}.menux-closed-banner{border:2px solid var(--accent);background:var(--store-card);color:var(--store-text);padding:19px;margin:14px 0 24px;border-radius:16px;line-height:1.5}.menux-closed-banner strong{display:block;font-size:20px}.menux-closed-banner p{margin:7px 0}.menux-closed-banner span{font-size:14px;color:var(--store-muted)}</style><script id="menux-public-loyalty-js">
+/* MENUX fidelidade etapa 2A: consulta pública, sem atribuição de pontos ou resgates. */
+async function menuxLoadPublicLoyalty(){
+ const root=document.getElementById('menux-public-loyalty');
+ const list=document.getElementById('menux-public-loyalty-list');
+ if(!root||!list||!checkoutSb||!checkoutSlug)return;
+ root.hidden=true;
+ try{
+  const {data,error}=await checkoutSb.rpc('menux_public_loyalty_campaigns',{p_slug:checkoutSlug});
+  if(error)throw error;
+  const items=Array.isArray(data)?data:[];
+  if(!items.length)return;
+  const money=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);
+  const escapeText=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDate=v=>{if(!v)return '';const d=new Date(v);return Number.isNaN(d.getTime())?'':d.toLocaleDateString('pt-BR');};
+  list.innerHTML='<div class="menux-public-loyalty-items">'+items.map(c=>{
+   const goal=c.metric==='orders'?`${Number(c.target)} pedido(s) concluído(s)`:`${money(c.target)} em pedidos concluídos`;
+   const prize=c.reward_kind==='fixed'?money(c.reward_amount)+' de desconto':c.reward_kind==='percent'?Number(c.reward_amount)+'% de desconto':c.reward_kind==='free_delivery'?'Frete grátis':'Produto grátis';
+   const period=c.ends_at?' · Até '+fmtDate(c.ends_at):'';
+   return '<div class="menux-public-loyalty-item"><strong>'+escapeText(c.title)+'</strong><span>Meta: '+escapeText(goal)+'</span><div style="margin-top:6px;font-size:13px">Benefício previsto: '+escapeText(prize)+escapeText(period)+'</div></div>';
+  }).join('')+'</div>';
+  root.hidden=false;
+ }catch(err){root.hidden=true;console.warn('MENUX: campanha de fidelidade indisponível; checkout segue normal.',err);}
+}
+</script></body></html>
