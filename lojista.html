@@ -274,7 +274,7 @@
 @media(max-width:750px){#customers .menux-clients-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#customers .menux-client-filters,#customers .menux-client-detail-grid{grid-template-columns:1fr}}
 </style>
 </head><body><div class="layout">
-<aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button><button data-page="ideas"><span class="ico">✧</span><span class="navtext">Ideias e Melhorias</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="tableqr"><span class="ico">▦</span><span class="navtext">QR Code das mesas</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
+<aside class="side" id="menuxSide"><div class="brand"><div class="mark">M</div><div class="brandtext"><b>MENUX</b><small>FOOD PLATFORM</small></div></div><div class="label">GESTÃO</div><nav class="nav"><button class="active" data-page="overview"><span class="ico">▦</span><span class="navtext">Visão geral</span></button><button data-page="orders"><span class="ico">▣</span><span class="navtext">Pedidos</span></button><button data-page="menu"><span class="ico">☷</span><span class="navtext">Cardápio</span></button><button data-page="catalog"><span class="ico">✦</span><span class="navtext">Central de opções e adicionais</span></button><button data-page="customers"><span class="ico">♙</span><span class="navtext">Clientes</span></button><button data-page="ideas"><span class="ico">✧</span><span class="navtext">Ideias e Melhorias</span></button><button data-page="promotions"><span class="ico">🎟</span><span class="navtext">Cupons e Fidelidade</span></button></nav><div class="label">INTELLIGENCE</div><nav class="nav"><button data-page="analytics"><span class="ico">◫</span><span class="navtext">Análises completas</span></button><button data-page="delivery"><span class="ico">⌖</span><span class="navtext">Entregas e regiões</span></button></nav><div class="label">CONFIGURAÇÕES</div><nav class="nav"><button data-page="storefront"><span class="ico">◈</span><span class="navtext">Site da loja</span></button><button data-page="hours"><span class="ico">◷</span><span class="navtext">Horário de funcionamento</span></button><button data-page="printing"><span class="ico">▤</span><span class="navtext">Impressão</span></button><button data-page="tableqr"><span class="ico">▦</span><span class="navtext">QR Code das mesas</span></button><button data-page="settings"><span class="ico">⚙</span><span class="navtext">Minha loja</span></button><button data-page="subscription"><span class="ico">◈</span><span class="navtext">Minha assinatura</span></button></nav><div class="sidefoot">MENUX FOOD · PAINEL<br>Gestão conectada</div></aside>
 <div id="menuxMobileBackdrop" class="menux-mobile-backdrop" aria-hidden="true"></div>
 <main class="main"><div id="menuxSupportBanner" class="menux-support-banner" hidden role="status"><span><b>🛠️ SUPORTE MENUX</b> · <span id="menuxSupportStore">—</span><small>Você está usando sua conta Master para auxiliar este estabelecimento. As alterações feitas aqui afetam a loja selecionada.</small></span><a href="master.html" class="menux-support-back">← Voltar ao Master</a></div><div id="menuxDemoBanner" class="menux-demo-banner" hidden><span>👀 <b>DEMONSTRAÇÃO</b> · <span id="menuxDemoBannerName"></span><br><small>Explore as telas. Para cadastrar ou vender, assine um plano MENUX.</small></span><button type="button" class="btn primary" data-demo-open="1">Conhecer planos ↗</button></div><header class="top"><button type="button" class="menux-mobile-menu-btn" id="menuxMobileMenuButton" aria-label="Abrir menu de navegação" aria-controls="menuxSide" aria-expanded="false"><span aria-hidden="true">☰</span><span>Menu</span></button><div><div class="eyebrow">MENUX / FOOD</div><h1 id="title">Visão geral</h1></div><div class="user"><div class="avatar" id="avatar">M</div><span class="username" id="storeName">Minha loja</span><button type="button" id="menux-theme-toggle" aria-label="Alternar entre modo claro e escuro" aria-pressed="false">☀️ Modo claro</button><button class="btn" id="logout" title="Sair">Sair</button></div></header>
 <div id="feedback" role="status" aria-live="polite"></div>
@@ -341,6 +341,26 @@
 <h2 style="margin-top:20px">Opções e adicionais</h2><p class="muted small">Digite o nome e o preço, depois clique em Adicionar. Use R$ 0,00 para opções gratuitas. Organize com ↑ e ↓ e clique em Salvar grupo para guardar a ordem.</p><div class="row" style="flex-wrap:wrap;align-items:end"><div class="formgroup" style="flex:2;min-width:170px"><label>Nome</label><input id="catalogItemName" placeholder="Ex.: Queijo extra"></div><div class="formgroup" style="flex:1;min-width:110px"><label>Preço (R$)</label><input id="catalogItemPrice" type="number" min="0" step="0.01" value="0"></div><button class="btn" type="button" id="catalogAddItem">＋ Adicionar</button></div><div id="catalogItems" style="margin-top:12px"></div>
 <h2 style="margin-top:22px">Aplicar aos produtos</h2><div class="row" style="flex-wrap:wrap"><button class="btn" type="button" id="catalogSelectAll">Selecionar todos</button><button class="btn" type="button" id="catalogClearAll">Limpar seleção</button></div><div id="catalogProducts" style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px"></div><div id="menuxPriceOverrides" class="menux-price-settings"></div>
 <div class="row" style="margin-top:20px;flex-wrap:wrap"><button class="btn primary" type="submit">Salvar grupo</button><button class="btn" type="button" id="catalogCancel">Cancelar</button></div></form></div></section>
+<section class="page" id="promotions">
+ <div class="row between" style="flex-wrap:wrap;gap:12px"><div><h2>🎟 Cupons e Fidelidade</h2><p class="muted">Crie campanhas para sua loja, com validade e limites próprios.</p></div><button class="btn" type="button" id="menuxPromoReload">Atualizar campanhas</button></div>
+ <div class="card" style="margin-bottom:15px;border-color:var(--gold)"><strong>Etapa de configuração</strong><p class="muted small" style="margin-top:7px">Os cupons podem ser cadastrados agora, mas ainda <strong>não são aceitos no carrinho</strong>. A aplicação dos descontos e a entrega automática de prêmios serão habilitadas após validação do checkout no servidor. Não divulgue códigos aos clientes ainda.</p></div>
+ <div class="card"><h2 id="menuxPromoFormTitle">Novo cupom</h2>
+ <form id="menuxPromoForm"><input type="hidden" name="id"><div class="formgrid">
+ <div class="formgroup"><label>Código do cupom *</label><input name="code" required minlength="3" maxlength="32" pattern="[A-Za-z0-9_-]{3,32}" placeholder="EX.: BEMVINDO10" style="text-transform:uppercase"></div>
+ <div class="formgroup"><label>Benefício *</label><select name="kind"><option value="percent">Desconto percentual</option><option value="fixed">Desconto em reais</option><option value="free_delivery">Frete grátis</option><option value="free_product">Produto grátis</option></select></div>
+ <div class="formgroup"><label>Valor do desconto</label><input type="number" name="amount" value="10" min="0" max="100000" step="0.01"><small class="muted">Porcentagem (0 a 100) ou reais. Frete e brinde não usam este valor.</small></div>
+ <div class="formgroup"><label>Desconto máximo (R$)</label><input type="number" name="max_discount" min="0" step="0.01" placeholder="Sem limite"></div>
+ <div class="formgroup"><label>Pedido mínimo (R$)</label><input type="number" name="min_order" min="0" value="0" step="0.01"></div>
+ <div class="formgroup"><label>Total de usos permitidos</label><input type="number" name="max_uses" min="1" step="1" placeholder="Sem limite"></div>
+ <div class="formgroup"><label>Limite por cliente</label><select name="per_customer_limit"><option value="1">Uma vez por cliente</option><option value="0">Sem limite por cliente</option></select></div>
+ <div class="formgroup"><label>Produto de presente</label><select name="gift_product_id" id="menuxPromoGift"><option value="">Selecione para brindes</option></select></div>
+ <div class="formgroup"><label>Começa em</label><input type="datetime-local" name="starts_at"></div>
+ <div class="formgroup"><label>Termina em</label><input type="datetime-local" name="ends_at"></div>
+ <div class="formgroup"><label>Status</label><select name="active"><option value="true">Ativo (para futura utilização)</option><option value="false">Desativado</option></select></div>
+ </div><div class="row" style="gap:9px;flex-wrap:wrap;margin-top:16px"><button type="submit" class="btn primary">Salvar cupom</button><button type="button" class="btn" id="menuxPromoClear">Limpar</button></div></form></div>
+ <div class="card" style="margin-top:16px"><h2>Cupons cadastrados</h2><div id="menuxPromoList"><p class="muted">Abra esta aba para carregar seus cupons.</p></div></div>
+ <div class="card" style="margin-top:16px"><h2>🎁 Fidelidade e premiação</h2><p class="muted">Estamos preparando recompensas por número de compras, valor gasto e clientes que mais compram em um período escolhido. Os prêmios dependerão de identificação confiável e validação dos pedidos concluídos.</p><p class="muted small">Nesta etapa, os prêmios ainda não são distribuídos automaticamente. Vamos habilitá-los após integrar e testar o resgate no checkout.</p></div>
+</section>
 <section class="page" id="ideas">
  <h2>💡 Ideias e Melhorias</h2>
  <p class="muted">Conte o que gostaria de melhorar na MENUX. Nossa equipe responderá aqui mesmo.</p>
@@ -539,7 +559,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 'use strict';
-const titles={overview:'Visão geral',orders:'Pedidos',menu:'Cardápio',catalog:'Central de opções e adicionais',customers:'Clientes',ideas:'Ideias e Melhorias',analytics:'Menux Intelligence',delivery:'Entregas e regiões',storefront:'Site da loja',hours:'Horário de funcionamento',printing:'Impressão',tableqr:'QR Code das mesas',settings:'Minha loja',subscription:'Minha assinatura'};
+const titles={overview:'Visão geral',orders:'Pedidos',menu:'Cardápio',catalog:'Central de opções e adicionais',customers:'Clientes',ideas:'Ideias e Melhorias',promotions:'Cupons e Fidelidade',analytics:'Menux Intelligence',delivery:'Entregas e regiões',storefront:'Site da loja',hours:'Horário de funcionamento',printing:'Impressão',tableqr:'QR Code das mesas',settings:'Minha loja',subscription:'Minha assinatura'};
 let sb=null,restaurant=null,restaurants=[],products=[],orders=[],items=[],customers=[],areas=[],user=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const done=['completed','delivered','finished','finalizado','concluido','concluído'];const cancelled=['cancelled','canceled','cancelado'];const isDone=o=>done.includes(String(o.status).toLowerCase()),isCancelled=o=>cancelled.includes(String(o.status).toLowerCase());
@@ -2725,6 +2745,54 @@ el('menuxClientSearch').addEventListener('input',draw);
 el('menuxClientSort').addEventListener('change',draw);
 el('menuxClientClose').addEventListener('click',()=>{currentKey='';el('menuxClientDetails').hidden=true});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-menux-client-history]');if(b)void detail(b.dataset.menuxClientHistory);const nav=e.target.closest('[data-page="customers"]');if(nav)setTimeout(load,0);});
+})();
+</script>
+<style id="menux-promo-style">
+#promotions .formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+#promotions .formgroup{min-width:0}#promotions .formgroup input,#promotions .formgroup select{max-width:100%;width:100%;min-width:0}
+#menuxPromoList .menux-promo-line{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:13px 0;flex-wrap:wrap}
+#menuxPromoList .menux-promo-line:last-child{border-bottom:0}
+#menuxPromoList .menux-promo-line small{display:block;color:var(--muted);line-height:1.6;margin-top:4px}
+@media(max-width:900px){#promotions .formgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){#promotions .formgrid{grid-template-columns:1fr}}
+</style>
+<script id="menux-promo-management-js">
+(()=>{
+ const el=id=>document.getElementById(id), form=el('menuxPromoForm');let data=[];
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const money=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ const date=v=>v?new Date(v).toLocaleString('pt-BR'):'Sem data definida';
+ const value=v=>v?String(v).slice(0,16):'';
+ const fmt=x=>x.kind==='percent'?x.amount+'%'+(x.max_discount?' (máx. '+money(x.max_discount)+')':''):x.kind==='fixed'?money(x.amount):x.kind==='free_delivery'?'Frete grátis':'Produto grátis';
+ const warn=e=>{const msg=e?.message||String(e);notice('Cupons: '+msg,true)};
+ async function load(){if(!restaurant||!sb)return;
+  const [res,prods]=await Promise.all([sb.from('menux_promo_coupons').select('*').eq('restaurant_id',restaurant.id).order('created_at',{ascending:false}).limit(300),sb.from('products').select('id,name').eq('restaurant_id',restaurant.id).order('name').limit(500)]);
+  if(res.error)throw res.error;if(prods.error)throw prods.error;data=res.data||[];
+  el('menuxPromoGift').innerHTML='<option value="">Selecione para brindes</option>'+(prods.data||[]).map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join('');
+  el('menuxPromoList').innerHTML=data.length?data.map(c=>'<div class="menux-promo-line"><div><b>'+esc(c.code)+'</b> · '+esc(fmt(c))+' <span class="tag">'+(c.active?'Ativo':'Desativado')+'</span><small>Compra mínima: '+money(c.min_order)+' · Usos: '+(c.max_uses||'sem limite')+' · Por cliente: '+(c.per_customer_limit||'sem limite')+'<br>Válido: '+esc(date(c.starts_at))+' até '+esc(date(c.ends_at))+'</small></div><div class="row" style="flex-wrap:wrap"><button class="btn" type="button" data-promo-edit="'+c.id+'">Editar</button><button class="btn" type="button" data-promo-toggle="'+c.id+'">'+(c.active?'Desativar':'Ativar')+'</button></div></div>').join(''):'<p class="muted">Nenhum cupom cadastrado.</p>';
+ }
+ function clear(){form.reset();form.elements.id.value='';el('menuxPromoFormTitle').textContent='Novo cupom'}
+ function edit(c){clear();el('menuxPromoFormTitle').textContent='Editar cupom: '+c.code;for(const k of ['id','code','kind','amount','max_discount','min_order','max_uses','per_customer_limit','gift_product_id','active']){
+  const e=form.elements[k];if(e)e.value=c[k]===null||c[k]===undefined?'':String(c[k]);}
+  form.elements.per_customer_limit.value=c.per_customer_limit===null?'0':String(c.per_customer_limit);form.elements.starts_at.value=value(c.starts_at);form.elements.ends_at.value=value(c.ends_at);form.scrollIntoView({behavior:'smooth',block:'start'});
+ }
+ form.addEventListener('submit',async ev=>{ev.preventDefault();if(!restaurant)return;const btn=ev.submitter;btn.disabled=true;
+ try{
+  const f=form.elements,kind=f.kind.value,amount=Number(f.amount.value||0),min=Number(f.min_order.value||0),maxDisc=f.max_discount.value===''?null:Number(f.max_discount.value),maxUses=f.max_uses.value===''?null:Number(f.max_uses.value);
+  const code=f.code.value.trim().toUpperCase();if(!/^[A-Z0-9_-]{3,32}$/.test(code))throw Error('Use 3 a 32 letras, números, _ ou - no código.');
+  if((kind==='percent'&&(amount<=0||amount>100))||(kind==='fixed'&&amount<=0)||(min<0)||(maxDisc!==null&&maxDisc<=0)|| (maxUses!==null&&(!Number.isInteger(maxUses)||maxUses<1)))throw Error('Confira os valores e limites do cupom.');
+  if(kind==='free_product'&&!f.gift_product_id.value)throw Error('Escolha o produto que será oferecido.');
+  const starts=f.starts_at.value?new Date(f.starts_at.value).toISOString():null,ends=f.ends_at.value?new Date(f.ends_at.value).toISOString():null;
+  if(starts&&ends&&new Date(ends)<=new Date(starts))throw Error('O término deve ser posterior ao início.');
+  const obj={restaurant_id:restaurant.id,code,kind,amount:['percent','fixed'].includes(kind)?amount:0,max_discount:kind==='percent'?maxDisc:null,min_order:min,max_uses:maxUses,per_customer_limit:f.per_customer_limit.value==='1'?1:null,gift_product_id:kind==='free_product'?f.gift_product_id.value:null,starts_at:starts,ends_at:ends,active:f.active.value==='true'};
+  const q=f.id.value?sb.from('menux_promo_coupons').update(obj).eq('id',f.id.value).eq('restaurant_id',restaurant.id):sb.from('menux_promo_coupons').insert(obj);
+  const r=await q;if(r.error)throw r.error;clear();await load();notice('Cupom salvo. Ainda não está habilitado no carrinho.');
+ }catch(e){warn(e)}finally{btn.disabled=false;}});
+ el('menuxPromoList').addEventListener('click',async ev=>{const b=ev.target.closest('button');if(!b)return;const id=b.dataset.promoEdit||b.dataset.promoToggle,c=data.find(x=>x.id===id);if(!c)return;
+  if(b.dataset.promoEdit){edit(c);return}b.disabled=true;try{const r=await sb.from('menux_promo_coupons').update({active:!c.active}).eq('id',id).eq('restaurant_id',restaurant.id);if(r.error)throw r.error;await load()}catch(e){warn(e)}finally{b.disabled=false}});
+ el('menuxPromoClear').addEventListener('click',clear);
+ el('menuxPromoReload').addEventListener('click',()=>load().catch(warn));
+ document.querySelector('[data-page="promotions"]').addEventListener('click',()=>load().catch(warn));
 })();
 </script>
 </body></html>
