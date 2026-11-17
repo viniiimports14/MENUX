@@ -2101,8 +2101,8 @@ async function load(){
   by('menuxSubStart').textContent=dateBR(s.starts_on);
   by('menuxSubEnd').textContent=dateBR(s.expires_on);
   const today=todayBR(),left=s.expires_on?days(today,s.expires_on):null;
-  const expired=left!==null&&left<0,paused=['paused','cancelled'].includes(s.status);
-  by('menuxSubStatus').textContent=paused?(statusNames[s.status]||'Indisponível'):expired?'Vencida':(statusNames[s.status]||'Não definida');
+  const expired=left!==null&&left<0,paused=['paused','cancelled'].includes(s.status);const overdueDays=expired?-left:0;const blocked=['active','trial','past_due'].includes(s.status)&&overdueDays>7;
+  by('menuxSubStatus').textContent=blocked?'Bloqueada por atraso':paused?(statusNames[s.status]||'Indisponível'):expired?'Em atraso (tolerância)':(statusNames[s.status]||'Não definida');
   by('menuxSubDays').textContent=left===null?'Sem vencimento definido':left<0?`Vencida há ${-left} dia(s)` :left===0?'Vence hoje':`Faltam ${left} dia(s)`;
   by('menuxSubPaid').textContent=payments.length?money(payments[0].amount):'Não registrado';
   by('menuxSubPaidDate').textContent=payments.length?`Confirmado em ${dateBR(payments[0].paid_on)} · Total registrado: ${money(payments.reduce((sum,p)=>sum+Number(p.amount),0))}`:'Nenhum pagamento registrado pela administração.';
@@ -2110,7 +2110,8 @@ async function load(){
   const alert=by('menuxSubscriptionAlert'); let note='',danger=false;
   if(s.status==='demo'){note='Você está no modo demonstração. Para começar a vender, converse com a MENUX e escolha um plano.';}
   else if(paused){note='Sua assinatura está '+(s.status==='cancelled'?'cancelada':'pausada')+'. Consulte a administração MENUX.';danger=true;}
-  else if(expired){note=`Sua assinatura venceu em ${dateBR(s.expires_on)}. Regularize a renovação com a MENUX.`;danger=true;}
+  else if(blocked){note=`Sua assinatura venceu há ${overdueDays} dias. O recebimento de novos pedidos está suspenso. Seus produtos, pedidos anteriores e configurações estão preservados. Regularize o pagamento com a MENUX para reativar sua loja.`;danger=true;}
+  else if(expired){note=`Sua assinatura venceu há ${overdueDays} dia(s). Você está no período de tolerância de 7 dias e ainda pode receber pedidos. Restam ${7-overdueDays} dia(s) antes da suspensão automática. Regularize a renovação com a MENUX.`;danger=true;}
   else if(left===0){note='Sua assinatura vence HOJE. Organize a renovação para evitar interrupções.';danger=true;}
   else if(left!==null&&left>=1&&left<=3)note=`Atenção: faltam ${left} dia(s) para o vencimento da sua assinatura em ${dateBR(s.expires_on)}.`;
   else if(left!==null&&left>=4&&left<=7)note=`Sua assinatura vence em ${left} dias (${dateBR(s.expires_on)}). Programe a renovação.`;
