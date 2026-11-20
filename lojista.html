@@ -694,15 +694,15 @@ function menuxRenderOnboarding(){
  const id=String(restaurant.id),checks=menuxOnboardingChecks();
  if(menuxOnboardingRestaurantId!==id){menuxOnboardingRestaurantId=id;root.hidden=products.some(p=>p.active);}
  const steps=[
-  {done:!!restaurant.name&&!!restaurant.slug,label:'Identidade e link da loja',page:'settings',detail:'Revise nome e link do cardápio.'},
-  {done:products.some(p=>p.active),label:'Cadastrar produtos disponíveis',page:'menu',detail:'Adicione fotos, tamanhos e complementos.'},
-  {done:areas.some(a=>a.active),label:'Regiões de entrega (opcional)',page:'delivery',detail:'Não é necessário para lojas que trabalham somente com retirada ou mesa.',optional:true},
-  {done:!!checks.hours,label:'Conferir horário de funcionamento',page:'hours',detail:'Depois de conferir os horários, marque esta etapa como revisada.',manual:'hours'},
-  {done:!!checks.test,label:'Testar um pedido (impressão opcional)',page:'orders',detail:'Confirme o recebimento de um pedido de teste. Impressão não é obrigatória.',manual:'test'}
- ];
+  {key:'identity',detected:!!restaurant.name&&!!restaurant.slug,label:'Identidade e link da loja',page:'settings',detail:'Revise nome e link do cardápio.'},
+  {key:'products',detected:products.some(p=>p.active),label:'Cadastrar produtos disponíveis',page:'menu',detail:'Adicione fotos, tamanhos e complementos.'},
+  {key:'delivery',detected:areas.some(a=>a.active),label:'Regiões de entrega (opcional)',page:'delivery',detail:'Não é necessário para lojas que trabalham somente com retirada ou mesa.'},
+  {key:'hours',detected:false,label:'Conferir horário de funcionamento',page:'hours',detail:'Depois de conferir os horários, marque esta etapa como revisada.'},
+  {key:'test',detected:false,label:'Testar um pedido (impressão opcional)',page:'orders',detail:'Confirme o recebimento de um pedido de teste. Impressão não é obrigatória.'}
+ ].map(x=>({...x,done:typeof checks[x.key]==='boolean'?checks[x.key]:x.detected}));
  const verified=steps.filter(x=>x.done).length;
  $('menuxOnboardingProgress').textContent=verified+'/5 etapas concluídas';
- root.innerHTML=steps.map(x=>'<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)"><div><strong>'+(x.done?'✓ ':'○ ')+esc(x.label)+'</strong><div class="muted small">'+esc(x.detail)+'</div></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="btn" data-go="'+esc(x.page)+'">'+(x.done?'Revisar':'Abrir')+' →</button>'+(x.manual?'<button type="button" class="btn" data-menux-onboarding-check="'+x.manual+'" aria-pressed="'+x.done+'">'+(x.done?'Desmarcar':'Marcar como concluída')+'</button>':'')+'</div></div>').join('');
+ root.innerHTML=steps.map(x=>'<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)"><div><strong>'+(x.done?'✓ ':'○ ')+esc(x.label)+'</strong><div class="muted small">'+esc(x.detail)+'</div></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="btn" data-go="'+esc(x.page)+'">'+(x.done?'Revisar':'Abrir')+' →</button>'+'<button type="button" class="btn" data-menux-onboarding-check="'+x.key+'" aria-pressed="'+x.done+'">'+(x.done?'Desmarcar':'Marcar como concluída')+'</button>'+'</div></div>').join('');
  toggle.textContent=root.hidden?'Mostrar etapas':'Recolher etapas';toggle.setAttribute('aria-expanded',String(!root.hidden));
 }
 document.getElementById('menuxOnboardingToggle').addEventListener('click',()=>{
@@ -711,8 +711,8 @@ document.getElementById('menuxOnboardingToggle').addEventListener('click',()=>{
 });
 document.getElementById('menuxOnboardingSteps').addEventListener('click',e=>{
  const button=e.target.closest('[data-menux-onboarding-check]');if(!button||!restaurant?.id)return;
- const key=button.dataset.menuxOnboardingCheck;if(!['hours','test'].includes(key))return;
- const checks=menuxOnboardingChecks();checks[key]=!checks[key];
+ const key=button.dataset.menuxOnboardingCheck;if(!['identity','products','delivery','hours','test'].includes(key))return;
+ const checks=menuxOnboardingChecks();const defaults={identity:!!restaurant.name&&!!restaurant.slug,products:products.some(p=>p.active),delivery:areas.some(a=>a.active),hours:false,test:false};const current=typeof checks[key]==='boolean'?checks[key]:defaults[key];checks[key]=!current;
  try{localStorage.setItem(menuxOnboardingKey(restaurant.id),JSON.stringify(checks));menuxRenderOnboarding();}
  catch(err){notice('Não foi possível guardar a confirmação neste navegador.',true);}
 });
