@@ -1200,4 +1200,18 @@ document.addEventListener('click',async event=>{
   }catch(err){feedback.textContent=err.message||'Não foi possível enviar. Tente novamente.';submit.disabled=false}
  };
 })();
+</script><script id="menux-review-link">
+(()=>{
+ const params=new URLSearchParams(location.search),id=params.get('review_order'),token=params.get('review_token');
+ if(!id||!token)return;
+ let attempts=0;
+ const timer=setInterval(()=>{
+  attempts++;
+  if(typeof checkoutSb!=='undefined'&&checkoutSb&&typeof openTracking==='function'){
+   clearInterval(timer);
+   openTracking({id,token});
+   setTimeout(()=>document.getElementById('menux-review-open')?.click(),900);
+  }else if(attempts>=30)clearInterval(timer);
+ },400);
+})();
 </script></body></html>
