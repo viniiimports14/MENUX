@@ -756,6 +756,26 @@ async function menuxRenderDailyTip(){
     const dayIndex=Math.floor(Date.parse(today+'T12:00:00Z')/86400000);
     const pickIndex=Math.abs(dayIndex+Array.from(id).reduce((a,c)=>a+c.charCodeAt(0),0));
     if(completed.length>=12){
+      // Indicadores com amostra mínima, sem estimar lucro ou prometer resultados.
+      const totals=completed.map(o=>Number(o.total)).filter(n=>Number.isFinite(n)&&n>0);
+      if(totals.length>=12){
+        const average=totals.reduce((sum,n)=>sum+n,0)/totals.length;
+        candidates.push({title:'🧾 Teste aumentar o valor médio dos pedidos',body:'Nos últimos 28 dias, o valor médio dos '+totals.length+' pedidos concluídos com valor positivo foi '+brl(average)+'. Experimente apresentar um acompanhamento ou bebida complementar no cardápio e observe se esse valor muda.',detail:'Média dos pedidos online concluídos, não representa lucro. Não é necessário oferecer descontos.'});
+      }
+      const weekdayCounts=Array(7).fill(0);
+      const weekdayNames=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+      completed.forEach(o=>{
+        const d=new Date(o.created_at);
+        if(Number.isFinite(d.getTime())){
+          const weekday=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',weekday:'short'}).format(d);
+          const lookup={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+          if(lookup[weekday]!==undefined)weekdayCounts[lookup[weekday]]++;
+        }
+      });
+      const busiest=weekdayCounts.indexOf(Math.max(...weekdayCounts));
+      if(weekdayCounts[busiest]>=5){
+        candidates.push({title:'📅 Prepare a divulgação para o dia mais movimentado',body:'Nos últimos 28 dias, '+weekdayNames[busiest]+' concentrou '+weekdayCounts[busiest]+' pedido(s) concluído(s). Experimente divulgar um produto disponível antes desse dia e confira se o padrão se repete.',detail:'Quantidade total por dia da semana, sem ajuste por dias de fechamento. Consulte seus horários antes de agir.'});
+      }
       // Horários analisados somente entre horas em que houve vendas, nunca como horário de abertura.
       const byHour=Array(24).fill(0);
       const activeDays=new Set();
