@@ -361,7 +361,7 @@
     <div><h2 id="menuxGrowthTitle">💡 Dica de vendas de hoje</h2><p class="muted small" style="margin-top:6px">Uma recomendação por dia para sua loja, baseada nos pedidos dos últimos 28 dias. As sugestões não garantem resultados.</p></div>
     <span class="menux-growth-tag">MENUX Intelligence</span>
   </div>
-  <div id="menuxGrowthTips" class="menux-growth-grid" aria-live="polite"><p class="muted">Carregando sugestões…</p></div>
+  <div id="menuxGrowthTips" class="menux-growth-grid" aria-live="polite"><p class="muted">Carregando sugestões…</p></div><div id="menuxReviewInsights" style="margin-top:14px" aria-live="polite"></div>
 </div>
 <section class="card" id="menuxOnboarding" style="margin-top:15px" aria-labelledby="menuxOnboardingTitle">
 <div class="row between" style="align-items:center;flex-wrap:wrap;gap:10px"><div><h2 id="menuxOnboardingTitle">🚀 Primeiros passos na MENUX</h2><p class="muted small" style="margin-top:6px">Um guia opcional para configurar e revisar seu estabelecimento.</p></div><div class="row" style="align-items:center;gap:10px"><strong id="menuxOnboardingProgress" style="color:var(--gold2)">Etapas de configuração</strong><button type="button" class="btn" id="menuxOnboardingToggle" aria-expanded="false" aria-controls="menuxOnboardingSteps">Mostrar etapas</button></div></div>
@@ -668,7 +668,7 @@ let sb=null,restaurant=null,restaurants=[],products=[],orders=[],items=[],custom
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const done=['completed','delivered','finished','finalizado','concluido','concluído'];const cancelled=['cancelled','canceled','cancelado'];const isDone=o=>done.includes(String(o.status).toLowerCase()),isCancelled=o=>cancelled.includes(String(o.status).toLowerCase());
 function notice(message,error=false){const e=$('feedback');e.textContent=message;e.style.borderColor=error?'#a65454':'#70572d';e.style.color=error?'#ffaaa0':'#e3c77f';e.classList.add('show');setTimeout(()=>{if(e.textContent===message)e.classList.remove('show')},6500)}
-function showPage(id){if(id==='orders'&&typeof window.menuxRefreshReviewInvites==='function')void window.menuxRefreshReviewInvites();if(id==='reviews'&&typeof window.menuxLoadReviews==='function')void window.menuxLoadReviews();document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';if(id==='hours'&&typeof menuxLoadHours==='function')void menuxLoadHours().catch(e=>{const m=document.getElementById('menuxHoursMsg');if(m)m.textContent='Não foi possível carregar os horários: '+e.message});window.scrollTo({top:0,behavior:'smooth'})}
+function showPage(id){if(id==='overview'&&typeof menuxRenderReviewInsights==='function')void menuxRenderReviewInsights();if(id==='orders'&&typeof window.menuxRefreshReviewInvites==='function')void window.menuxRefreshReviewInvites();if(id==='reviews'&&typeof window.menuxLoadReviews==='function')void window.menuxLoadReviews();document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';if(id==='hours'&&typeof menuxLoadHours==='function')void menuxLoadHours().catch(e=>{const m=document.getElementById('menuxHoursMsg');if(m)m.textContent='Não foi possível carregar os horários: '+e.message});window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{showPage(b.dataset.page);if(b.dataset.page==='catalog')loadCatalog().catch(e=>notice(e.message,true));}));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)showPage(b.dataset.go)});
 async function query(table,columns='*'){const {data,error}=await sb.from(table).select(columns).eq('restaurant_id',restaurant.id).limit(1000);if(error)throw Error(table+': '+error.message);return data||[]}
@@ -755,6 +755,52 @@ function menuxShowDailyTip(title,body,detail){
   }
   root.querySelector('#menuxMissionDone').addEventListener('click',()=>mark('done'));
   root.querySelector('#menuxMissionSkip').addEventListener('click',()=>mark('skipped'));
+}
+// Feedback dos clientes: análise separada da missão diária e restrita à loja ativa.
+let menuxReviewInsightsRequest=0;
+async function menuxRenderReviewInsights(){
+ const root=document.getElementById('menuxReviewInsights');
+ if(!root||!sb||!restaurant?.id)return;
+ const request=++menuxReviewInsightsRequest,id=restaurant.id;
+ root.textContent='Analisando avaliações recentes...';
+ try{
+  const since=new Date(Date.now()-90*86400000).toISOString();
+  const {data,error}=await sb.from('menux_store_reviews').select('rating,comment,created_at')
+   .eq('restaurant_id',id).gte('created_at',since).order('created_at',{ascending:false}).limit(200);
+  if(error)throw error;
+  if(request!==menuxReviewInsightsRequest||restaurant?.id!==id)return;
+  const reviews=data||[];
+  const avg=reviews.length?reviews.reduce((n,r)=>n+Number(r.rating||0),0)/reviews.length:0;
+  const low=reviews.filter(r=>Number(r.rating)<=2);
+  const high=reviews.filter(r=>Number(r.rating)>=4);
+  const signals=[
+   {label:'tempo de espera',words:/demor|atras|espera|lent|frio quando chegou/i,action:'Revise o tempo informado ao cliente e confira o fluxo de preparo e entrega. Evite prometer prazos que não consegue cumprir.'},
+   {label:'embalagem ou entrega',words:/embalag|vazou|derram|entrega|motoboy|amassad/i,action:'Confira fechamento, proteção e transporte das embalagens antes de despachar. Registre ocorrências para verificar se a mudança ajudou.'},
+   {label:'produto e qualidade',words:/sabor|gosto|qualidade|porção|quantidade|tamanho|faltou|errado|troca/i,action:'Confira padronização de porções, descrição dos produtos e conferência dos itens antes da saída.'},
+   {label:'atendimento',words:/atend|educa|respost|suporte|grosseir/i,action:'Revise como a equipe responde dúvidas e resolve problemas. Defina uma resposta clara e respeitosa para reclamações.'}
+  ];
+  let advice='';
+  if(reviews.length>=3){
+   const ranked=signals.map(x=>({...x,count:low.filter(r=>x.words.test(String(r.comment||''))).length})).sort((a,b)=>b.count-a.count);
+   if(ranked[0].count>=2){
+    advice='Em '+ranked[0].count+' avaliação(ões) de até 2 estrelas apareceram termos relacionados a '+ranked[0].label+'. '+ranked[0].action;
+   }else if(low.length>=2){
+    advice='Há '+low.length+' avaliações de até 2 estrelas. Leia os comentários na aba Avaliações e identifique a causa antes de definir uma ação. Não presuma que todos os clientes tiveram o mesmo problema.';
+   }else if(high.length>=3){
+    advice='Há '+high.length+' avaliações de 4 ou 5 estrelas. Identifique o que os clientes elogiaram e mantenha esse padrão. Peça avaliações honestas, sem recompensar notas positivas.';
+   }else{
+    advice='As avaliações ainda não mostram um padrão claro. Continue acompanhando comentários e procure resolver problemas individualmente.';
+   }
+  }else{
+   advice='Ainda há poucas avaliações para identificar tendências. Incentive feedback honesto após pedidos concluídos e acompanhe os comentários recebidos.';
+  }
+  root.innerHTML='<div style="border-top:1px solid var(--line);padding-top:14px"><h3 style="margin:0 0 8px">⭐ O que seus clientes estão dizendo</h3><p class="muted small">'+reviews.length+' avaliação(ões) nos últimos 90 dias'+(reviews.length?' · média '+avg.toFixed(1).replace('.',',')+'/5':'')+'.</p><p>'+esc(advice)+'</p><button type="button" class="btn" id="menuxReviewInsightsOpen">Ver avaliações</button></div>';
+  root.querySelector('#menuxReviewInsightsOpen').addEventListener('click',()=>showPage('reviews'));
+ }catch(e){
+  if(request!==menuxReviewInsightsRequest)return;
+  root.innerHTML='<p class="muted small">Não foi possível analisar as avaliações neste momento.</p>';
+  console.warn('MENUX: análise de avaliações indisponível',e);
+ }
 }
 async function menuxRenderDailyTip(){
   if(!sb||!restaurant?.id)return;
