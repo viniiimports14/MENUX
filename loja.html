@@ -1177,6 +1177,7 @@ document.addEventListener('click',async event=>{
  let ref=null;
  const modal=document.getElementById('menux-review-modal'),form=document.getElementById('menux-review-form');
  const close=()=>{modal.hidden=true};
+ modal.style.zIndex='10050';
  document.getElementById('menux-review-close').onclick=close;
  modal.addEventListener('click',e=>{if(e.target===modal)close()});
  function eligible(){return typeof trackingRef!=='undefined'&&trackingRef?.id&&trackingRef?.token}
@@ -1189,11 +1190,12 @@ document.addEventListener('click',async event=>{
  form.onsubmit=async e=>{
   e.preventDefault();const stars=Number(document.getElementById('menux-review-stars').value);
   const feedback=document.getElementById('menux-review-feedback');
-  if(!ref||!stars)return;
+  const linkedOrder=form.dataset.reviewOrder,linkedToken=form.dataset.reviewToken;
+  if(!ref&&!linkedOrder||!stars)return;
   const submit=form.querySelector('[type="submit"]');submit.disabled=true;feedback.textContent='Enviando avaliação...';
   try{
    if(typeof checkoutSb==='undefined'||!checkoutSb)throw Error('Conexão indisponível.');
-   const {error}=await checkoutSb.rpc('menux_submit_store_review',{p_order_id:ref.id,p_token:ref.token,p_rating:stars,p_comment:document.getElementById('menux-review-comment').value.trim()});
+   const {error}=await checkoutSb.rpc('menux_submit_store_review',{p_order_id:linkedOrder||ref.id,p_token:linkedToken||ref.token,p_rating:stars,p_comment:document.getElementById('menux-review-comment').value.trim()});
    if(error)throw error;
    feedback.textContent='Obrigado! Sua avaliação foi enviada.';
    submit.textContent='Avaliação enviada';
@@ -1207,11 +1209,22 @@ document.addEventListener('click',async event=>{
  let attempts=0;
  const timer=setInterval(()=>{
   attempts++;
-  if(typeof checkoutSb!=='undefined'&&checkoutSb&&typeof openTracking==='function'){
+  if(typeof checkoutSb!=='undefined'&&checkoutSb){
    clearInterval(timer);
-   openTracking({id,token});
-   setTimeout(()=>document.getElementById('menux-review-open')?.click(),900);
-  }else if(attempts>=30)clearInterval(timer);
- },400);
+   // Link de convite: abrir diretamente a avaliação, sem sobrepor o acompanhamento.
+   const tracking=document.getElementById('tracking-modal');
+   if(tracking)tracking.hidden=true;
+   const modal=document.getElementById('menux-review-modal');
+   if(!modal)return;
+   modal.style.zIndex='10050';
+   const form=document.getElementById('menux-review-form');
+   if(form){
+    form.dataset.reviewOrder=id;
+    form.dataset.reviewToken=token;
+   }
+   document.getElementById('menux-review-feedback').textContent='';
+   modal.hidden=false;
+  }else if(attempts>=50)clearInterval(timer);
+ },300);
 })();
 </script></body></html>
