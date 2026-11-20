@@ -683,30 +683,38 @@ menuxRenderOnboarding();void menuxRenderOverviewOnline();refreshCategorySuggesti
 $('customerCount').textContent=customers.length;$('customerBuyers').textContent=new Set(orders.map(o=>o.customer_id).filter(Boolean)).size;$('linkedOrders').textContent=orders.filter(o=>o.customer_id).length;$('customerTicket').textContent=money(orders.filter(isDone).length?orders.filter(isDone).reduce((a,o)=>a+Number(o.total),0)/orders.filter(isDone).length:0);$('customersBody').innerHTML=customers.map(c=>'<tr><td>'+esc(c.name)+'</td><td>'+esc(c.phone||'—')+'</td><td>'+orders.filter(o=>o.customer_id===c.id).length+'</td><td><button class="btn" data-edit-customer="'+c.id+'">Editar</button></td></tr>').join('')||'<tr><td colspan="4">Nenhum cliente.</td></tr>';
 const allDone=orders.filter(isDone),allSum=allDone.reduce((a,o)=>a+Number(o.total),0);$('areasBody').innerHTML=areas.map(a=>'<tr><td>'+esc(a.name)+'</td><td>'+money(a.delivery_fee)+'</td><td>'+tag(a.active?'completed':'paused').replace('Finalizado','Ativa').replace('paused','Inativa')+'</td><td><button class="btn" data-edit-area="'+a.id+'">Editar</button> <button class="btn" data-delete-area="'+a.id+'">Excluir</button></td></tr>').join('')||'<tr><td colspan="4">Nenhuma região cadastrada.</td></tr>';$('storeForm').elements.name.value=restaurant.name;$('storeForm').elements.slug.value=restaurant.slug||'';$('storeName').textContent=restaurant.name;$('avatar').textContent=restaurant.name.slice(0,2).toUpperCase()}
 
-// Implantação assistida: compacta para lojas em operação; nunca presume que testes foram realizados.
+// Implantação assistida: confirmações locais por loja e navegador, sem alterar pedidos ou horários.
 let menuxOnboardingRestaurantId='';
+const menuxOnboardingKey=id=>'menux:onboarding:v2:'+id;
+function menuxOnboardingChecks(){
+ try{const value=JSON.parse(localStorage.getItem(menuxOnboardingKey(restaurant.id))||'{}');return value&&typeof value==='object'?value:{};}catch{return {};}
+}
 function menuxRenderOnboarding(){
  const root=$('menuxOnboardingSteps'),toggle=$('menuxOnboardingToggle');if(!root||!toggle||!restaurant)return;
- const id=String(restaurant.id);
- if(menuxOnboardingRestaurantId!==id){
-   menuxOnboardingRestaurantId=id;
-   root.hidden=products.some(p=>p.active); // Lojas em operação começam com o guia recolhido.
- }
+ const id=String(restaurant.id),checks=menuxOnboardingChecks();
+ if(menuxOnboardingRestaurantId!==id){menuxOnboardingRestaurantId=id;root.hidden=products.some(p=>p.active);}
  const steps=[
   {done:!!restaurant.name&&!!restaurant.slug,label:'Identidade e link da loja',page:'settings',detail:'Revise nome e link do cardápio.'},
   {done:products.some(p=>p.active),label:'Cadastrar produtos disponíveis',page:'menu',detail:'Adicione fotos, tamanhos e complementos.'},
   {done:areas.some(a=>a.active),label:'Regiões de entrega (opcional)',page:'delivery',detail:'Não é necessário para lojas que trabalham somente com retirada ou mesa.',optional:true},
-  {done:null,label:'Conferir horário de funcionamento',page:'hours',detail:'Confira os horários salvos. Esta etapa exige revisão do lojista.'},
-  {done:null,label:'Testar um pedido e a impressão',page:'orders',detail:'Faça um pedido de teste e confirme o recebimento. Impressão é opcional.'}
+  {done:!!checks.hours,label:'Conferir horário de funcionamento',page:'hours',detail:'Depois de conferir os horários, marque esta etapa como revisada.',manual:'hours'},
+  {done:!!checks.test,label:'Testar um pedido (impressão opcional)',page:'orders',detail:'Confirme o recebimento de um pedido de teste. Impressão não é obrigatória.',manual:'test'}
  ];
- const verified=steps.filter(x=>x.done===true).length;
- $('menuxOnboardingProgress').textContent=verified+' configurações detectadas';
- root.innerHTML=steps.map(x=>'<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)"><div><strong>'+(x.done===true?'✓ ':x.done===null?'◌ ':'○ ')+esc(x.label)+'</strong><div class="muted small">'+esc(x.detail)+'</div></div><button type="button" class="btn" data-go="'+esc(x.page)+'">'+(x.done===true?'Revisar':'Abrir')+' →</button></div>').join('');
+ const verified=steps.filter(x=>x.done).length;
+ $('menuxOnboardingProgress').textContent=verified+'/5 etapas concluídas';
+ root.innerHTML=steps.map(x=>'<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)"><div><strong>'+(x.done?'✓ ':'○ ')+esc(x.label)+'</strong><div class="muted small">'+esc(x.detail)+'</div></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="btn" data-go="'+esc(x.page)+'">'+(x.done?'Revisar':'Abrir')+' →</button>'+(x.manual?'<button type="button" class="btn" data-menux-onboarding-check="'+x.manual+'" aria-pressed="'+x.done+'">'+(x.done?'Desmarcar':'Marcar como concluída')+'</button>':'')+'</div></div>').join('');
  toggle.textContent=root.hidden?'Mostrar etapas':'Recolher etapas';toggle.setAttribute('aria-expanded',String(!root.hidden));
 }
 document.getElementById('menuxOnboardingToggle').addEventListener('click',()=>{
  const root=$('menuxOnboardingSteps'),toggle=$('menuxOnboardingToggle');
  root.hidden=!root.hidden;toggle.textContent=root.hidden?'Mostrar etapas':'Recolher etapas';toggle.setAttribute('aria-expanded',String(!root.hidden));
+});
+document.getElementById('menuxOnboardingSteps').addEventListener('click',e=>{
+ const button=e.target.closest('[data-menux-onboarding-check]');if(!button||!restaurant?.id)return;
+ const key=button.dataset.menuxOnboardingCheck;if(!['hours','test'].includes(key))return;
+ const checks=menuxOnboardingChecks();checks[key]=!checks[key];
+ try{localStorage.setItem(menuxOnboardingKey(restaurant.id),JSON.stringify(checks));menuxRenderOnboarding();}
+ catch(err){notice('Não foi possível guardar a confirmação neste navegador.',true);}
 });
 // MENUX Intelligence: uma recomendação diária por estabelecimento, nunca misturando lojas.
 // Os pedidos de teste e cancelados não entram nas análises de vendas.
