@@ -667,7 +667,7 @@ let sb=null,restaurant=null,restaurants=[],products=[],orders=[],items=[],custom
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const done=['completed','delivered','finished','finalizado','concluido','concluído'];const cancelled=['cancelled','canceled','cancelado'];const isDone=o=>done.includes(String(o.status).toLowerCase()),isCancelled=o=>cancelled.includes(String(o.status).toLowerCase());
 function notice(message,error=false){const e=$('feedback');e.textContent=message;e.style.borderColor=error?'#a65454':'#70572d';e.style.color=error?'#ffaaa0':'#e3c77f';e.classList.add('show');setTimeout(()=>{if(e.textContent===message)e.classList.remove('show')},6500)}
-function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';if(id==='hours'&&typeof menuxLoadHours==='function')void menuxLoadHours().catch(e=>{const m=document.getElementById('menuxHoursMsg');if(m)m.textContent='Não foi possível carregar os horários: '+e.message});window.scrollTo({top:0,behavior:'smooth'})}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';if(typeof window.menuxShowPageTutorial==='function')window.menuxShowPageTutorial(id);if(id==='hours'&&typeof menuxLoadHours==='function')void menuxLoadHours().catch(e=>{const m=document.getElementById('menuxHoursMsg');if(m)m.textContent='Não foi possível carregar os horários: '+e.message});window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{showPage(b.dataset.page);if(b.dataset.page==='catalog')loadCatalog().catch(e=>notice(e.message,true));}));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)showPage(b.dataset.go)});
 async function query(table,columns='*'){const {data,error}=await sb.from(table).select(columns).eq('restaurant_id',restaurant.id).limit(1000);if(error)throw Error(table+': '+error.message);return data||[]}
@@ -3190,6 +3190,60 @@ async function menuxLoadLoyaltyMerchantHistory(){
   },10000);
   updateVersion();setInterval(updateVersion,30000);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')updateVersion()});
+})();
+</script>
+<style id="menux-tutorial-css">
+.menux-guide{margin:0 0 18px;padding:18px;border:1px solid #8f773f;border-radius:14px;background:var(--card,#191a1e);color:var(--text,#f5f5f5)}
+.menux-guide[hidden],.menux-guide-content[hidden]{display:none!important}
+.menux-guide-head,.menux-guide-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.menux-guide h3{font-size:19px;margin:0}.menux-guide p{margin:10px 0;line-height:1.55}.menux-guide small{color:var(--muted)}
+.menux-guide-actions{justify-content:flex-start;margin-top:14px}.menux-guide label{display:flex;gap:9px;align-items:center;margin-top:12px;font-size:13px}
+.menux-guide button{cursor:pointer}.menux-guide-reopen{margin-left:auto}
+</style>
+<script id="menux-page-tutorials">
+(()=>{
+ 'use strict';
+ // Tutorial educativo e não intrusivo: não altera cadastros, pedidos nem permissões.
+ const guides={
+ overview:[['Conheça a Visão Geral','Aqui você acompanha vendas, pedidos recentes e os principais indicadores da loja.'],['Filtre o período','Use o seletor de período para comparar resultados de hoje, da semana, do mês ou do ano.'],['MENUX Intelligence','Leia a dica diária baseada nas vendas e utilize os atalhos de divulgação quando fizer sentido.']],
+ orders:[['Acompanhe os pedidos','Pedidos recebidos aparecem na central. Confira o tipo de atendimento, os itens e as observações.'],['Atualize o andamento','Abra o pedido e use os botões de status conforme o preparo e a entrega.'],['Pedidos manuais','O botão Pedido manual permite registrar pedidos atendidos fora do cardápio público.']],
+ menu:[['Cadastre produtos','Clique em Novo produto e preencha nome, categoria e preço.'],['Configure opções','Em Opções e Variações, cadastre tamanhos e complementos quando necessário.'],['Disponibilidade','Use Pausar para ocultar temporariamente um produto do cardápio público.']],
+ catalog:[['Crie grupos reutilizáveis','Cadastre grupos como adicionais, acompanhamentos ou escolhas obrigatórias.'],['Defina as regras','Configure a quantidade mínima e máxima permitida em cada grupo.'],['Associe aos produtos','Depois, vincule os grupos aos produtos que utilizam as mesmas opções.']],
+ promotions:[['Crie uma campanha','Escolha o tipo de benefício e configure as regras do cupom.'],['Revise as condições','Confira validade, limites e produtos participantes antes de divulgar.'],['Divulgue com clareza','Compartilhe o código com os clientes e acompanhe o uso.']],
+ ideas:[['Explore as sugestões','Esta área reúne recursos e ideias para divulgar sua loja.'],['Escolha o que combina com seu negócio','Adapte as sugestões à sua rotina, aos produtos e ao público.']],
+ customers:[['Consulte seus clientes','Pesquise por nome ou telefone e visualize o histórico de pedidos.'],['Entenda o relacionamento','Confira compras concluídas e produtos preferidos quando disponíveis.'],['Reative com permissão','Para mensagens promocionais, confirme antes que o cliente autorizou esse contato.']],
+ analytics:[['Escolha o período','Use os filtros disponíveis para consultar os resultados de vendas.'],['Interprete os números','Compare pedidos concluídos, faturamento e produtos mais vendidos.'],['Tome decisões','Use os dados para ajustar divulgação, horários e cardápio.']],
+ delivery:[['Cadastre regiões','Adicione as áreas atendidas e as taxas correspondentes.'],['Revise a disponibilidade','Ative apenas as regiões onde sua loja realmente entrega.'],['Confira no cardápio','Faça um teste do cálculo de entrega antes de divulgar.']],
+ storefront:[['Personalize a loja','Configure as informações visuais e a apresentação do cardápio.'],['Confira fotos e cores','Use imagens nítidas e mantenha os textos legíveis.'],['Abra o link público','Revise a experiência como um cliente antes de compartilhar.']],
+ hours:[['Ative o controle','Marque Ativar controle automático por horário se quiser limitar o recebimento de pedidos.'],['Defina cada dia','Informe os horários de abertura e fechamento. O sistema aceita períodos que atravessam a meia-noite.'],['Salve e confira','Clique em Salvar horários e revise os valores. Use a pausa temporária quando necessário.']],
+ printing:[['Escolha o formato','Configure o papel da comanda conforme sua impressora.'],['Faça um teste','Teste a impressão antes de depender dela durante o atendimento.'],['Sem impressora?','Você pode acompanhar os pedidos diretamente no painel.']],
+ tableqr:[['Configure as mesas','Use os recursos desta página para organizar o atendimento por mesa.'],['Compartilhe os códigos','Disponibilize o QR Code da mesa para o cliente abrir o cardápio.'],['Teste o fluxo','Confira se o número da mesa chega corretamente no pedido.']],
+ settings:[['Confira os dados da loja','Revise o nome, o endereço e os contatos cadastrados.'],['Revise o link','Confira o endereço público do cardápio antes de divulgar.'],['Salve as alterações','Depois de editar, salve e confirme que as informações aparecem corretamente.']],
+ subscription:[['Consulte sua assinatura','Veja o plano, o status e as datas de cobrança exibidas nesta página.'],['Acompanhe o vencimento','Evite interrupções acompanhando a situação da assinatura.']]
+ };
+ const storeId=()=>String(window.restaurant?.id|| (typeof restaurant!=='undefined'&&restaurant?.id)||'');
+ const key=()=> 'menux:page-tutorial:v1:'+storeId();
+ const read=()=>{try{return JSON.parse(localStorage.getItem(key())||'{}')||{}}catch{return {}}};
+ const save=value=>{try{localStorage.setItem(key(),JSON.stringify(value));return true}catch{return false}};
+ const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&quot;',"'":'&#39;'}[c]));
+ function render(id){
+  const page=document.getElementById(id),steps=guides[id];if(!page||!steps||!storeId())return;
+  let el=page.querySelector('.menux-guide');if(!el){el=document.createElement('aside');el.className='menux-guide';el.setAttribute('aria-label','Tutorial desta página');page.prepend(el);}
+  const state=read(),done=!!state[id]?.done,disabled=!!state[id]?.disabled;
+  const current=Math.min(Math.max(Number(state[id]?.step)||0,0),steps.length-1),step=steps[current];
+  const collapsed=done||disabled;
+  el.innerHTML='<div class="menux-guide-head"><h3>📘 Guia: '+escape((document.querySelector('[data-page="'+id+'"]')?.textContent||id).trim())+'</h3><button type="button" class="btn menux-guide-reopen" data-guide="reopen">'+(collapsed?'Abrir tutorial':'Recolher tutorial')+'</button></div>'+
+  '<div class="menux-guide-content" '+(collapsed?'hidden':'')+'><small>Passo '+(current+1)+' de '+steps.length+'</small><p><strong>'+escape(step[0])+'</strong> — '+escape(step[1])+'</p><div class="menux-guide-actions"><button type="button" class="btn" data-guide="prev" '+(current===0?'disabled':'')+'>Anterior</button><button type="button" class="btn" data-guide="next" '+(current===steps.length-1?'disabled':'')+'>Próximo</button><button type="button" class="btn primary" data-guide="finish">Concluir tutorial</button></div><label><input type="checkbox" data-guide="disable" '+(disabled?'checked':'')+'> Não mostrar novamente nesta página</label></div>';
+  el.querySelector('[data-guide="reopen"]').onclick=()=>{const v=read();v[id]={...(v[id]||{}),done:!collapsed?true:false,disabled:false,step:collapsed?0:current};save(v);render(id);};
+  el.querySelectorAll('[data-guide]').forEach(button=>{const action=button.dataset.guide;if(action==='reopen')return;
+   if(action==='disable')button.onchange=()=>{const v=read();v[id]={...(v[id]||{}),disabled:button.checked,done:button.checked||!!v[id]?.done,step:current};save(v);render(id);};
+   else button.onclick=()=>{const v=read();v[id]={...(v[id]||{}),step:action==='prev'?Math.max(0,current-1):action==='next'?Math.min(steps.length-1,current+1):current,done:action==='finish'?true:false,disabled:!!v[id]?.disabled};save(v);render(id);};
+  });
+ }
+ const previous=window.menuxShowPageTutorial;
+ window.menuxShowPageTutorial=id=>{if(typeof previous==='function')previous(id);render(id)};
+ document.addEventListener('click',e=>{const nav=e.target.closest('[data-page],[data-go]');if(!nav)return;const id=nav.dataset.page||nav.dataset.go;if(guides[id])setTimeout(()=>render(id),0)});
+ setTimeout(()=>{const active=document.querySelector('section.page.active');if(active)render(active.id)},0);
 })();
 </script>
 </body></html>
