@@ -554,13 +554,25 @@ document.addEventListener('keydown',e=>{if(detail.hidden)return;if(e.key==='Esca
 // Sugestão contextual sem alterar preços, pedidos ou adicionar itens sem confirmação.
 function menuxSuggestedProduct(){
  if(!cart.length||!menuxStoreOpen)return null;
+ const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  const chosen=new Set(cart.map(x=>String(x.product_id)));
- const first=publicProducts.find(p=>chosen.has(String(p.id)));
- const others=publicProducts.filter(p=>!chosen.has(String(p.id))&&p.active!==false);
- if(!others.length)return null;
- const category=String(first?.category||'').toLowerCase();
- const matches=others.filter(p=>String(p.category||'').toLowerCase()!==category);
- return (matches.length?matches:others).sort((a,b)=>Number(a.price||0)-Number(b.price||0))[0];
+ const ordered=cart.map(x=>publicProducts.find(p=>String(p.id)===String(x.product_id))).filter(Boolean);
+ const text=normalize(ordered.map(p=>p.name+' '+(p.category||'')).join(' '));
+ // Pares comuns por tipo de pedido; só sugerimos quando o cardápio realmente possui algo compatível.
+ const rules=[
+  {when:/acai|sorvete|gelato|milk.?shake|sobremesa|pote|copo/,suggest:/agua|refrigerante|suco|bebida|cookie|brownie|brigadeiro|trufa/},
+  {when:/hamburg|burger|sanduiche|lanche|hot.?dog|cachorro.?quente/,suggest:/batata|frita|refrigerante|suco|agua|bebida|onion|anel de cebola/},
+  {when:/pizza|esfiha|pastel/,suggest:/refrigerante|suco|agua|bebida|sobremesa/},
+  {when:/quentinha|marmita|parmegiana|prato feito|almoco|refeicao/,suggest:/suco|agua|refrigerante|bebida|pudim|sobremesa/},
+  {when:/cafe|capuccino|cappuccino|expresso/,suggest:/pao|bolo|cookie|salgado|croissant|torrada/},
+  {when:/batata|frita|salgado|coxinha|empada/,suggest:/suco|agua|refrigerante|bebida/}
+ ];
+ const rule=rules.find(r=>r.when.test(text));if(!rule)return null;
+ const candidates=publicProducts.filter(p=>p.active!==false&&!chosen.has(String(p.id))&&rule.suggest.test(normalize(p.name+' '+(p.category||''))));
+ const price=p=>{const values=p.variants?.length?p.variants.map(v=>Number(v.price)): [Number(p.price)];return Math.min(...values.filter(n=>Number.isFinite(n)&&n>=0));};
+ const valid=candidates.filter(p=>Number.isFinite(price(p)));
+ // A ordem do catálogo decide o desempate; não usar o menor preço como único critério.
+ return valid[0]||null;
 }
 function menuxRenderCartSuggestion(){
  let root=$('menux-cart-suggestion');
