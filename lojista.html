@@ -357,7 +357,7 @@
 </div><div id="feedback" role="status" aria-live="polite"></div>
 <section class="page active" id="overview"><div id="menuxSubscriptionAlert" hidden role="status" aria-live="polite"></div><div class="row between"><div><div class="muted small">Acompanhe os resultados e os pedidos do seu estabelecimento.</div></div><select id="period" class="field"><option value="today">Hoje</option><option value="7">Últimos 7 dias</option><option value="month">Este mês</option><option value="year">Este ano</option></select></div><div class="grid stats"><div class="card"><div class="statlabel">Faturamento de pedidos concluídos</div><div class="statvalue" id="revenue">R$ 0,00</div></div><div class="card"><div class="statlabel">Ticket médio concluído</div><div class="statvalue gold" id="ticket">R$ 0,00</div></div><div class="card"><div class="statlabel">Pedidos recebidos</div><div class="statvalue" id="orderCount">0</div></div><div class="card"><div class="statlabel">Em andamento</div><div class="statvalue" id="inProgress">0</div></div></div><div class="grid two"><div class="card"><h2>Vendas por horário (concluídos)</h2><div class="chart" id="hourChart"></div></div><div class="card"><h2>Produtos mais vendidos</h2><div class="list" id="topProducts"></div></div></div><div class="card" style="margin-top:15px"><div class="row between"><h2>Pedidos recentes</h2><button class="btn" data-go="orders">Ver todos →</button></div><div id="recentOrders"></div></div>
 <section class="card" id="menuxOnboarding" style="margin-top:15px" aria-labelledby="menuxOnboardingTitle">
-<div class="row between" style="align-items:center;flex-wrap:wrap;gap:10px"><div><h2 id="menuxOnboardingTitle">🚀 Primeiros passos na MENUX</h2><p class="muted small" style="margin-top:6px">Configure sua loja sem equipamentos extras. Confira cada etapa antes de divulgar seu cardápio.</p></div><strong id="menuxOnboardingProgress" style="color:var(--gold2)">0/5 etapas</strong></div>
+<div class="row between" style="align-items:center;flex-wrap:wrap;gap:10px"><div><h2 id="menuxOnboardingTitle">🚀 Primeiros passos na MENUX</h2><p class="muted small" style="margin-top:6px">Um guia opcional para configurar e revisar seu estabelecimento.</p></div><div class="row" style="align-items:center;gap:10px"><strong id="menuxOnboardingProgress" style="color:var(--gold2)">Etapas de configuração</strong><button type="button" class="btn" id="menuxOnboardingToggle" aria-expanded="false" aria-controls="menuxOnboardingSteps">Mostrar etapas</button></div></div>
 <div id="menuxOnboardingSteps" style="display:grid;gap:9px;margin-top:15px" aria-live="polite"></div>
 </section>
 <div class="card menux-growth-panel" style="margin-top:15px" aria-labelledby="menuxGrowthTitle">
@@ -683,20 +683,31 @@ menuxRenderOnboarding();void menuxRenderOverviewOnline();refreshCategorySuggesti
 $('customerCount').textContent=customers.length;$('customerBuyers').textContent=new Set(orders.map(o=>o.customer_id).filter(Boolean)).size;$('linkedOrders').textContent=orders.filter(o=>o.customer_id).length;$('customerTicket').textContent=money(orders.filter(isDone).length?orders.filter(isDone).reduce((a,o)=>a+Number(o.total),0)/orders.filter(isDone).length:0);$('customersBody').innerHTML=customers.map(c=>'<tr><td>'+esc(c.name)+'</td><td>'+esc(c.phone||'—')+'</td><td>'+orders.filter(o=>o.customer_id===c.id).length+'</td><td><button class="btn" data-edit-customer="'+c.id+'">Editar</button></td></tr>').join('')||'<tr><td colspan="4">Nenhum cliente.</td></tr>';
 const allDone=orders.filter(isDone),allSum=allDone.reduce((a,o)=>a+Number(o.total),0);$('areasBody').innerHTML=areas.map(a=>'<tr><td>'+esc(a.name)+'</td><td>'+money(a.delivery_fee)+'</td><td>'+tag(a.active?'completed':'paused').replace('Finalizado','Ativa').replace('paused','Inativa')+'</td><td><button class="btn" data-edit-area="'+a.id+'">Editar</button> <button class="btn" data-delete-area="'+a.id+'">Excluir</button></td></tr>').join('')||'<tr><td colspan="4">Nenhuma região cadastrada.</td></tr>';$('storeForm').elements.name.value=restaurant.name;$('storeForm').elements.slug.value=restaurant.slug||'';$('storeName').textContent=restaurant.name;$('avatar').textContent=restaurant.name.slice(0,2).toUpperCase()}
 
-// Implantação assistida: somente dados da loja selecionada, sem gravar configurações automaticamente.
+// Implantação assistida: compacta para lojas em operação; nunca presume que testes foram realizados.
+let menuxOnboardingRestaurantId='';
 function menuxRenderOnboarding(){
- const root=$('menuxOnboardingSteps');if(!root||!restaurant)return;
+ const root=$('menuxOnboardingSteps'),toggle=$('menuxOnboardingToggle');if(!root||!toggle||!restaurant)return;
+ const id=String(restaurant.id);
+ if(menuxOnboardingRestaurantId!==id){
+   menuxOnboardingRestaurantId=id;
+   root.hidden=products.some(p=>p.active); // Lojas em operação começam com o guia recolhido.
+ }
  const steps=[
-  {done:!!restaurant.name&&!!restaurant.slug,label:'Identidade e endereço da loja',page:'settings',detail:'Confira o nome e o link do seu cardápio.'},
+  {done:!!restaurant.name&&!!restaurant.slug,label:'Identidade e link da loja',page:'settings',detail:'Revise nome e link do cardápio.'},
   {done:products.some(p=>p.active),label:'Cadastrar produtos disponíveis',page:'menu',detail:'Adicione fotos, tamanhos e complementos.'},
-  {done:areas.some(a=>a.active),label:'Configurar regiões de entrega (se oferecer delivery)',page:'delivery',detail:'Se trabalhar apenas com retirada ou mesa, esta etapa é opcional.',optional:true},
-  {done:false,label:'Conferir horário de funcionamento',page:'hours',detail:'Revise os dias e horários antes de divulgar.'},
-  {done:false,label:'Testar um pedido e a impressão',page:'orders',detail:'Faça um teste controlado e confirme o recebimento antes de atender clientes.'}
+  {done:areas.some(a=>a.active),label:'Regiões de entrega (opcional)',page:'delivery',detail:'Não é necessário para lojas que trabalham somente com retirada ou mesa.',optional:true},
+  {done:null,label:'Conferir horário de funcionamento',page:'hours',detail:'Confira os horários salvos. Esta etapa exige revisão do lojista.'},
+  {done:null,label:'Testar um pedido e a impressão',page:'orders',detail:'Faça um pedido de teste e confirme o recebimento. Impressão é opcional.'}
  ];
- const completed=steps.filter(x=>x.done).length;
- $('menuxOnboardingProgress').textContent=completed+'/'+steps.length+' etapas verificadas';
- root.innerHTML=steps.map(x=>'<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)"><div><strong>'+(x.done?'✓ ':'○ ')+esc(x.label)+'</strong><div class="muted small">'+esc(x.detail)+'</div></div><button type="button" class="btn" data-go="'+esc(x.page)+'">'+(x.done?'Revisar':'Configurar')+' →</button></div>').join('');
+ const verified=steps.filter(x=>x.done===true).length;
+ $('menuxOnboardingProgress').textContent=verified+' configurações detectadas';
+ root.innerHTML=steps.map(x=>'<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)"><div><strong>'+(x.done===true?'✓ ':x.done===null?'◌ ':'○ ')+esc(x.label)+'</strong><div class="muted small">'+esc(x.detail)+'</div></div><button type="button" class="btn" data-go="'+esc(x.page)+'">'+(x.done===true?'Revisar':'Abrir')+' →</button></div>').join('');
+ toggle.textContent=root.hidden?'Mostrar etapas':'Recolher etapas';toggle.setAttribute('aria-expanded',String(!root.hidden));
 }
+document.getElementById('menuxOnboardingToggle').addEventListener('click',()=>{
+ const root=$('menuxOnboardingSteps'),toggle=$('menuxOnboardingToggle');
+ root.hidden=!root.hidden;toggle.textContent=root.hidden?'Mostrar etapas':'Recolher etapas';toggle.setAttribute('aria-expanded',String(!root.hidden));
+});
 // MENUX Intelligence: uma recomendação diária por estabelecimento, nunca misturando lojas.
 // Os pedidos de teste e cancelados não entram nas análises de vendas.
 let menuxDailyTipRequest=0;
