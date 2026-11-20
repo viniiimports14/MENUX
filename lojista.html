@@ -475,6 +475,7 @@
  <div class="menux-ideas-layout"><div id="menuxIdeasList" class="menux-ideas-list"><p class="muted">Abra esta aba para carregar.</p></div>
  <div id="menuxIdeasThread" class="menux-ideas-thread"><p class="muted">Selecione uma sugestão para ler as respostas.</p></div></div></div>
 </section>
+<section class="page" id="reviews"><h2>⭐ Avaliações dos clientes</h2><p class="muted small">Avaliações de pedidos concluídos, disponíveis somente para a equipe desta loja.</p><div class="card" style="margin:15px 0"><div id="menuxReviewsSummary">Carregando...</div><button type="button" class="btn" id="menuxReviewsRefresh">↻ Atualizar</button></div><div id="menuxReviewsList"></div></section>
 <section class="page" id="customers"><h2>Clientes</h2>
 <div class="card menux-customer-hub" id="menuxCustomerHub">
   <div class="row between" style="gap:12px;flex-wrap:wrap"><div><h2>Clientes e histórico de compras</h2><p class="muted small">Pedidos do cardápio e pedidos manuais desta loja. Compras são associadas pelo WhatsApp informado.</p></div><button type="button" class="btn primary" id="menuxClientsRefresh">↻ Atualizar histórico</button></div>
@@ -667,7 +668,7 @@ let sb=null,restaurant=null,restaurants=[],products=[],orders=[],items=[],custom
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const done=['completed','delivered','finished','finalizado','concluido','concluído'];const cancelled=['cancelled','canceled','cancelado'];const isDone=o=>done.includes(String(o.status).toLowerCase()),isCancelled=o=>cancelled.includes(String(o.status).toLowerCase());
 function notice(message,error=false){const e=$('feedback');e.textContent=message;e.style.borderColor=error?'#a65454':'#70572d';e.style.color=error?'#ffaaa0':'#e3c77f';e.classList.add('show');setTimeout(()=>{if(e.textContent===message)e.classList.remove('show')},6500)}
-function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';if(id==='hours'&&typeof menuxLoadHours==='function')void menuxLoadHours().catch(e=>{const m=document.getElementById('menuxHoursMsg');if(m)m.textContent='Não foi possível carregar os horários: '+e.message});window.scrollTo({top:0,behavior:'smooth'})}
+function showPage(id){if(id==='reviews'&&typeof window.menuxLoadReviews==='function')void window.menuxLoadReviews();document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';if(id==='hours'&&typeof menuxLoadHours==='function')void menuxLoadHours().catch(e=>{const m=document.getElementById('menuxHoursMsg');if(m)m.textContent='Não foi possível carregar os horários: '+e.message});window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{showPage(b.dataset.page);if(b.dataset.page==='catalog')loadCatalog().catch(e=>notice(e.message,true));}));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)showPage(b.dataset.go)});
 async function query(table,columns='*'){const {data,error}=await sb.from(table).select(columns).eq('restaurant_id',restaurant.id).limit(1000);if(error)throw Error(table+': '+error.message);return data||[]}
@@ -3358,4 +3359,20 @@ setTimeout(check,500);
 const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
 })();
 </script>
-</body></html>
+<script id="menux-reviews-merchant">
+(()=>{
+ const escapeReview=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ async function load(){
+  const summary=document.getElementById('menuxReviewsSummary'),list=document.getElementById('menuxReviewsList');
+  if(!summary||!list||typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant?.id)return;
+  summary.textContent='Carregando avaliações...';
+  const {data,error}=await sb.from('menux_store_reviews').select('id,rating,comment,created_at').eq('restaurant_id',restaurant.id).order('created_at',{ascending:false}).limit(200);
+  if(error){summary.textContent='Não foi possível carregar. Execute MENUX_AVALIACOES_LOJA.sql no Supabase.';list.innerHTML='';return}
+  const rows=data||[],avg=rows.length?rows.reduce((sum,r)=>sum+Number(r.rating),0)/rows.length:0;
+  summary.textContent=rows.length?'⭐ '+avg.toFixed(1).replace('.',',')+' / 5 · '+rows.length+' avaliação(ões) exibida(s)'+(rows.length===200?' (últimas 200)':''):'Ainda não há avaliações.';
+  list.innerHTML=rows.map(r=>'<div class="card" style="display:block;margin-bottom:10px"><strong style="color:var(--gold)">'+('★'.repeat(Math.max(0,Math.min(5,Number(r.rating)))))+('☆'.repeat(Math.max(0,5-Number(r.rating))))+'</strong> <span class="muted small">'+escapeReview(new Date(r.created_at).toLocaleDateString('pt-BR'))+'</span><p style="margin:10px 0 0;white-space:pre-wrap">'+escapeReview(r.comment||'Sem comentário')+'</p></div>').join('');
+ }
+ window.menuxLoadReviews=load;
+ document.getElementById('menuxReviewsRefresh')?.addEventListener('click',load);
+})();
+</script></body></html>
