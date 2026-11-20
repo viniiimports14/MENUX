@@ -3449,7 +3449,43 @@ const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
  const key=()=> 'menux:review-invites:v2:'+(restaurant?.id||'')+':'+day();
  const done=()=>{try{return JSON.parse(localStorage.getItem(key())||'{}')}catch{return {}}};
  const mark=p=>{try{const d=done();d[p]=new Date().toISOString();localStorage.setItem(key(),JSON.stringify(d));return true}catch{return false}};
+ const reminder=document.getElementById('menuxReviewReminder');
  let busy=false,lastSignature='',lastTenant='';
+ const tz='America/Sao_Paulo';
+ const clock=d=>new Intl.DateTimeFormat('pt-BR',{timeZone:tz,hour:'2-digit',minute:'2-digit'}).format(d);
+ const parts=d=>Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:tz,weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d).map(p=>[p.type,p.value]));
+ const mins=t=>{const m=/^(\d{1,2}):(\d{2})$/.exec(String(t||''));return m?Number(m[1])*60+Number(m[2]):null};
+ async function checkReminder(today,count){
+  if(!reminder||!restaurant?.id)return;
+  const id=restaurant.id;
+  const [a,b]=await Promise.all([sb.from('menux_checkout_orders').select('created_at').eq('restaurant_id',id).eq('order_day',today).order('created_at',{ascending:true}).limit(1),sb.from('menux_store_hours').select('enabled,temporary_closed,days').eq('restaurant_id',id).maybeSingle()]);
+  if(restaurant?.id!==id)return;
+  if(a.error||b.error){reminder.textContent='Não foi possível consultar os horários dos lembretes.';return}
+  const first=a.data?.[0]?.created_at;
+  if(!first){reminder.textContent='Os lembretes começam 3 horas após o primeiro pedido do dia.';return}
+  const now=new Date(),p=parts(now),weekday={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[p.weekday];
+  const settings=b.data,dayHours=settings?.enabled&&!settings?.temporary_closed?settings.days?.[String(weekday)]:null;
+  const end=dayHours?.open?mins(dayHours.end):null,start=dayHours?.open?mins(dayHours.start):null;
+  const current=Number(p.hour)*60+Number(p.minute);
+  const overnight=end!==null&&start!==null&&end<=start;
+  const remaining=end===null?null:(overnight?(end+1440-(current<start?current+1440:current)):end-current);
+  const k='menux:review-reminder:v3:'+id+':'+today;
+  let state={};try{state=JSON.parse(localStorage.getItem(k)||'{}')}catch{}
+  const save=()=>{try{localStorage.setItem(k,JSON.stringify(state))}catch{}};
+  if(remaining!==null&&remaining<=0){reminder.textContent='Expediente encerrado. Lembretes finalizados por hoje.';return}
+  if(remaining!==null&&remaining<=5){
+   reminder.textContent='🔔 Última chamada antes de fechar: '+count+' cliente(s) aguardando convite. Lembretes encerrados após este aviso.';
+   if(!state.final&&count>0){if(typeof notice==='function')notice('⭐ Última chamada antes de fechar: envie os convites pendentes.');state.final=true;save()}
+   return;
+  }
+  if(state.final){reminder.textContent='Lembretes encerrados por hoje.';return}
+  const elapsed=now.getTime()-new Date(first).getTime(),slot=Math.floor(elapsed/10800000);
+  const next=clock(new Date(new Date(first).getTime()+(Math.max(0,slot)+1)*10800000));
+  if(slot<1){reminder.textContent='Primeiro lembrete às '+next+'.';return}
+  if(count>0&&slot>Number(state.slot||0)){if(typeof notice==='function')notice('⭐ Hora de solicitar avaliações: '+count+' cliente(s) aguardando convite.');state.slot=slot;save()}
+  reminder.textContent=count?'🔔 '+count+' cliente(s) aguardando convite. Próximo lembrete às '+next+'.':'Nenhum convite pendente. Próxima verificação às '+next+'.';
+ }
+
  async function load(){
   if(busy||!root||typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant?.id)return;
   busy=true;
