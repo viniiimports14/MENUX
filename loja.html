@@ -377,7 +377,8 @@
   </div>
 </div>
 <div id="success-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Pedido confirmado"><div class="checkout-box"><h2>✓ Pedido recebido!</h2><p>Seu pedido já foi registrado na MENUX e enviado ao painel do estabelecimento.</p><p><b id="success-number"></b></p><p id="success-total"></p><p>O WhatsApp é opcional: seu pedido já foi realizado.</p><button type="button" id="open-tracking" class="checkout-primary" style="width:100%;margin-bottom:10px">Acompanhar meu pedido</button><div class="checkout-actions"><button class="checkout-primary" id="share-whatsapp" type="button">Enviar cópia pelo WhatsApp</button><button id="success-close" type="button">Fechar</button></div><p id="whatsapp-info" class="checkout-error"></p></div></div>
-<div id="image-modal" class="image-modal" role="dialog" aria-modal="true" aria-label="Foto ampliada do produto" hidden><button type="button" class="close-image" aria-label="Fechar imagem">×</button><img id="expanded-image" alt=""></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><div id="tracking-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Acompanhar pedido"><div class="checkout-box tracking-box"><div class="tracking-head"><div><div class="tracking-kicker">MENUX • ACOMPANHAMENTO</div><h2>Acompanhe seu pedido</h2><p class="tracking-copy">Seu pedido foi enviado para a loja. Veja abaixo o andamento em tempo real.</p></div><button type="button" id="tracking-close" class="tracking-close-btn" aria-label="Fechar acompanhamento">✕</button></div><div class="tracking-summary"><div><div class="tracking-summary-label">Pedido</div><div id="tracking-number" class="tracking-number">Carregando...</div></div><div class="tracking-brief"><div class="tracking-summary-label">Atualização</div><div class="tracking-brief-text">Acompanhamento ao vivo</div></div></div><div id="tracking-pill" class="menux-visually-hidden" aria-live="polite"></div><div id="tracking-status" role="status" aria-live="polite">Carregando...</div><p class="tracking-hint">A consulta acontece automaticamente enquanto esta janela estiver aberta.</p><div class="checkout-actions tracking-actions" style="margin-top:12px"><button type="button" id="tracking-refresh">Atualizar agora</button><button type="button" id="tracking-whatsapp" class="checkout-primary">Enviar cópia pelo WhatsApp</button></div><p id="tracking-whatsapp-info" class="checkout-error" role="status" style="padding:0 24px 24px"></p></div></div><script>
+<div id="image-modal" class="image-modal" role="dialog" aria-modal="true" aria-label="Foto ampliada do produto" hidden><button type="button" class="close-image" aria-label="Fechar imagem">×</button><img id="expanded-image" alt=""></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><div id="menux-review-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Avaliar estabelecimento"><div class="checkout-box" style="max-width:440px"><h2>⭐ Avalie sua experiência</h2><p>Como foi seu pedido? Sua opinião ajuda a loja a melhorar.</p><form id="menux-review-form"><label for="menux-review-stars">Sua nota</label><select id="menux-review-stars" required style="width:100%;padding:12px;margin:8px 0 14px"><option value="">Escolha de 1 a 5 estrelas</option><option value="5">★★★★★ Excelente</option><option value="4">★★★★☆ Muito bom</option><option value="3">★★★☆☆ Regular</option><option value="2">★★☆☆☆ Ruim</option><option value="1">★☆☆☆☆ Muito ruim</option></select><label for="menux-review-comment">Comentário (opcional)</label><textarea id="menux-review-comment" maxlength="600" rows="4" placeholder="Conte o que gostou ou o que podemos melhorar" style="width:100%;padding:12px;margin:8px 0 12px"></textarea><p id="menux-review-feedback" role="status"></p><button type="submit" class="checkout-primary" style="width:100%">Enviar avaliação</button><button type="button" id="menux-review-close" style="width:100%;padding:12px;margin-top:8px">Agora não</button></form></div></div>
+<div id="tracking-modal" class="checkout-backdrop" hidden role="dialog" aria-modal="true" aria-label="Acompanhar pedido"><div class="checkout-box tracking-box"><div class="tracking-head"><div><div class="tracking-kicker">MENUX • ACOMPANHAMENTO</div><h2>Acompanhe seu pedido</h2><p class="tracking-copy">Seu pedido foi enviado para a loja. Veja abaixo o andamento em tempo real.</p></div><button type="button" id="tracking-close" class="tracking-close-btn" aria-label="Fechar acompanhamento">✕</button></div><div class="tracking-summary"><div><div class="tracking-summary-label">Pedido</div><div id="tracking-number" class="tracking-number">Carregando...</div></div><div class="tracking-brief"><div class="tracking-summary-label">Atualização</div><div class="tracking-brief-text">Acompanhamento ao vivo</div></div></div><div id="tracking-pill" class="menux-visually-hidden" aria-live="polite"></div><div id="tracking-status" role="status" aria-live="polite">Carregando...</div><p class="tracking-hint">A consulta acontece automaticamente enquanto esta janela estiver aberta.</p><div class="checkout-actions tracking-actions" style="margin-top:12px"><button type="button" id="tracking-refresh">Atualizar agora</button><button type="button" id="tracking-whatsapp" class="checkout-primary">Enviar cópia pelo WhatsApp</button></div><p id="tracking-whatsapp-info" class="checkout-error" role="status" style="padding:0 24px 24px"></p></div></div><script>
 /* MENUX: consultar disponibilidade; servidor valida novamente ao salvar. */
 let menuxStoreOpen=true;
 let menuxSubscriptionBlocked=false;
@@ -1171,4 +1172,32 @@ document.addEventListener('click',async event=>{
   }catch(e){alert('Não foi possível emitir: '+(e.message||e));btn.disabled=false;btn.textContent='🎁 Emitir recompensa';}
  }
 });
+</script><script id="menux-reviews-client">
+(()=>{
+ let ref=null;
+ const modal=document.getElementById('menux-review-modal'),form=document.getElementById('menux-review-form');
+ const close=()=>{modal.hidden=true};
+ document.getElementById('menux-review-close').onclick=close;
+ modal.addEventListener('click',e=>{if(e.target===modal)close()});
+ function eligible(){return typeof trackingRef!=='undefined'&&trackingRef?.id&&trackingRef?.token}
+ function open(){if(!eligible())return;ref={id:trackingRef.id,token:trackingRef.token};document.getElementById('menux-review-feedback').textContent='';modal.hidden=false}
+ const button=document.createElement('button');button.type='button';button.id='menux-review-open';button.textContent='⭐ Avaliar minha experiência';button.className='checkout-primary';button.style.cssText='width:100%;margin-top:12px';button.hidden=true;button.onclick=open;
+ const tracking=document.getElementById('tracking-modal');const box=tracking?.querySelector('.tracking-box');box?.appendChild(button);
+ const observer=new MutationObserver(()=>{button.hidden=!eligible()||tracking.hidden});
+ if(tracking)observer.observe(tracking,{attributes:true,attributeFilter:['hidden']});
+ // O formulário só abre por iniciativa do cliente, após ele acompanhar o pedido.
+ form.onsubmit=async e=>{
+  e.preventDefault();const stars=Number(document.getElementById('menux-review-stars').value);
+  const feedback=document.getElementById('menux-review-feedback');
+  if(!ref||!stars)return;
+  const submit=form.querySelector('[type="submit"]');submit.disabled=true;feedback.textContent='Enviando avaliação...';
+  try{
+   if(typeof checkoutSb==='undefined'||!checkoutSb)throw Error('Conexão indisponível.');
+   const {error}=await checkoutSb.rpc('menux_submit_store_review',{p_order_id:ref.id,p_token:ref.token,p_rating:stars,p_comment:document.getElementById('menux-review-comment').value.trim()});
+   if(error)throw error;
+   feedback.textContent='Obrigado! Sua avaliação foi enviada.';
+   submit.textContent='Avaliação enviada';
+  }catch(err){feedback.textContent=err.message||'Não foi possível enviar. Tente novamente.';submit.disabled=false}
+ };
+})();
 </script></body></html>
