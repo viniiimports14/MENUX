@@ -3260,7 +3260,7 @@ function show(){
  overlay.hidden=false;launch.hidden=true;
  by('menux-tour-counter').textContent='Etapa '+(index+1)+' de '+steps.length;
  by('menux-tour-heading').textContent=title;
- by('menux-tour-description').textContent=description+' O controle destacado é apenas uma referência: use Próximo para continuar o tour.';
+ by('menux-tour-description').textContent=description;
  by('menux-tour-back').disabled=index===0;
  by('menux-tour-next').textContent=index===steps.length-1?'Finalizar':'Próximo';
  by('menux-tour-never').checked=!!read().never;
