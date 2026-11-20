@@ -3366,11 +3366,17 @@ const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
   const summary=document.getElementById('menuxReviewsSummary'),list=document.getElementById('menuxReviewsList');
   if(!summary||!list||typeof sb==='undefined'||!sb||typeof restaurant==='undefined'||!restaurant?.id)return;
   summary.textContent='Carregando avaliações...';
-  const {data,error}=await sb.from('menux_store_reviews').select('id,rating,comment,created_at').eq('restaurant_id',restaurant.id).order('created_at',{ascending:false}).limit(200);
+  const {data,error}=await sb.from('menux_store_reviews').select('id,order_id,rating,comment,created_at').eq('restaurant_id',restaurant.id).order('created_at',{ascending:false}).limit(200);
   if(error){summary.textContent='Não foi possível carregar. Execute MENUX_AVALIACOES_LOJA.sql no Supabase.';list.innerHTML='';return}
-  const rows=data||[],avg=rows.length?rows.reduce((sum,r)=>sum+Number(r.rating),0)/rows.length:0;
+  const rows=data||[];
+  const names=new Map();
+  const ids=rows.map(r=>r.order_id).filter(Boolean);
+  if(ids.length){const result=await sb.from('menux_checkout_orders').select('id,customer_name').eq('restaurant_id',restaurant.id).in('id',ids);
+   if(!result.error)(result.data||[]).forEach(o=>names.set(o.id,o.customer_name||'Cliente'));
+  }
+  const avg=rows.length?rows.reduce((sum,r)=>sum+Number(r.rating),0)/rows.length:0;
   summary.textContent=rows.length?'⭐ '+avg.toFixed(1).replace('.',',')+' / 5 · '+rows.length+' avaliação(ões) exibida(s)'+(rows.length===200?' (últimas 200)':''):'Ainda não há avaliações.';
-  list.innerHTML=rows.map(r=>'<div class="card" style="display:block;margin-bottom:10px"><strong style="color:var(--gold)">'+('★'.repeat(Math.max(0,Math.min(5,Number(r.rating)))))+('☆'.repeat(Math.max(0,5-Number(r.rating))))+'</strong> <span class="muted small">'+escapeReview(new Date(r.created_at).toLocaleDateString('pt-BR'))+'</span><p style="margin:10px 0 0;white-space:pre-wrap">'+escapeReview(r.comment||'Sem comentário')+'</p></div>').join('');
+  list.innerHTML=rows.map(r=>'<div class="card" style="display:block;margin-bottom:10px"><strong style="color:var(--gold)">'+('★'.repeat(Math.max(0,Math.min(5,Number(r.rating)))))+('☆'.repeat(Math.max(0,5-Number(r.rating))))+'</strong> <strong style="margin-left:12px">'+escapeReview(names.get(r.order_id)||'Cliente não identificado')+'</strong> <span class="muted small">'+escapeReview(new Date(r.created_at).toLocaleDateString('pt-BR'))+'</span><p style="margin:10px 0 0;white-space:pre-wrap">'+escapeReview(r.comment||'Sem comentário')+'</p></div>').join('');
  }
  window.menuxLoadReviews=load;
  document.getElementById('menuxReviewsRefresh')?.addEventListener('click',load);
