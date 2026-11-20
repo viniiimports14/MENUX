@@ -37,3 +37,28 @@ begin
 end $$;
 revoke all on function public.menux_submit_store_review(uuid,text,integer,text) from public;
 grant execute on function public.menux_submit_store_review(uuid,text,integer,text) to anon,authenticated;
+
+-- Somente gestores da loja podem gerar convites para pedidos concluídos.
+create or replace function public.menux_review_invitation(p_order_id uuid)
+returns jsonb language plpgsql security definer set search_path=public
+as $$
+declare v_order public.menux_checkout_orders%rowtype;v_slug text;
+begin
+ select * into v_order from public.menux_checkout_orders where id=p_order_id;
+ if not found or not public.can_manage_restaurant(v_order.restaurant_id) then
+  raise exception 'Pedido não encontrado ou acesso negado.';
+ end if;
+ if lower(coalesce(v_order.status,'')) not in ('completed','concluido','concluído','delivered') then
+  raise exception 'Somente pedidos concluídos podem receber convites.';
+ end if;
+ if exists(select 1 from public.menux_store_reviews where order_id=p_order_id) then
+  raise exception 'Este pedido já foi avaliado.';
+ end if;
+ select slug into v_slug from public.restaurants where id=v_order.restaurant_id;
+ if v_order.tracking_token is null or v_slug is null then
+  raise exception 'Este pedido não possui link de acompanhamento válido.';
+ end if;
+ return jsonb_build_object('slug',v_slug,'order_id',v_order.id,'token',v_order.tracking_token);
+end $$;
+revoke all on function public.menux_review_invitation(uuid) from public;
+grant execute on function public.menux_review_invitation(uuid) to authenticated;
