@@ -551,12 +551,32 @@ $('close-detail').addEventListener('click',closeDetail);
 detail.addEventListener('click',e=>{if(e.target===detail)closeDetail();});
 document.addEventListener('keydown',e=>{if(detail.hidden)return;if(e.key==='Escape')closeDetail();if(e.key==='Tab'){const focusable=[...detail.querySelectorAll('button:not([disabled]),input:not([disabled])')];if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 
+// Sugestão contextual sem alterar preços, pedidos ou adicionar itens sem confirmação.
+function menuxSuggestedProduct(){
+ if(!cart.length||!menuxStoreOpen)return null;
+ const chosen=new Set(cart.map(x=>String(x.product_id)));
+ const first=publicProducts.find(p=>chosen.has(String(p.id)));
+ const others=publicProducts.filter(p=>!chosen.has(String(p.id))&&p.active!==false);
+ if(!others.length)return null;
+ const category=String(first?.category||'').toLowerCase();
+ const matches=others.filter(p=>String(p.category||'').toLowerCase()!==category);
+ return (matches.length?matches:others).sort((a,b)=>Number(a.price||0)-Number(b.price||0))[0];
+}
+function menuxRenderCartSuggestion(){
+ let root=$('menux-cart-suggestion');
+ if(!root){root=document.createElement('div');root.id='menux-cart-suggestion';root.style.cssText='margin:12px 0;padding:13px;border:1px solid var(--accent);border-radius:12px;color:var(--store-text);background:var(--store-card)';$('cart-items').insertAdjacentElement('afterend',root);}
+ const p=menuxSuggestedProduct();root.hidden=!p;if(!p)return;
+ const price=p.variants?.length?Math.min(...p.variants.map(v=>Number(v.price))):Number(p.price);
+ root.innerHTML='<strong>✨ Que tal completar seu pedido?</strong><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:8px"><span>'+esc(p.name)+' · '+brl(price)+'</span><button type="button" id="menux-suggestion-open" style="border:0;border-radius:9px;padding:10px;background:var(--accent);color:white;cursor:pointer;font-weight:700">Ver opções</button></div>';
+ root.querySelector('button').onclick=()=>{cartModal.hidden=true;openDetail(p,$('open-cart'));};
+}
 const cartModal=$('cart-modal');const totalCart=()=>cart.reduce((s,x)=>s+x.unit_price*x.quantity,0);
 function refreshCart(){
  $('open-cart').textContent='🛒 Carrinho ('+cart.reduce((s,x)=>s+x.quantity,0)+')';
  $('cart-items').innerHTML=cart.length?cart.map((x,i)=>'<div class="checkout-item"><div class="menux-item-top"><strong>'+esc(x.name)+'</strong><b>'+brl(x.unit_price*x.quantity)+'</b></div>'+(x.options.length?'<small>'+x.options.map(o=>'+ '+esc(o.name)).join(' · ')+'</small>':'')+'<div class="menux-qty-row"><div class="menux-qty"><button type="button" aria-label="Diminuir quantidade" data-cart-minus="'+i+'">−</button><output aria-label="Quantidade">'+x.quantity+'</output><button type="button" aria-label="Aumentar quantidade" data-cart-plus="'+i+'">+</button></div><button class="menux-remove" type="button" data-cart-remove="'+i+'">Remover item</button></div></div>').join(''):'Seu carrinho está vazio.';
  $('cart-total').textContent='Subtotal dos produtos: '+brl(totalCart());
  $('checkout-submit').disabled=!cart.length||!menuxStoreOpen;
+ menuxRenderCartSuggestion();
  refreshMenuxCheckoutSummary();
 }
 $('open-cart').onclick=()=>{menuxBeginCartAccess();};$('cart-close').onclick=()=>cartModal.hidden=true;cartModal.addEventListener('click',e=>{if(e.target===cartModal)cartModal.hidden=true;const b=e.target.closest('button');if(!b)return;const k=['cartMinus','cartPlus','cartRemove'].find(k=>b.dataset[k]!==undefined);if(!k)return;const i=Number(b.dataset[k]);if(!cart[i])return;if(k==='cartMinus'){cart[i].quantity--;if(cart[i].quantity<1)cart.splice(i,1)}if(k==='cartPlus')cart[i].quantity=Math.min(99,cart[i].quantity+1);if(k==='cartRemove')cart.splice(i,1);refreshCart()});
