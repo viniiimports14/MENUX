@@ -3317,7 +3317,7 @@ async function menuxLoadLoyaltyMerchantHistory(){
 #menux-tour-card .tour-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 #menux-tour-card label{display:flex;align-items:center;gap:9px;font-size:13px}
 #menux-tour-card small{color:#b8b8c0}
-#menux-tour-launch{position:fixed;bottom:18px;right:18px;z-index:9990;border:1px solid #c7a358;border-radius:25px;padding:10px 15px;background:#22242a;color:#f5d387;cursor:pointer;box-shadow:0 4px 18px #0005}
+#menux-tour-launch{position:fixed;bottom:calc(18px + var(--menux-alert-controls-height, 54px) + 12px);right:18px;z-index:9990;border:1px solid #c7a358;border-radius:25px;padding:10px 15px;background:#22242a;color:#f5d387;cursor:pointer;box-shadow:0 4px 18px #0005}
 </style>
 <button type="button" id="menux-tour-launch" hidden>❔ Ver tutorial</button>
 <div id="menux-tour-overlay" hidden aria-label="Tutorial guiado MENUX">
@@ -3390,6 +3390,17 @@ by('menux-tour-back').onclick=()=>{if(index>0){index--;show()}};
 by('menux-tour-next').onclick=()=>{if(index>=steps.length-1)finish();else{index++;show()}};
 by('menux-tour-finish').onclick=finish;
 by('menux-tour-never').onchange=e=>{const value=read();value.never=e.target.checked;write(value)};
+// Mantém o tutorial acima da barra fixa de pedidos/som, inclusive se ela quebrar linha.
+const alertControls=document.getElementById('menux-alert-controls');
+if(alertControls){
+ const syncTourOffset=()=>{
+  const height=alertControls.getBoundingClientRect().height;
+  launch.style.setProperty('--menux-alert-controls-height',Math.ceil(height)+'px');
+ };
+ syncTourOffset();
+ if(typeof ResizeObserver!=='undefined')new ResizeObserver(syncTourOffset).observe(alertControls);
+ window.addEventListener('resize',syncTourOffset);
+}
 launch.onclick=start;
 window.addEventListener('resize',position);
 document.addEventListener('keydown',e=>{if(active&&e.key==='Escape'){e.preventDefault();finish()}});
