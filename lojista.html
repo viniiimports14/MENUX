@@ -666,7 +666,7 @@ let sb=null,restaurant=null,restaurants=[],products=[],orders=[],items=[],custom
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const done=['completed','delivered','finished','finalizado','concluido','concluído'];const cancelled=['cancelled','canceled','cancelado'];const isDone=o=>done.includes(String(o.status).toLowerCase()),isCancelled=o=>cancelled.includes(String(o.status).toLowerCase());
 function notice(message,error=false){const e=$('feedback');e.textContent=message;e.style.borderColor=error?'#a65454':'#70572d';e.style.color=error?'#ffaaa0':'#e3c77f';e.classList.add('show');setTimeout(()=>{if(e.textContent===message)e.classList.remove('show')},6500)}
-function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';window.scrollTo({top:0,behavior:'smooth'})}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';if(id==='hours'&&typeof menuxLoadHours==='function')void menuxLoadHours().catch(e=>{const m=document.getElementById('menuxHoursMsg');if(m)m.textContent='Não foi possível carregar os horários: '+e.message});window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{showPage(b.dataset.page);if(b.dataset.page==='catalog')loadCatalog().catch(e=>notice(e.message,true));}));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)showPage(b.dataset.go)});
 async function query(table,columns='*'){const {data,error}=await sb.from(table).select(columns).eq('restaurant_id',restaurant.id).limit(1000);if(error)throw Error(table+': '+error.message);return data||[]}
@@ -1851,12 +1851,13 @@ async function menuxLoadHours(){
  if(!sb||!restaurant){msg.textContent='Aguarde o carregamento da loja.';return;}
  msg.textContent='Carregando horários...';
  const {data,error}=await sb.from('menux_store_hours').select('enabled,temporary_closed,days').eq('restaurant_id',restaurant.id).maybeSingle();
- if(error){msg.textContent='Erro: '+error.message;return;}
+ if(error){msg.textContent='Não foi possível consultar os horários salvos: '+error.message+'. Os horários exibidos são apenas valores de referência; tente novamente antes de salvar.';return;}
  document.getElementById('menuxHoursEnabled').checked=!!data?.enabled;
  document.getElementById('menuxHoursPause').checked=!!data?.temporary_closed;
  menuxRenderHours(data?.days||menuxDefaultHours);msg.textContent='';
 }
-document.querySelector('[data-page="hours"]').addEventListener('click',()=>{menuxLoadHours().catch(e=>document.getElementById('menuxHoursMsg').textContent=e.message)});
+// Exibe os sete dias imediatamente; showPage atualiza com dados da loja ao abrir a seção.
+menuxRenderHours(menuxDefaultHours);
 document.getElementById('menuxHoursForm').addEventListener('submit',async e=>{
  e.preventDefault();const msg=document.getElementById('menuxHoursMsg');msg.textContent='Salvando...';const form=e.currentTarget;const button=form.querySelector('[type="submit"]');button.disabled=true;
  try{
