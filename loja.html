@@ -423,9 +423,13 @@ let publicProducts=[];let checkoutSb=null,checkoutSlug=null,storeWhatsapp="",car
  const address=addr.join(' · ');
  const phone=String(c.whatsapp||'').replace(/\D/g,'');
  const validPhone=/^55\d{10,11}$/.test(phone);
- const ig=String(c.instagram||'').trim();
  const instagramLink=document.getElementById('menux-store-instagram');
- if(instagramLink&&/^https:\/\/www\.instagram\.com\/[a-zA-Z0-9._]{1,30}\/$/.test(ig)){instagramLink.href=ig;instagramLink.hidden=false;}
+ try{
+  const {data:ig,error:igError}=await sb.rpc('menux_public_store_instagram',{p_slug:slug});
+  if(igError)throw igError;
+  const instagramUrl=String(ig||'').trim();
+  if(instagramLink&&/^https:\/\/www\.instagram\.com\/[a-zA-Z0-9._]{1,30}\/$/.test(instagramUrl)){instagramLink.href=instagramUrl;instagramLink.hidden=false;}
+ }catch(e){console.warn('MENUX: Instagram público indisponível',e)}
 
  if(address || validPhone || !instagramLink.hidden){
  const section=document.getElementById('menux-store-contact');
