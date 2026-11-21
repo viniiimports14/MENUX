@@ -283,6 +283,7 @@
   <div class="menux-store-contact-actions">
    <a id="menux-store-map" href="#" target="_blank" rel="noopener noreferrer" hidden>📍 Abrir no Google Maps</a>
    <a id="menux-store-whatsapp" href="#" target="_blank" rel="noopener noreferrer" hidden>💬 Falar pelo WhatsApp</a>
+   <a id="menux-store-instagram" href="#" target="_blank" rel="noopener noreferrer" hidden>📸 Visitar Instagram</a>
   </div>
  </div>
 </div><script>
@@ -422,7 +423,11 @@ let publicProducts=[];let checkoutSb=null,checkoutSlug=null,storeWhatsapp="",car
  const address=addr.join(' · ');
  const phone=String(c.whatsapp||'').replace(/\D/g,'');
  const validPhone=/^55\d{10,11}$/.test(phone);
- if(address || validPhone){
+ const ig=String(c.instagram||'').trim();
+ const instagramLink=document.getElementById('menux-store-instagram');
+ if(instagramLink&&/^https:\/\/www\.instagram\.com\/[a-zA-Z0-9._]{1,30}\/$/.test(ig)){instagramLink.href=ig;instagramLink.hidden=false;}
+
+ if(address || validPhone || !instagramLink.hidden){
  const section=document.getElementById('menux-store-contact');
  const map=document.getElementById('menux-store-map'),wa=document.getElementById('menux-store-whatsapp');
  document.getElementById('menux-store-address').textContent=address?('Estamos localizados em: '+address):'Entre em contato com nosso estabelecimento.';
