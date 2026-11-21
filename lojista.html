@@ -363,19 +363,6 @@
   </div>
   <div id="menuxGrowthTips" class="menux-growth-grid" aria-live="polite"><p class="muted">Carregando sugestões…</p></div><div id="menuxReviewInsights" style="margin-top:14px" aria-live="polite"></div>
 </div>
-<section class="card" id="menuxInstagramAudit" style="margin-top:15px" aria-labelledby="menuxInstagramTitle">
- <div class="row between" style="align-items:center;gap:12px;flex-wrap:wrap"><div><h2 id="menuxInstagramTitle">📸 MENUX Intelligence · Instagram</h2><p class="muted small">Diagnóstico de marketing sem conectar sua conta. Informe o perfil e alguns dados observados por você.</p></div><span class="menux-growth-tag">Análise orientativa</span></div>
- <form id="menuxInstagramForm" style="display:grid;gap:12px;margin-top:14px">
- <label>Link ou @ do Instagram<input id="menuxInstagramProfile" class="field" placeholder="instagram.com/sualoja" maxlength="180" required style="display:block;width:100%;margin-top:5px"></label>
- <label>Biografia atual<textarea id="menuxInstagramBio" class="field" rows="3" maxlength="500" placeholder="Cole aqui a bio do perfil" style="display:block;width:100%;margin-top:5px"></textarea></label>
- <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
- <label>Link do cardápio na bio?<select id="menuxInstagramLink" class="field" style="display:block;width:100%;margin-top:5px"><option value="unknown">Não sei / não informei</option><option value="yes">Sim</option><option value="no">Não</option></select></label>
- <label>Publicações nos últimos 7 dias<select id="menuxInstagramPosts" class="field" style="display:block;width:100%;margin-top:5px"><option value="unknown">Não informado</option><option value="0">Nenhuma</option><option value="1">1 ou 2</option><option value="3">3 ou mais</option></select></label>
- </div>
- <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit">✨ Analisar meu perfil</button><a id="menuxInstagramOpen" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="btn ghost">Abrir Instagram ↗</a></div>
- </form><div id="menuxInstagramResult" aria-live="polite" style="margin-top:14px"></div>
- <p class="muted small" style="margin-top:12px">A MENUX não consulta o Instagram automaticamente, não acessa métricas privadas nem verifica publicações em tempo real. As recomendações usam somente os dados informados neste formulário. Sem API ou senha.</p>
-</section>
 <section class="card" id="menuxOnboarding" style="margin-top:15px" aria-labelledby="menuxOnboardingTitle">
 <div class="row between" style="align-items:center;flex-wrap:wrap;gap:10px"><div><h2 id="menuxOnboardingTitle">🚀 Primeiros passos na MENUX</h2><p class="muted small" style="margin-top:6px">Um guia opcional para configurar e revisar seu estabelecimento.</p></div><div class="row" style="align-items:center;gap:10px"><strong id="menuxOnboardingProgress" style="color:var(--gold2)">Etapas de configuração</strong><button type="button" class="btn" id="menuxOnboardingToggle" aria-expanded="false" aria-controls="menuxOnboardingSteps">Mostrar etapas</button></div></div>
 <div id="menuxOnboardingSteps" style="display:grid;gap:9px;margin-top:15px" aria-live="polite"></div>
@@ -636,6 +623,7 @@
 <form id="menuxStoreContactForm">
 <div class="formgrid">
 <div class="formgroup"><label>WhatsApp do estabelecimento (DDD + número)</label><input name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="22 99999-9999" maxlength="24"></div>
+<div class="formgroup"><label>Instagram da loja (link ou @)</label><input name="instagram" maxlength="180" placeholder="instagram.com/sualoja"></div>
 <div class="formgroup"><label>CEP</label><input name="address_zip" inputmode="numeric" placeholder="28940-000" maxlength="9"></div>
 <div class="formgroup"><label>Rua / avenida</label><input name="address_street" maxlength="180" placeholder="Ex.: Rua das Flores"></div>
 <div class="formgroup"><label>Número</label><input name="address_number" maxlength="20" placeholder="Ex.: 123"></div>
@@ -1132,7 +1120,7 @@ async function loadStorefront(){
  }
  $('themePreset').value=storefrontSettings.color_theme||'light';
  const c=$('menuxStoreContactForm');
- if(c){for(const key of ['whatsapp','address_zip','address_street','address_number','address_neighborhood','address_complement','address_city','address_state']){
+ if(c){for(const key of ['whatsapp','instagram','address_zip','address_street','address_number','address_neighborhood','address_complement','address_city','address_state']){
    if(c.elements[key])c.elements[key].value=storefrontSettings[key]||'';
  }}
  for(const kind of ['cover','logo'])menuxImageRefresh(kind);
@@ -1171,12 +1159,21 @@ $('storefrontForm').addEventListener('submit',async e=>{
 $('menuxStoreContactForm').addEventListener('submit',async e=>{
  e.preventDefault();if(!restaurant)return;
  const f=e.currentTarget;const button=f.querySelector('button[type="submit"]');button.disabled=true;
- const keys=['whatsapp','address_zip','address_street','address_number','address_neighborhood','address_complement','address_city','address_state'];
+ const keys=['whatsapp','instagram','address_zip','address_street','address_number','address_neighborhood','address_complement','address_city','address_state'];
  const data={restaurant_id:restaurant.id};
  for(const k of keys)data[k]=(f.elements[k]?.value||'').trim()||null;
  const digits=String(data.whatsapp||'').replace(/\D/g,'');
  if(digits && !/^(?:55)?\d{10,11}$/.test(digits)){notice('Confira o WhatsApp: informe DDD e número.',true);button.disabled=false;return;}
  data.whatsapp=digits?(digits.startsWith('55')&&digits.length>=12?digits:'55'+digits):null;
+ if(data.instagram){
+  let handle=data.instagram.replace(/^@/,'');
+  if(/^(https?:\/\/|www\.|instagram\.com\/)/i.test(handle)){
+   try{const u=new URL(/^https?:\/\//i.test(handle)?handle:'https://'+handle);if(!['instagram.com','www.instagram.com'].includes(u.hostname.toLowerCase()))throw Error();handle=u.pathname.split('/').filter(Boolean)[0]||''}catch{handle=''}
+  }
+  if(!/^[a-zA-Z0-9._]{1,30}$/.test(handle)){notice('Instagram inválido. Informe o @ ou link do perfil.',true);button.disabled=false;return}
+  data.instagram='https://www.instagram.com/'+handle+'/';
+ }
+
  if(data.address_zip && !/^\d{8}$/.test(data.address_zip.replace(/\D/g,''))){notice('CEP deve ter 8 dígitos.',true);button.disabled=false;return;}
  if(data.address_zip)data.address_zip=data.address_zip.replace(/\D/g,'');
  if(data.address_state)data.address_state=data.address_state.toUpperCase();
@@ -3552,60 +3549,6 @@ const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
  setInterval(()=>{if(!document.hidden&&restaurant?.id)void load()},60000);
  // A fila e o lembrete continuam sendo atualizados mesmo com outra aba do painel selecionada.
  setTimeout(()=>{if(restaurant?.id)void load()},1500);
-})();
-</script><script id="menux-instagram-audit-script">
-(()=>{
- const form=document.getElementById('menuxInstagramForm'),result=document.getElementById('menuxInstagramResult'),open=document.getElementById('menuxInstagramOpen');
- if(!form||!result)return;
- const el=id=>document.getElementById(id);
- const esc=v=>String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const tenant=()=>typeof restaurant!=='undefined'&&restaurant?.id?String(restaurant.id):'';
- const storage=()=>tenant()?'menux:instagram-audit:v1:'+tenant():'';
- let loadedTenant='';
- function normalize(raw){
-  let value=String(raw||'').trim().replace(/^@/,'');
-  if(!value)return null;
-  let handle=value;
-  if(/^https?:\/\//i.test(value)||/^www\./i.test(value)||/^instagram\.com\//i.test(value)){
-   try{const url=new URL(/^https?:\/\//i.test(value)?value:'https://'+value);if(!['instagram.com','www.instagram.com'].includes(url.hostname.toLowerCase()))return null;handle=url.pathname.split('/').filter(Boolean)[0]||''}catch{return null}
-  }
-  if(!/^[a-zA-Z0-9._]{1,30}$/.test(handle))return null;
-  return {handle,url:'https://www.instagram.com/'+handle+'/'};
- }
- function restore(){
-  const id=tenant();if(!id||id===loadedTenant)return;loadedTenant=id;
-  for(const k of ['menuxInstagramProfile','menuxInstagramBio'])el(k).value='';
-  el('menuxInstagramLink').value='unknown';el('menuxInstagramPosts').value='unknown';result.textContent='';
-  try{const d=JSON.parse(localStorage.getItem(storage())||'{}');if(d.profile)el('menuxInstagramProfile').value=d.profile;if(d.bio)el('menuxInstagramBio').value=d.bio;if(['yes','no','unknown'].includes(d.link))el('menuxInstagramLink').value=d.link;if(['0','1','3','unknown'].includes(d.posts))el('menuxInstagramPosts').value=d.posts}catch{}
-  const profile=normalize(el('menuxInstagramProfile').value);if(profile)open.href=profile.url;
- }
- function analyze(e){
-  e?.preventDefault();restore();
-  if(!tenant()){result.textContent='Aguarde o carregamento da sua loja.';return}
-  const profile=normalize(el('menuxInstagramProfile').value);
-  if(!profile){result.textContent='Informe um @ ou link válido de perfil do Instagram.';return}
-  const bio=el('menuxInstagramBio').value.trim(),link=el('menuxInstagramLink').value,posts=el('menuxInstagramPosts').value;
-  open.href=profile.url;
-  const tips=[];
-  if(!bio)tips.push('Cole sua biografia para receber sugestões específicas sobre a apresentação da loja.');
-  else{
-   if(!/(delivery|entrega|retirada|peça|pedir|pedido|cardápio|whatsapp)/i.test(bio))tips.push('Explique na bio como o cliente pode fazer pedidos: entrega, retirada ou acesso ao cardápio.');
-   if(!/(📍|bairro|cidade|rua|avenida|av\.|rj|sp|mg|localiz)/i.test(bio))tips.push('Considere informar a cidade ou região atendida na bio, para orientar novos clientes.');
-   if(bio.length>140)tips.push('Revise se a biografia está objetiva e se a principal chamada para ação aparece logo no início.');
-  }
-  if(link==='no')tips.push('Adicione o link da sua loja MENUX à bio para facilitar pedidos diretamente pelo cardápio.');
-  if(link==='unknown')tips.push('Confira se o link da MENUX está na bio e se abre corretamente no celular.');
-  if(posts==='0')tips.push('Planeje uma publicação ou Story mostrando um produto real e convidando o cliente a acessar o cardápio.');
-  if(posts==='1')tips.push('Teste conteúdos variados: produto destaque, bastidores e depoimentos autorizados de clientes.');
-  if(posts==='3')tips.push('Continue testando formatos e use links identificados para descobrir quais campanhas geram pedidos.');
-  if(posts==='unknown')tips.push('Informe a frequência de publicações para receber uma recomendação mais direcionada.');
-  tips.push('Divulgue um link rastreável do cardápio em campanhas para medir pedidos vindos do Instagram; visitas ao perfil, alcance e conversões não podem ser inferidos só pelo link.');
-  result.innerHTML='<div class="menux-growth-tip"><h3>Diagnóstico orientativo de @'+esc(profile.handle)+'</h3><p class="muted small" style="margin-bottom:10px">Baseado nas informações que você forneceu, não em uma leitura automática do Instagram.</p><ol style="line-height:1.7;padding-left:22px;margin:0">'+tips.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ol></div>';
-  try{localStorage.setItem(storage(),JSON.stringify({profile:el('menuxInstagramProfile').value,bio,link,posts}))}catch{}
- }
- form.addEventListener('submit',analyze);
- el('menuxInstagramProfile').addEventListener('change',()=>{const p=normalize(el('menuxInstagramProfile').value);if(p)open.href=p.url});
- setInterval(restore,1500);restore();
 })();
 </script>
 </body></html>
