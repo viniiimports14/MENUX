@@ -20,7 +20,7 @@
 body{padding-bottom:110px}
 @media(max-width:850px){.navlinks .menux-nav-plan{display:none}.menux-dock-copy{display:none}}
 @media(max-width:600px){.floating.menux-conversion-dock{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:none;gap:8px;padding:8px;border-radius:13px}.floating.menux-conversion-dock .btn{flex:1;min-width:0;min-height:46px;padding:10px 6px;font-size:12px;white-space:normal}body{padding-bottom:calc(85px + env(safe-area-inset-bottom,0px))}}
-</style>
+.floating.menux-conversion-dock:not(.is-visible){opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px)}.floating.menux-conversion-dock{transition:opacity .2s,transform .2s,visibility .2s}@media(prefers-reduced-motion:reduce){.floating.menux-conversion-dock{transition:none}}</style>
 </head>
 <body>
 <header><div class="shell nav"><a href="#inicio" class="brand" aria-label="MENUX, voltar ao início"><span class="brandmark"><img src="./menux-icon-180.png" alt="" width="42" height="42"></span><span class="brandname">MENUX<small>FOOD PLATFORM</small></span></a><nav class="navlinks" aria-label="Menu"><a href="#recursos">Recursos</a><a href="#como-funciona">Como funciona</a><a href="#para-quem">Para quem</a><a href="#duvidas">Dúvidas</a><a class="menux-nav-plan" href="#planos">Assinar MENUX</a><a class="btn navcta" href="login.html">Entrar ↗</a></nav></div></header>
@@ -36,5 +36,7 @@ body{padding-bottom:110px}
 <footer><div class="shell foot"><div class="brand"><span class="brandmark"><img src="./menux-icon-180.png" alt="" width="42" height="42"></span><span class="brandname">MENUX<small>FOOD PLATFORM</small></span></div><span>© <span id="year">2026</span> MENUX. Tecnologia para o seu negócio.</span><div class="footlinks"><a href="#recursos">Recursos</a><a href="#duvidas">Dúvidas</a><a href="login.html">Login</a></div></div></footer>
 <div class="floating menux-conversion-dock" role="region" aria-label="Contratação e demonstração da MENUX"><div class="menux-dock-copy"><strong>Seu próximo passo com a MENUX</strong><small>Plano completo · Conheça nossa oferta de lançamento</small></div><a class="btn ghost menux-dock-demo" href="login.html#cadastro">Testar grátis</a><a class="btn menux-dock-subscribe" href="#planos">Assinar MENUX ↗</a></div>
 <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
-</body>
+<script>
+(()=>{const dock=document.querySelector('.menux-conversion-dock'),actions=document.querySelector('.hero .ctarow'),header=document.querySelector('header');if(!dock||!actions)return;function sync(){const top=header?Math.max(0,header.getBoundingClientRect().bottom):0;const show=actions.getBoundingClientRect().bottom<=top;dock.classList.toggle('is-visible',show);dock.inert=!show;}window.addEventListener('scroll',sync,{passive:true});window.addEventListener('resize',sync);window.addEventListener('pageshow',sync);sync();})();
+</script></body>
 </html>
