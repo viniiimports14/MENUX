@@ -1053,13 +1053,7 @@ async function initSession(supportStore=null){
   if(!restaurants.length)throw Error('Nenhum restaurante acessível.');
   restaurant=restaurants[0];
  }
- const {data:demoSub,error:demoErr}=await sb.from('menux_restaurant_subscriptions').select('status').eq('restaurant_id',restaurant.id).maybeSingle();
- if(demoErr)throw Error('Não foi possível verificar sua permissão: '+demoErr.message);
- window.MENUX_IS_DEMO=(demoSub?.status==='demo');
- if(window.MENUX_IS_DEMO){
-  document.getElementById('menuxDemoBanner').hidden=false;
-  document.getElementById('menuxDemoBannerName').textContent=restaurant.name;
- }
+ await menuxRefreshTrialAccess(true);
  $('authOverlay').classList.add('hidden');
  await load();
  try{await loadStorefront()}catch(err){notice('Execute o SQL de personalização: '+err.message,true)}
@@ -2236,7 +2230,7 @@ async function load(){
  busy=true;const id=restaurant.id;renderMenuxPix(null,'Consultando plano...');by('menuxSubFeedback').textContent='Consultando sua assinatura…';
  try{
   const [sr,pr,hr]=await Promise.all([
-   sb.from('menux_restaurant_subscriptions').select('plan_id,status,starts_on,expires_on').eq('restaurant_id',id).maybeSingle(),
+   sb.from('menux_restaurant_subscriptions').select('plan_id,status,starts_on,expires_on,trial_ends_at').eq('restaurant_id',id).maybeSingle(),
    sb.from('menux_subscription_plans').select('id,name,monthly_price,description').limit(100),
    sb.from('menux_subscription_payments').select('amount,paid_on').eq('restaurant_id',id).order('paid_on',{ascending:false}).limit(24)
   ]);
@@ -2250,8 +2244,8 @@ async function load(){
   by('menuxSubStart').textContent=dateBR(s.starts_on);
   by('menuxSubEnd').textContent=dateBR(s.expires_on);
   const today=todayBR(),left=s.expires_on?days(today,s.expires_on):null;
-  const expired=left!==null&&left<0,paused=['paused','cancelled'].includes(s.status);const overdueDays=expired?-left:0;const blocked=['active','trial','past_due'].includes(s.status)&&overdueDays>7;
-  by('menuxSubStatus').textContent=blocked?'Bloqueada por atraso':paused?(statusNames[s.status]||'Indisponível'):expired?'Em atraso (tolerância)':(statusNames[s.status]||'Não definida');
+  const trialExpired=s.status==='trial'&&s.trial_ends_at&&Date.now()>=Date.parse(s.trial_ends_at);const expired=left!==null&&left<0,paused=['paused','cancelled'].includes(s.status);const overdueDays=expired?-left:0;const blocked=trialExpired||(['active','trial','past_due'].includes(s.status)&&overdueDays>7);
+  by('menuxSubStatus').textContent=trialExpired?'Teste encerrado':blocked?'Bloqueada por atraso':paused?(statusNames[s.status]||'Indisponível'):expired?'Em atraso (tolerância)':(statusNames[s.status]||'Não definida');
   by('menuxSubDays').textContent=left===null?'Sem vencimento definido':left<0?`Vencida há ${-left} dia(s)` :left===0?'Vence hoje':`Faltam ${left} dia(s)`;
   by('menuxSubPaid').textContent=payments.length?money(payments[0].amount):'Não registrado';
   by('menuxSubPaidDate').textContent=payments.length?`Confirmado em ${dateBR(payments[0].paid_on)} · Total registrado: ${money(payments.reduce((sum,p)=>sum+Number(p.amount),0))}`:'Nenhum pagamento registrado pela administração.';
@@ -2259,7 +2253,7 @@ async function load(){
   const alert=by('menuxSubscriptionAlert'); let note='',danger=false;
   if(s.status==='demo'){note='Você está no modo demonstração. Para começar a vender, converse com a MENUX e escolha um plano.';}
   else if(paused){note='Sua assinatura está '+(s.status==='cancelled'?'cancelada':'pausada')+'. Consulte a administração MENUX.';danger=true;}
-  else if(blocked){note=`Sua assinatura venceu há ${overdueDays} dias. O recebimento de novos pedidos está suspenso. Seus produtos, pedidos anteriores e configurações estão preservados. Regularize o pagamento com a MENUX para reativar sua loja.`;danger=true;}
+  else if(trialExpired){note='Seu teste gratuito terminou. Assine para reativar sua loja. Seus dados estão preservados.';danger=true;} else if(blocked){note=`Sua assinatura venceu há ${overdueDays} dias. O recebimento de novos pedidos está suspenso. Seus produtos, pedidos anteriores e configurações estão preservados. Regularize o pagamento com a MENUX para reativar sua loja.`;danger=true;}
   else if(expired){note=`Sua assinatura venceu há ${overdueDays} dia(s). Você está no período de tolerância de 7 dias e ainda pode receber pedidos. Restam ${7-overdueDays} dia(s) antes da suspensão automática. Regularize a renovação com a MENUX.`;danger=true;}
   else if(left===0){note='Sua assinatura vence HOJE. Organize a renovação para evitar interrupções.';danger=true;}
   else if(left!==null&&left>=1&&left<=3)note=`Atenção: faltam ${left} dia(s) para o vencimento da sua assinatura em ${dateBR(s.expires_on)}.`;
@@ -2398,7 +2392,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now(
 (function(){
  'use strict';
  const overlay=document.getElementById('menuxDemoOverlay'),contact=document.getElementById('menuxDemoContact');
- const show=()=>{if(!window.MENUX_IS_DEMO)return;const name=typeof restaurant!=='undefined'?restaurant?.name||'minha loja':'minha loja';contact.href='https://wa.me/5522996228992?text='+encodeURIComponent('Olá! Me cadastrei na MENUX e quero conhecer os planos para ativar '+name+'.');overlay.hidden=false;document.getElementById('menuxDemoClose').focus();};
+ const show=()=>{const name=typeof restaurant!=='undefined'?restaurant?.name||'minha loja':'minha loja';contact.href='https://wa.me/5522996228992?text='+encodeURIComponent('Olá! Me cadastrei na MENUX e quero conhecer os planos para ativar '+name+'.');overlay.hidden=false;document.getElementById('menuxDemoClose').focus();};
  const hide=()=>{overlay.hidden=true};
  document.getElementById('menuxDemoClose').onclick=hide;document.getElementById('menuxDemoLater').onclick=hide;
  overlay.addEventListener('click',e=>{if(e.target===overlay)hide()});
@@ -3551,4 +3545,28 @@ const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
  setTimeout(()=>{if(restaurant?.id)void load()},1500);
 })();
 </script>
-</body></html>
+<script>
+let menuxTrialTimer=null,menuxTrialBusy=false;
+async function menuxRefreshTrialAccess(initial=false){
+ if(!sb||!restaurant?.id||menuxTrialBusy)return;
+ menuxTrialBusy=true;
+ const id=restaurant.id;
+ try{
+ const {data:s,error}=await sb.from('menux_restaurant_subscriptions').select('status,trial_ends_at').eq('restaurant_id',id).maybeSingle();
+ if(error)throw error;if(restaurant?.id!==id)return;
+ const end=s?.status==='trial'&&s.trial_ends_at?Date.parse(s.trial_ends_at):null;
+ const remaining=end===null?null:end-Date.now();
+ window.MENUX_IS_DEMO=s?.status==='demo'||(remaining!==null&&remaining<=0);
+ const banner=document.getElementById('menuxDemoBanner');
+ banner.hidden=!window.MENUX_IS_DEMO&&remaining===null;
+ banner.querySelector('b').textContent=window.MENUX_IS_DEMO?'MODO VISUALIZAÇÃO':'TESTE GRATUITO';
+ document.getElementById('menuxDemoBannerName').textContent=remaining>0?(remaining>=86400000?Math.ceil(remaining/86400000)+' dias restantes':Math.ceil(remaining/3600000)+' hora(s) restantes'):restaurant.name;
+ banner.querySelector('small').textContent=window.MENUX_IS_DEMO?'Seu painel está em modo de visualização. Assine para receber pedidos e editar dados.':'Acesso completo durante o teste. Sem cobrança automática.';
+ banner.querySelector('button').textContent='Assinar MENUX ↗';
+ clearTimeout(menuxTrialTimer);
+ if(remaining>0)menuxTrialTimer=setTimeout(()=>{window.MENUX_IS_DEMO=true;void menuxRefreshTrialAccess()},Math.min(remaining+50,2147483647));
+ }catch(e){if(initial)throw e;console.warn('MENUX trial',e)}finally{menuxTrialBusy=false}
+}
+setInterval(()=>{if(typeof restaurant!=='undefined'&&restaurant?.id)void menuxRefreshTrialAccess()},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&restaurant?.id)void menuxRefreshTrialAccess()});
+</script></body></html>
