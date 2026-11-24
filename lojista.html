@@ -741,15 +741,10 @@ function menuxShowDailyTip(title,body,detail){
   const daysSince=last?Math.floor((Date.parse(day+'T12:00:00Z')-Date.parse(last.day+'T12:00:00Z'))/86400000):null;
   const followup=last&&daysSince>=7?'Você colocou em prática a missão de '+last.day+'. Confira os pedidos e o ticket médio dos últimos 7 dias em Relatórios e compare com os 7 dias anteriores. Mudanças podem ter outras causas.':'';
   root.innerHTML='<div class="menux-growth-tip"><h3>'+esc(title)+'</h3><p>'+esc(body)+'</p>'+(detail?'<p class="muted small" style="margin-top:10px">'+esc(detail)+'</p>':'')+
-   '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px"><button type="button" class="btn" id="menuxTipCopy">Copiar ideia para divulgação</button><button type="button" class="btn" id="menuxTipPromotions">Ver cupons e fidelidade</button></div>'+
+   '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px"><button type="button" class="btn" id="menuxTipPromotions">Ver cupons e fidelidade</button></div>'+
    '<div style="border-top:1px solid var(--line);margin-top:15px;padding-top:13px"><strong>🎯 Sua missão de hoje</strong><p class="muted small" style="margin:7px 0">Marque quando colocar a sugestão em prática. O acompanhamento é opcional e fica salvo neste navegador.</p>'+
    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" class="btn primary" id="menuxMissionDone">'+(today?.status==='done'?'✓ Missão realizada':'Marcar como realizada')+'</button><button type="button" class="btn" id="menuxMissionSkip">Não vou fazer hoje</button><span class="muted small" id="menuxMissionStatus">'+(today?.status==='done'?'Registrada como realizada.':today?.status==='skipped'?'Missão dispensada por hoje.':'')+'</span></div>'+
    (followup?'<p class="muted small" style="margin-top:12px">'+esc(followup)+'</p><button type="button" class="btn" id="menuxMissionReports">Ver relatórios</button>':'')+'</div></div>';
-  root.querySelector('#menuxTipCopy').addEventListener('click',async()=>{
-    const draft='Sugestão de divulgação para '+(restaurant?.name||'nossa loja')+':\\n'+body+'\\nConfira nosso cardápio e faça seu pedido!';
-    try{await navigator.clipboard.writeText(draft);notice('Texto copiado. Revise antes de publicar.');}
-    catch(e){notice('Não foi possível copiar automaticamente. Selecione o texto da dica.',true);}
-  });
   root.querySelector('#menuxTipPromotions').addEventListener('click',()=>showPage('promotions'));
   root.querySelector('#menuxMissionReports')?.addEventListener('click',()=>showPage('analytics'));
   function mark(status){
