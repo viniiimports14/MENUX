@@ -38,5 +38,9 @@ body{padding-bottom:110px}
 <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
 <script>
 (()=>{const dock=document.querySelector('.menux-conversion-dock'),actions=document.querySelector('.hero .ctarow'),header=document.querySelector('header');if(!dock||!actions)return;function sync(){const top=header?Math.max(0,header.getBoundingClientRect().bottom):0;const show=actions.getBoundingClientRect().bottom<=top;dock.classList.toggle('is-visible',show);dock.inert=!show;}window.addEventListener('scroll',sync,{passive:true});window.addEventListener('resize',sync);window.addEventListener('pageshow',sync);sync();})();
-</script></body>
+</script>
+<style id="menux-visual-v2">
+.hero{min-height:590px;background:radial-gradient(ellipse at 25% 30%,#252119 0%,#0b0d0e 62%)}.hero::before{opacity:.48;width:60%;mask-image:linear-gradient(90deg,transparent,#000 40%)}.hero-content{padding-block:76px 95px}.hero h1{letter-spacing:-.045em;line-height:1.03}.sectionhead h2{letter-spacing:-.035em}.feature{border-radius:22px;background:#141718;border-color:#292d2d;min-height:0;padding:30px}.feature .ico{background:#242119;border-radius:12px}.section{padding-block:clamp(54px,7vw,100px)}.nav{gap:24px}a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:4px}@media(max-width:700px){.hero{min-height:520px}.hero::before{width:100%;opacity:.32}.hero-content{padding-block:70px}.feature{padding:22px}.nav{gap:10px}}
+</style>
+</body>
 </html>
