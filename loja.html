@@ -1239,15 +1239,17 @@ document.addEventListener('click',async event=>{
  function wasSeen(id){try{return reviewSeen.has(id)||!!localStorage.getItem(reviewKey(id))}catch{return reviewSeen.has(id)}}
  function markSeen(id){if(!id)return;reviewSeen.add(id);try{localStorage.setItem(reviewKey(id),'1')}catch{}}
  const close=()=>{markSeen(form.dataset.reviewOrder||ref?.id);modal.hidden=true};
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden){e.preventDefault();close()}});
  modal.style.zIndex='10050';
  document.getElementById('menux-review-close').onclick=close;
  modal.addEventListener('click',e=>{if(e.target===modal)close()});
  function eligible(){return typeof trackingRef!=='undefined'&&trackingRef?.id&&trackingRef?.token}
  function openFor(order){if(!order?.id||!order?.token||!modal.hidden)return false;ref={id:order.id,token:order.token};delete form.dataset.reviewOrder;delete form.dataset.reviewToken;form.reset();const submit=form.querySelector('[type="submit"]');submit.disabled=false;submit.textContent='Enviar avaliação';document.getElementById('menux-review-feedback').textContent='';modal.hidden=false;return true}
  function open(){if(eligible())openFor(trackingRef)}
- window.menuxAutoReview=(order,data)=>{if(!order?.id||!order?.token||wasSeen(order.id)||data?.reviewed===true||data?.has_review===true||document.visibilityState!=='visible')return;if(!modal.hidden)return;if(openFor(order))markSeen(order.id)};
+ function reviewCanInterrupt(){return !menuxSubmittingOrder&&!cart.length&&cartModal.hidden&&detail.hidden&&![...document.querySelectorAll('.checkout-backdrop:not([hidden]),.image-modal:not([hidden]),.menux-auth-modal:not([hidden])')].some(el=>el!==trackingModal)}
+ window.menuxAutoReview=(order,data)=>{if(!order?.id||!order?.token||wasSeen(order.id)||data?.reviewed===true||data?.has_review===true||document.visibilityState!=='visible')return;if(!modal.hidden||!reviewCanInterrupt())return;if(openFor(order))markSeen(order.id)};
  let reviewChecking=false;
- async function checkCompletedReview(){if(reviewChecking||document.visibilityState!=='visible'||!modal.hidden||!checkoutSb)return;const order=shortcutOrder;if(!order?.id||!order?.token||wasSeen(order.id))return;if(!trackingModal.hidden&&trackingRef?.id===order.id&&trackingTimer)return;reviewChecking=true;try{const {data,error}=await checkoutSb.rpc('menux_track_order',{p_order_id:order.id,p_token:order.token});if(!error&&data?.status==='completed'&&shortcutOrder?.id===order.id)window.menuxAutoReview(order,data)}catch(e){}finally{reviewChecking=false}}
+ async function checkCompletedReview(){if(reviewChecking||document.visibilityState!=='visible'||!modal.hidden||!checkoutSb||!reviewCanInterrupt())return;const order=shortcutOrder;if(!order?.id||!order?.token||wasSeen(order.id))return;if(!trackingModal.hidden&&trackingRef?.id===order.id&&trackingTimer)return;reviewChecking=true;try{const {data,error}=await checkoutSb.rpc('menux_track_order',{p_order_id:order.id,p_token:order.token});if(!error&&data?.status==='completed'&&shortcutOrder?.id===order.id)window.menuxAutoReview(order,data)}catch(e){}finally{reviewChecking=false}}
  setInterval(checkCompletedReview,5000);
  document.addEventListener('visibilitychange',checkCompletedReview);
  const button=document.createElement('button');button.type='button';button.id='menux-review-open';button.textContent='⭐ Avaliar minha experiência';button.className='checkout-primary';button.style.cssText='width:100%;margin-top:12px';button.hidden=true;button.onclick=open;
@@ -1268,6 +1270,8 @@ document.addEventListener('click',async event=>{
    markSeen(linkedOrder||ref?.id);
    feedback.textContent='Obrigado! Sua avaliação foi enviada.';
    submit.textContent='Avaliação enviada';
+   const submittedId=linkedOrder||ref?.id;
+   setTimeout(()=>{if(!modal.hidden&&(form.dataset.reviewOrder||ref?.id)===submittedId&&submit.textContent==='Avaliação enviada')close()},900);
   }catch(err){feedback.textContent=err.message||'Não foi possível enviar. Tente novamente.';submit.disabled=false;if(/já foi avaliado/i.test(err.message||''))markSeen(linkedOrder||ref?.id)}
  };
 })();
