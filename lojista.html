@@ -1085,7 +1085,8 @@ const MENUX_THEMES={light:['#F6F3EF','#FFFFFF','#29252A'],dark:['#15141A','#2523
 function refreshThemePreview(){const f=$('storefrontForm'),bg=f.elements.background_color.value,card=f.elements.card_color.value,txt=f.elements.text_color.value;const p=$('themePreview');p.style.background=bg;p.style.color=txt;$('themePreviewCard').style.background=card;}
 $('themePreset').addEventListener('change',e=>{const f=$('storefrontForm'),colors=MENUX_THEMES[e.target.value];if(colors){['background_color','card_color','text_color'].forEach((key,i)=>f.elements[key].value=colors[i]);}refreshThemePreview();});
 for(const key of ['background_color','card_color','text_color'])$('storefrontForm').elements[key].addEventListener('input',()=>{$('themePreset').value='custom';refreshThemePreview()});
-function storefrontUrl(){return restaurant?.slug?new URL('loja.html?slug='+encodeURIComponent(restaurant.slug),location.href).href:null}
+function menuxShortStoreUrl(slug){const custom=/^(www\.)?menuxdelivery\.com\.br$/i.test(location.hostname);const url=new URL(custom?'/'+encodeURIComponent(slug):'loja.html',location.href);if(!custom)url.searchParams.set('slug',slug);return url}
+function storefrontUrl(){return restaurant?.slug?menuxShortStoreUrl(restaurant.slug).href:null}
 function updateStorefrontLink(){const url=storefrontUrl();$('storefrontLink').textContent=url||'Cadastre o slug em Minha loja primeiro.';}
 // Prévia temporária das imagens: exclusões e trocas só são aplicadas quando salvar.
 const menuxImageChanges={cover:{remove:false,previewUrl:null},logo:{remove:false,previewUrl:null}};
@@ -2816,8 +2817,7 @@ async function open(){if(!sb||!restaurant?.id){alert('Aguarde o carregamento da 
   return {a,b,orientation:orientation.value};
  }
  function tableUrl(n){
-  const u=new URL('loja.html',location.href);
-  u.searchParams.set('slug',restaurant.slug);
+  const u=menuxShortStoreUrl(restaurant.slug);
   u.searchParams.set('mesa',String(n));
   return u.href;
  }
@@ -3548,7 +3548,7 @@ const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
     const tab=window.open('about:blank','_blank');button.disabled=true;
     try{
      const {data,error}=await sb.rpc('menux_review_invitation',{p_order_id:order.id});if(error)throw error;
-     const url=new URL('loja.html',location.href);url.searchParams.set('slug',data.slug);url.searchParams.set('review_order',data.order_id);url.searchParams.set('review_token',data.token);
+     const url=menuxShortStoreUrl(data.slug);url.searchParams.set('review_order',data.order_id);url.searchParams.set('review_token',data.token);
      const first=String(order.customer_name||'').trim().split(/\s+/)[0]||'cliente';
      const msg='Olá, '+first+'! Esperamos que tenha gostado do seu pedido. Quando puder, conte como foi sua experiência com uma avaliação de 1 a 5 estrelas. Sua opinião nos ajuda a melhorar! ⭐ '+url.href;
      const wa='https://wa.me/'+phone(order.customer_phone)+'?text='+encodeURIComponent(msg);
