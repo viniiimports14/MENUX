@@ -1580,6 +1580,12 @@ let menuxAudioLoading=null;
 let menuxKnownPending=null;
 let menuxAlertRestaurant=null;
 let menuxAlertInFlight=false;
+let menuxAlertGeneration=0;
+const menuxAcknowledging=new Set();
+const menuxAcknowledged=new Set();
+function menuxShouldRing(){return menuxSoundEnabled&&!!menuxKnownPending&&[...menuxKnownPending].some(id=>!menuxAcknowledging.has(id)&&!menuxAcknowledged.has(id))}
+function menuxStopAlert(){menuxAlertGeneration++;menuxBellAudio.pause();menuxBellAudio.loop=false;menuxBellAudio.currentTime=0;const source=menuxAudioSource;menuxAudioSource=null;if(source){try{source.stop()}catch{}}}
+function menuxSyncAlert(){if(!menuxShouldRing()){menuxStopAlert();return}if(menuxAudioSource&&menuxAudioContext?.state==='running')return;if(!menuxBellAudio.paused&&menuxBellAudio.loop)return;void playMenuxAlert()}
 const menuxAlertMaxRecentMs=120000;
 function menuxNotice(text){
  message.textContent=text;
@@ -1625,6 +1631,7 @@ function menuxPlayBuffer(){
  const source=menuxAudioContext.createBufferSource();
  const gain=menuxAudioContext.createGain();
  source.buffer=menuxAudioBuffer;
+ source.loop=true;
  gain.gain.value=0.95;
  source.connect(gain);
  gain.connect(menuxAudioContext.destination);
@@ -1634,19 +1641,24 @@ function menuxPlayBuffer(){
  return true;
 }
 async function playMenuxAlert(){
- if(!menuxSoundEnabled||menuxAlertInFlight)return;
+ if(!menuxShouldRing()||menuxAlertInFlight)return;
  menuxAlertInFlight=true;
+ const generation=menuxAlertGeneration;
  try{
   // Usa o contexto previamente desbloqueado, sem depender de novo gesto.
   if(menuxAudioContext&&menuxAudioContext.state!=='running'){
    await menuxAudioContext.resume();
   }
+  if(generation!==menuxAlertGeneration||!menuxShouldRing())return;
   if(!menuxPlayBuffer()){
+   menuxBellAudio.loop=true;
    menuxBellAudio.pause();
    menuxBellAudio.currentTime=0;
    await menuxBellAudio.play();
+   if(generation!==menuxAlertGeneration||!menuxShouldRing())menuxStopAlert();
   }
  }catch(e){
+  if(generation!==menuxAlertGeneration||!menuxShouldRing())return;
   console.warn('MENUX: áudio automático bloqueado:',e);
   menuxNotice('🔔 NOVO PEDIDO! O navegador bloqueou a campainha. Abra a aba MENUX e clique em Ativar som para habilitar novamente.');
  }finally{menuxAlertInFlight=false}
@@ -1654,8 +1666,7 @@ async function playMenuxAlert(){
 menuxSoundButton.addEventListener('click',async()=>{
  if(menuxSoundEnabled){
   menuxSoundEnabled=false;
-  menuxBellAudio.pause();
-  if(menuxAudioSource){try{menuxAudioSource.stop()}catch{}}
+  menuxStopAlert();
   localStorage.setItem(menuxSoundKey(),'off');
   menuxUpdateSoundButton();
   return;
@@ -1667,6 +1678,7 @@ menuxSoundButton.addEventListener('click',async()=>{
   const prepared=menuxPrepareWebAudio();
   // Testa o som com o clique, que já sabemos funcionar neste navegador.
   menuxBellAudio.currentTime=0;
+  menuxBellAudio.loop=false;
   const test=menuxBellAudio.play();
   const results=await Promise.allSettled([prepared,test]);
   if(results.every(r=>r.status==='rejected'))throw results[0].reason;
@@ -1674,6 +1686,7 @@ menuxSoundButton.addEventListener('click',async()=>{
   menuxSoundEnabled=true;
   localStorage.setItem(menuxSoundKey(),'on');
   menuxUpdateSoundButton();
+  if(menuxShouldRing()){menuxStopAlert();menuxSyncAlert()}
  }catch(e){
   console.warn('MENUX: falha ao ativar som:',e);
   menuxSoundEnabled=false;
@@ -1688,12 +1701,12 @@ menuxRestoreSoundPreference();
 document.addEventListener('pointerdown',function menuxUnlockOnInteraction(){
  if(!menuxSoundEnabled||!restaurant)return;
  if(menuxAudioContext?.state==='running'&&menuxAudioBuffer)return;
- void menuxPrepareWebAudio().catch(e=>console.warn('MENUX: ative o áudio novamente se necessário:',e));
+ void menuxPrepareWebAudio().then(menuxSyncAlert).catch(e=>console.warn('MENUX: ative o áudio novamente se necessário:',e));
 },{capture:true});
 document.addEventListener('keydown',function(event){
  if(!menuxSoundEnabled||!restaurant||(!['Enter',' '].includes(event.key)))return;
  if(menuxAudioContext?.state==='running'&&menuxAudioBuffer)return;
- void menuxPrepareWebAudio().catch(()=>{});
+ void menuxPrepareWebAudio().then(menuxSyncAlert).catch(()=>{});
 },{capture:true});
 // Somente na Central de Pedidos: começa um novo dia às 00:00 no horário de Brasília.
 function menuxToday(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const get=t=>parts.find(p=>p.type===t)?.value;return `${get('year')}-${get('month')}-${get('day')}`;}
@@ -1741,6 +1754,8 @@ const go=document.getElementById('menux-go-orders');if(go)go.onclick=()=>{box.hi
 // Mostra pendentes já existentes, mas só toca para pedidos que chegam depois do primeiro carregamento.
 // Mantém o alerta enquanto houver pedidos ainda não aceitos.
 if(menuxAlertRestaurant!==restaurant.id){
+ menuxStopAlert();
+ menuxAcknowledging.clear();menuxAcknowledged.clear();
  menuxAlertRestaurant=restaurant.id;
  menuxKnownPending=null;
  // Ao trocar de loja, recupera a preferência dessa loja (padrão: ligado).
@@ -1760,10 +1775,11 @@ const newOrders=pendingOrders.filter(o=>{
 // Marca os pedidos conhecidos mesmo quando o som está desligado.
 const allSeen=new Set([...seen,...idsNow]);
 menuxStoreSeen(allSeen);
-if(newOrders.length){box.hidden=false;void playMenuxAlert()}
+if(newOrders.length){box.hidden=false}
 else if(menuxKnownPending===null&&pendingOrders.length){box.hidden=false}
 if(!pendingOrders.length)box.hidden=true;
 menuxKnownPending=idsNow;
+menuxSyncAlert();
 }
 
 // Detalhes grandes e legíveis; endereço enviado somente ao Google Maps após clique explícito.
@@ -1885,15 +1901,18 @@ document.addEventListener('click',async event=>{
  if(!transitions[item.status]?.includes(nextStatus))return;
  if(nextStatus==='cancelled'&&!confirm('Cancelar este pedido?'))return;
  button.disabled=true;
+ const acknowledging=item.status==='pending';
+ if(acknowledging){menuxAcknowledging.add(id);menuxSyncAlert()}
  try{
    const {data,error}=await sb.from('menux_checkout_orders')
      .update({status:nextStatus}).eq('restaurant_id',restaurant.id)
      .eq('id',id).eq('status',item.status).select('id');
    if(error)throw error;
    if(!data?.length)throw new Error('O status foi alterado em outra tela. Atualize os pedidos.');
+   if(acknowledging){menuxAcknowledged.add(id);menuxKnownPending?.delete(id)}
    await refreshMenuxOrders();
  }catch(err){console.error('MENUX - erro ao atualizar pedido:',err);alert('Não foi possível atualizar o pedido: '+err.message)}
- finally{button.disabled=false}
+ finally{if(acknowledging){menuxAcknowledging.delete(id);menuxSyncAlert()}button.disabled=false}
 });
 // O botão de atualização principal antes renovava só a lista legada.
 document.getElementById('refreshOrders')?.addEventListener('click',refreshMenuxOrders);
