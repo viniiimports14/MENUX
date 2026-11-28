@@ -474,7 +474,7 @@
  <div class="menux-ideas-layout"><div id="menuxIdeasList" class="menux-ideas-list"><p class="muted">Abra esta aba para carregar.</p></div>
  <div id="menuxIdeasThread" class="menux-ideas-thread"><p class="muted">Selecione uma sugestão para ler as respostas.</p></div></div></div>
 </section>
-<section class="page" id="reviews"><h2>⭐ Avaliações dos clientes</h2><p class="muted small">Avaliações de pedidos concluídos, disponíveis somente para a equipe desta loja.</p><div class="card" style="margin:15px 0"><div id="menuxReviewsSummary">Carregando...</div><button type="button" class="btn" id="menuxReviewsRefresh">↻ Atualizar</button></div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0"><label for="menuxReviewsFilter">Filtrar avaliações</label><select id="menuxReviewsFilter" style="padding:10px;border-radius:8px"><option value="all">Todas</option><option value="low">Atenção: 1 e 2 estrelas</option><option value="mid">3 estrelas</option><option value="high">4 e 5 estrelas</option><option value="comment">Com comentário</option></select><span id="menuxReviewsFilterCount" class="muted small"></span></div><div id="menuxReviewsBreakdown" class="muted small" style="margin-bottom:12px"></div><div id="menuxReviewsList"></div></section>
+<section class="page" id="reviews"><h2>⭐ Avaliações dos clientes</h2><p class="muted small">Avaliações dos pedidos, com histórico de compras dos clientes. Disponíveis somente para a equipe desta loja.</p><div class="card" style="margin:15px 0"><div id="menuxReviewsSummary">Carregando...</div><button type="button" class="btn" id="menuxReviewsRefresh">↻ Atualizar</button></div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0"><label for="menuxReviewsFilter">Filtrar avaliações</label><select id="menuxReviewsFilter" style="padding:10px;border-radius:8px"><option value="all">Todas</option><option value="low">Atenção: 1 e 2 estrelas</option><option value="mid">3 estrelas</option><option value="high">4 e 5 estrelas</option><option value="comment">Com comentário</option></select><span id="menuxReviewsFilterCount" class="muted small"></span></div><div id="menuxReviewsBreakdown" class="muted small" style="margin-bottom:12px"></div><div id="menuxReviewsList"></div></section>
 <section class="page" id="customers"><h2>Clientes</h2>
 <div class="card menux-customer-hub" id="menuxCustomerHub">
   <div class="row between" style="gap:12px;flex-wrap:wrap"><div><h2>Clientes e histórico de compras</h2><p class="muted small">Pedidos do cardápio e pedidos manuais desta loja. Compras são associadas pelo WhatsApp informado.</p></div><button type="button" class="btn primary" id="menuxClientsRefresh">↻ Atualizar histórico</button></div>
@@ -3461,6 +3461,14 @@ setTimeout(check,500);
 const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
 })();
 </script>
+<style id="menux-review-history-css">
+#menuxReviewsList .menux-review-card{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:10px}
+.menux-review-content{flex:1;min-width:0;overflow-wrap:anywhere}
+.menux-review-history{display:flex;flex-direction:column;gap:3px;text-align:right;padding:8px 14px;border-left:1px solid color-mix(in srgb,var(--gold) 30%,transparent)}
+.menux-review-history strong{color:var(--gold);font-size:14px}
+.menux-review-history small{font-size:12px;opacity:.8}
+@media(max-width:600px){#menuxReviewsList .menux-review-card{align-items:stretch;flex-direction:column;gap:10px}.menux-review-history{text-align:left;padding:9px 0 0;border-left:0;border-top:1px solid color-mix(in srgb,var(--gold) 30%,transparent)}}
+</style>
 <script id="menux-reviews-merchant">
 (()=>{
  const escapeReview=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -3471,11 +3479,31 @@ const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
   const {data,error}=await sb.from('menux_store_reviews').select('id,order_id,rating,comment,created_at').eq('restaurant_id',restaurant.id).order('created_at',{ascending:false}).limit(200);
   if(error){summary.textContent='Não foi possível carregar. Execute MENUX_AVALIACOES_LOJA.sql no Supabase.';list.innerHTML='';return}
   const rows=data||[];
-  const names=new Map();
+  const names=new Map(),reviewPhones=new Map(),counts=new Map();
+  const storeId=restaurant.id;
+  const phoneKey=v=>{let d=String(v||'').replace(/\D/g,'');if(d.startsWith('55')&&[12,13].includes(d.length))d=d.slice(2);return [10,11].includes(d.length)?d:''};
   const ids=rows.map(r=>r.order_id).filter(Boolean);
-  if(ids.length){const result=await sb.from('menux_checkout_orders').select('id,customer_name').eq('restaurant_id',restaurant.id).in('id',ids);
-   if(!result.error)(result.data||[]).forEach(o=>names.set(o.id,o.customer_name||'Cliente'));
+  if(ids.length){const result=await sb.from('menux_checkout_orders').select('id,customer_name,customer_phone').eq('restaurant_id',storeId).in('id',ids);
+   if(!result.error)(result.data||[]).forEach(o=>{names.set(o.id,o.customer_name||'Cliente');const p=phoneKey(o.customer_phone);if(p)reviewPhones.set(o.id,p)});
   }
+  const wanted=new Set(reviewPhones.values());
+  let historyOK=true;
+  if(wanted.size){
+   try{
+    const batch=500;
+    for(let start=0;;start+=batch){
+     const result=await sb.from('menux_checkout_orders').select('id,customer_phone,status').eq('restaurant_id',storeId).order('id',{ascending:true}).range(start,start+batch-1);
+     if(result.error)throw result.error;
+     const page=result.data||[];
+     for(const o of page){const p=phoneKey(o.customer_phone);if(wanted.has(p)&&!['cancelled','canceled'].includes(String(o.status).toLowerCase()))counts.set(p,(counts.get(p)||0)+1)}
+     if(page.length<batch)break;
+    }
+   }catch(e){historyOK=false;console.warn('MENUX: histórico de avaliações indisponível',e)}
+  }
+  if(restaurant?.id!==storeId)return;
+  const orderCounts=new Map();
+  if(historyOK)for(const [id,p] of reviewPhones)orderCounts.set(id,counts.get(p)||0);
+  window.menuxReviewOrderCounts=orderCounts;
   const avg=rows.length?rows.reduce((sum,r)=>sum+Number(r.rating),0)/rows.length:0;
   summary.textContent=rows.length?'⭐ '+avg.toFixed(1).replace('.',',')+' / 5 · '+rows.length+' avaliação(ões) exibida(s)'+(rows.length===200?' (últimas 200)':''):'Ainda não há avaliações.';
   const distribution=[5,4,3,2,1].map(stars=>stars+'★: '+rows.filter(r=>Number(r.rating)===stars).length).join(' · ');
@@ -3488,8 +3516,10 @@ const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
   const list=document.getElementById('menuxReviewsList'),filter=document.getElementById('menuxReviewsFilter')?.value||'all';
   const rows=(window.menuxReviewRows||[]).filter(r=>filter==='all'||(filter==='low'&&Number(r.rating)<=2)||(filter==='mid'&&Number(r.rating)===3)||(filter==='high'&&Number(r.rating)>=4)||(filter==='comment'&&String(r.comment||'').trim()));
   const names=window.menuxReviewNames||new Map();
+  const counts=window.menuxReviewOrderCounts||new Map();
+  const purchaseInfo=id=>{if(!counts.has(id))return '<span class="muted small">Histórico indisponível</span>';const n=counts.get(id);return '<span class="menux-review-history"><strong>'+n+' '+(n===1?'pedido':'pedidos')+' na loja</strong><small>'+(n===1?'Primeiro pedido':n>1?'Cliente recorrente':'Sem pedidos ativos ou concluídos')+'</small></span>'};
   document.getElementById('menuxReviewsFilterCount').textContent=rows.length+' resultado(s)';
-  list.innerHTML=rows.length?rows.map(r=>'<div class="card" style="display:block;margin-bottom:10px"><strong style="color:var(--gold)">'+('★'.repeat(Math.max(0,Math.min(5,Number(r.rating)))))+('☆'.repeat(Math.max(0,5-Number(r.rating))))+'</strong> <strong style="margin-left:12px">'+escapeReview(names.get(r.order_id)||'Cliente não identificado')+'</strong> <span class="muted small">'+escapeReview(new Date(r.created_at).toLocaleDateString('pt-BR'))+'</span><p style="margin:10px 0 0;white-space:pre-wrap">'+escapeReview(r.comment||'Sem comentário')+'</p></div>').join(''):'Nenhuma avaliação corresponde ao filtro selecionado.';
+  list.innerHTML=rows.length?rows.map(r=>'<div class="card menux-review-card"><div class="menux-review-content"><strong style="color:var(--gold)">'+('★'.repeat(Math.max(0,Math.min(5,Number(r.rating)))))+('☆'.repeat(Math.max(0,5-Number(r.rating))))+'</strong> <strong style="margin-left:12px">'+escapeReview(names.get(r.order_id)||'Cliente não identificado')+'</strong> <span class="muted small">'+escapeReview(new Date(r.created_at).toLocaleDateString('pt-BR'))+'</span><p style="margin:10px 0 0;white-space:pre-wrap">'+escapeReview(r.comment||'Sem comentário')+'</p></div>'+purchaseInfo(r.order_id)+'</div>').join(''):'Nenhuma avaliação corresponde ao filtro selecionado.';
  }
  window.menuxLoadReviews=load;
  document.getElementById('menuxReviewsRefresh')?.addEventListener('click',load);
