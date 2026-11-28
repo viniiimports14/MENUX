@@ -1,4 +1,4 @@
--- MENUX: avaliações verificadas por pedido concluído.
+-- MENUX: avaliações verificadas por pedido válido, independentemente do status.
 -- Execute no SQL Editor do Supabase antes de habilitar a interface.
 create table if not exists public.menux_store_reviews (
  id uuid primary key default gen_random_uuid(),
@@ -26,9 +26,6 @@ begin
  select * into v_order from public.menux_checkout_orders
  where id=p_order_id and exists (select 1 from public.menux_order_tracking_tokens t where t.order_id=p_order_id and t.token::text=p_token);
  if not found then raise exception 'Pedido não encontrado ou link inválido.';end if;
- if lower(coalesce(v_order.status,'')) not in ('completed','concluido','concluído','delivered') then
-  raise exception 'A avaliação fica disponível após a conclusão do pedido.';
- end if;
  insert into public.menux_store_reviews(restaurant_id,order_id,rating,comment)
  values(v_order.restaurant_id,p_order_id,p_rating,v_comment)
  on conflict (order_id) do nothing;
