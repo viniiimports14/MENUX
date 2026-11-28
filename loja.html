@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cardápio | MENUX</title><style>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><script id="menux-clean-store-url">(function(){var params=new URLSearchParams(location.search),slug=params.get('slug'),custom=/^(www\.)?menuxdelivery\.com\.br$/i.test(location.hostname);if(custom&&!slug){var m=location.pathname.match(/^\/([a-z0-9-]+)\/?$/);if(m)slug=m[1]}window.menuxPublicSlug=slug;if(custom&&slug&&/^[a-z0-9-]+$/.test(slug)){params.delete('slug');var q=params.toString();try{history.replaceState(history.state,'','/'+slug+(q?'?'+q:'')+location.hash)}catch(e){}}window.menuxGoogleReturnUrl=function(slug){var url=new URL(custom?'/loja.html':'loja.html',location.href);url.searchParams.set('slug',slug);var mesa=new URLSearchParams(location.search).get('mesa');if(mesa)url.searchParams.set('mesa',mesa);return url.href}})();</script><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cardápio | MENUX</title><style>
 :root{--accent:#7b2cbf}*{box-sizing:border-box}body{margin:0;background:#f7f7f8;color:#1c1b20;font:15px/1.5 system-ui,Arial}header{background:#fff;box-shadow:0 2px 12px #0001}.cover{height:230px;background:linear-gradient(120deg,var(--accent),#202027);background-position:center;background-size:cover}.head{max-width:1000px;margin:auto;padding:20px;display:flex;gap:16px;align-items:center}.logo{height:72px;width:72px;object-fit:cover;border-radius:16px;background:#eee;display:none}h1{margin:0;font-size:27px}.muted{color:#696773}.wrap{max-width:1000px;margin:24px auto;padding:0 18px}#products{display:grid;grid-template-columns:1fr;gap:12px}.card{background:white;border:1px solid #e7e7eb;border-radius:15px;overflow:hidden;display:flex;align-items:center;gap:14px;padding:12px}.card img{display:block;flex:0 0 88px;width:88px;height:88px;aspect-ratio:1/1;object-fit:cover;object-position:center;border-radius:10px;background:#f1f1f3}.body{padding:0;flex:1;min-width:0}.body h3{margin:5px 0 3px;font-size:16px;line-height:1.3}.body p{margin:3px 0 6px;font-size:13px}.price{margin-top:4px}.price{font-weight:800;color:var(--accent)}.chip{display:inline-block;padding:3px 9px;border-radius:20px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);font-size:11px;font-weight:650}.card .product-photo{display:block;flex:0 0 88px;width:88px;height:88px;padding:0;border:0;border-radius:10px;background:transparent;cursor:zoom-in;overflow:hidden}.card .product-photo img{width:100%;height:100%;object-fit:cover}.card .product-photo:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.image-modal[hidden]{display:none}.image-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:60px 20px 30px;cursor:zoom-out}.image-modal img{display:block;max-width:min(95vw,1100px);max-height:calc(100dvh - 100px);object-fit:contain;border-radius:12px;cursor:default}.image-modal .close-image{position:absolute;top:14px;right:18px;border:1px solid #ffffff66;border-radius:50%;width:42px;height:42px;background:#24242b;color:white;font-size:27px;cursor:pointer}.image-modal .close-image:focus-visible{outline:3px solid white}body.modal-open{overflow:hidden}.error{padding:20px;background:white;border-radius:12px}body.modern{background:#15141a;color:#f5f5f5}body.modern header,body.modern .card{background:#23212b;color:#f5f5f5;border-color:#383440}body.modern .muted{color:#b4b0bb}body.minimal .cover{height:100px}body.minimal .card{border-radius:3px;box-shadow:none}@media(max-width:480px){.card{gap:11px;padding:10px}.card img,.card .product-photo{flex-basis:76px;width:76px;height:76px}.body h3{font-size:15px}}.notice{background:#fff5d6;padding:13px;border-radius:10px;margin-bottom:20px;color:#574a24}
 
 /* Endereço dividido para facilitar a finalização em qualquer estabelecimento. */
@@ -411,7 +411,7 @@ document.getElementById('products').addEventListener('click',e=>{
 },true);
 </script><script>
 let publicProducts=[];let checkoutSb=null,checkoutSlug=null,storeWhatsapp="",cart=[];let menuxDeliveryAreas=[];let menuxAreasReady=false;const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0);const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-(async()=>{try{const slug=new URLSearchParams(location.search).get('slug');if(!slug||!/^[a-z0-9-]+$/.test(slug))throw Error('Link da loja inválido.');const cfg=window.MENUX_CONFIG;const sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);checkoutSb=sb;checkoutSlug=slug;loadMenuxDeliveryAreas();menuxRefreshSubscription();setInterval(menuxRefreshSubscription,30000);const {data,error}=await sb.rpc('get_public_storefront',{p_slug:slug});if(error)throw error;if(!data?.store)throw Error('Loja não encontrada. Confira o endereço.');const s=data.store;void menuxLoadPublicLoyalty();
+(async()=>{try{const slug=window.menuxPublicSlug;if(!slug||!/^[a-z0-9-]+$/.test(slug))throw Error('Link da loja inválido.');const cfg=window.MENUX_CONFIG;const sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);checkoutSb=sb;checkoutSlug=slug;loadMenuxDeliveryAreas();menuxRefreshSubscription();setInterval(menuxRefreshSubscription,30000);const {data,error}=await sb.rpc('get_public_storefront',{p_slug:slug});if(error)throw error;if(!data?.store)throw Error('Loja não encontrada. Confira o endereço.');const s=data.store;void menuxLoadPublicLoyalty();
  // Carrega somente os dados comerciais que o lojista decidiu tornar públicos.
  try{
  const {data:publicContact,error:contactError}=await sb.rpc('menux_public_store_contact',{p_slug:slug});
@@ -619,7 +619,7 @@ function menuxGoogleDisplayName(){return menuxCloudProfile?.name||menuxGoogleUse
 async function menuxStartGoogleTrackingSignIn(){
  if(!checkoutSb||!checkoutSlug)throw Error('Cardápio ainda carregando.');
  sessionStorage.setItem('menux:tracking-google-return:'+checkoutSlug,'1');
- const redirect=location.origin+location.pathname+'?slug='+encodeURIComponent(checkoutSlug);
+ const redirect=window.menuxGoogleReturnUrl(checkoutSlug);
  const {error}=await checkoutSb.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirect}});
  if(error)throw error;
 }
@@ -677,7 +677,7 @@ $('menux-auth-google').onclick=async()=>{
   if(!checkoutSb||!checkoutSlug)throw Error('Cardápio ainda carregando.');
   sessionStorage.setItem(menuxPendingCartKey(),JSON.stringify({items:cart,at:Date.now()}));
   sessionStorage.setItem('menux:google-return:'+checkoutSlug,'1');
-  const redirect=location.origin+location.pathname+'?slug='+encodeURIComponent(checkoutSlug);
+  const redirect=window.menuxGoogleReturnUrl(checkoutSlug);
   const {error}=await checkoutSb.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirect}});
   if(error)throw error;
  }catch(e){$('menux-auth-error').textContent='Não foi possível abrir o Google: '+(e.message||e);b.disabled=false;}
@@ -1089,7 +1089,7 @@ $('menux-my-orders').addEventListener('click',async()=>{
 });
 
 try{
-  const slug=new URLSearchParams(location.search).get('slug');
+  const slug=window.menuxPublicSlug;
   const saved=JSON.parse(localStorage.getItem('menux:last:'+slug)||'null');
   setTrackingShortcut(saved,false);
 }catch(e){}
