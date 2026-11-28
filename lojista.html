@@ -668,7 +668,11 @@ let sb=null,restaurant=null,restaurants=[],products=[],orders=[],items=[],custom
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v)||0),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const done=['completed','delivered','finished','finalizado','concluido','concluído'];const cancelled=['cancelled','canceled','cancelado'];const isDone=o=>done.includes(String(o.status).toLowerCase()),isCancelled=o=>cancelled.includes(String(o.status).toLowerCase());
 function notice(message,error=false){const e=$('feedback');e.textContent=message;e.style.borderColor=error?'#a65454':'#70572d';e.style.color=error?'#ffaaa0':'#e3c77f';e.classList.add('show');setTimeout(()=>{if(e.textContent===message)e.classList.remove('show')},6500)}
-function showPage(id){if(id==='overview'&&typeof menuxRenderReviewInsights==='function')void menuxRenderReviewInsights();if(id==='orders'&&typeof window.menuxRefreshReviewInvites==='function')void window.menuxRefreshReviewInvites();if(id==='reviews'&&typeof window.menuxLoadReviews==='function')void window.menuxLoadReviews();document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';if(id==='hours'&&typeof menuxLoadHours==='function')void menuxLoadHours().catch(e=>{const m=document.getElementById('menuxHoursMsg');if(m)m.textContent='Não foi possível carregar os horários: '+e.message});window.scrollTo({top:0,behavior:'smooth'})}
+function menuxLastPageKey(){return user?.id&&restaurant?.id?'menux:last-panel-page:v1:'+user.id+':'+restaurant.id+':'+(new URLSearchParams(location.search).has('support')?'support':'merchant'):null}
+function menuxValidPanelPage(id){return typeof id==='string'&&Object.prototype.hasOwnProperty.call(titles,id)&&document.getElementById(id)?.classList.contains('page')}
+function menuxRememberPanelPage(id){const key=menuxLastPageKey();if(!key||!menuxValidPanelPage(id))return;try{sessionStorage.setItem(key,id)}catch(e){}}
+function menuxRestorePanelPage(){const key=menuxLastPageKey();let id=null;try{if(key)id=sessionStorage.getItem(key)}catch(e){}if(!menuxValidPanelPage(id))return;const nav=[...document.querySelectorAll('.nav button[data-page]')].find(b=>b.dataset.page===id&&!b.disabled);if(nav)nav.click();else showPage(id)}
+function showPage(id){if(!menuxValidPanelPage(id))return;menuxRememberPanelPage(id);if(id==='overview'&&typeof menuxRenderReviewInsights==='function')void menuxRenderReviewInsights();if(id==='orders'&&typeof window.menuxRefreshReviewInvites==='function')void window.menuxRefreshReviewInvites();if(id==='reviews'&&typeof window.menuxLoadReviews==='function')void window.menuxLoadReviews();document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));$('title').textContent=titles[id]||'Menux';if(id==='hours'&&typeof menuxLoadHours==='function')void menuxLoadHours().catch(e=>{const m=document.getElementById('menuxHoursMsg');if(m)m.textContent='Não foi possível carregar os horários: '+e.message});window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{showPage(b.dataset.page);if(b.dataset.page==='catalog')loadCatalog().catch(e=>notice(e.message,true));}));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)showPage(b.dataset.go)});
 async function query(table,columns='*'){const {data,error}=await sb.from(table).select(columns).eq('restaurant_id',restaurant.id).limit(1000);if(error)throw Error(table+': '+error.message);return data||[]}
@@ -1078,6 +1082,7 @@ async function initSession(supportStore=null){
  $('authOverlay').classList.add('hidden');
  await load();
  try{await loadStorefront()}catch(err){notice('Execute o SQL de personalização: '+err.message,true)}
+ menuxRestorePanelPage();
 }
 
 let storefrontSettings=null;
@@ -1204,7 +1209,7 @@ $('menuxStoreContactForm').addEventListener('submit',async e=>{
 $('copyStorefront').addEventListener('click',async()=>{const u=storefrontUrl();if(!u){notice('Defina um slug em Minha loja.',true);return}try{await navigator.clipboard.writeText(u);notice('Link copiado!')}catch{notice('Copie o link exibido na tela.',true)}});
 $('openStorefront').addEventListener('click',()=>{const u=storefrontUrl();if(u)window.open(u,'_blank','noopener');else notice('Defina um slug em Minha loja.',true)});
 
-$('logout').addEventListener('click',async()=>{if(menuxSupportSession){location.replace('master.html');return;}await sb?.auth.signOut();location.replace('index.html')});
+$('logout').addEventListener('click',async()=>{try{const key=menuxLastPageKey();if(key)sessionStorage.removeItem(key)}catch(e){}if(menuxSupportSession){location.replace('master.html');return;}await sb?.auth.signOut();location.replace('index.html')});
 (async()=>{try{await connect();const {data:{user:u}}=await sb.auth.getUser();if(!u){location.replace('index.html');return;}const {data:admins,error:ae}=await sb.from('platform_admins').select('user_id').eq('user_id',u.id).limit(1);if(ae)throw ae;const supportId=new URLSearchParams(location.search).get('support');
 if(supportId){
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(supportId))throw Error('Loja de suporte inválida.');
@@ -3329,6 +3334,8 @@ async function menuxLoadLoyaltyMerchantHistory(){
     document.getElementById('refreshOrders')?.click();
   });
   document.getElementById('menuxVersionReload')?.addEventListener('click',()=>{
+    // Preserva a seção atual antes de carregar a nova versão.
+    menuxRememberPanelPage(document.querySelector('.page.active')?.id);
     // Navega para uma URL nova: evita HTML antigo do cache depois do deploy.
     const url=new URL(window.location.href);
     url.searchParams.set('menux_update',seenVersion||Date.now().toString());
@@ -3517,7 +3524,7 @@ const timer=setInterval(()=>{check();if(attempted)clearInterval(timer)},1200);
   const rows=(window.menuxReviewRows||[]).filter(r=>filter==='all'||(filter==='low'&&Number(r.rating)<=2)||(filter==='mid'&&Number(r.rating)===3)||(filter==='high'&&Number(r.rating)>=4)||(filter==='comment'&&String(r.comment||'').trim()));
   const names=window.menuxReviewNames||new Map();
   const counts=window.menuxReviewOrderCounts||new Map();
-  const purchaseInfo=id=>{if(!counts.has(id))return '<span class="muted small">Histórico indisponível</span>';const n=counts.get(id);return '<span class="menux-review-history"><strong>'+n+' '+(n===1?'pedido':'pedidos')+' na loja</strong><small>'+(n===1?'Primeiro pedido':n>1?'Cliente recorrente':'Sem pedidos ativos ou concluídos')+'</small></span>'};
+  const purchaseInfo=id=>{if(!counts.has(id))return '<span class="muted small">Histórico indisponível</span>';const n=counts.get(id);return '<span class="menux-review-history"><strong>'+n+' '+(n===1?'pedido':'pedidos')+' na loja</strong><small>'+(n===1?'Primeiro pedido':n>=5?'Cliente recorrente':n>=2?'Cliente retornando':'Sem pedidos ativos ou concluídos')+'</small></span>'};
   document.getElementById('menuxReviewsFilterCount').textContent=rows.length+' resultado(s)';
   list.innerHTML=rows.length?rows.map(r=>'<div class="card menux-review-card"><div class="menux-review-content"><strong style="color:var(--gold)">'+('★'.repeat(Math.max(0,Math.min(5,Number(r.rating)))))+('☆'.repeat(Math.max(0,5-Number(r.rating))))+'</strong> <strong style="margin-left:12px">'+escapeReview(names.get(r.order_id)||'Cliente não identificado')+'</strong> <span class="muted small">'+escapeReview(new Date(r.created_at).toLocaleDateString('pt-BR'))+'</span><p style="margin:10px 0 0;white-space:pre-wrap">'+escapeReview(r.comment||'Sem comentário')+'</p></div>'+purchaseInfo(r.order_id)+'</div>').join(''):'Nenhuma avaliação corresponde ao filtro selecionado.';
  }
