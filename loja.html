@@ -1091,7 +1091,7 @@ function renderTrackingStatusCard(data){
  return '<section class="tracking-compact-status"><div class="tracking-status-top"><span class="tracking-status-indicator">'+(status==='completed'?'✓':status==='cancelled'?'!':'●')+'</span><div><b>'+esc(visibleStatus)+'</b><small>Atualizado às '+time+'</small></div></div>'+cancelled+'</section>'+
  '<section class="tracking-products"><div class="tracking-products-title"><h3>Seu pedido</h3><span>'+esc(mode)+'</span></div>'+itemsHtml+'<div class="tracking-totals">'+sums+(fulfillment==='delivery'?'<div class="tracking-total-line"><span>Taxa de entrega</span><strong>'+brl(deliveryFee)+'</strong></div>':'')+(trackingDiscount>0?'<div class="tracking-total-line"><span>Desconto</span><strong>− '+brl(trackingDiscount)+'</strong></div>':'')+'<div class="tracking-grand-total"><span>Total do pedido</span><strong>'+brl(data.total||0)+'</strong></div></div></section>';
 }
-async function refreshTracking(){if(!trackingRef||!checkoutSb)return;const el=document.getElementById('tracking-status');try{const {data,error}=await checkoutSb.rpc('menux_track_order',{p_order_id:trackingRef.id,p_token:trackingRef.token});if(error)throw error;if(!data)throw Error('Pedido não encontrado');const status=data.status;if(data.daily_number!=null){trackingRef.daily_number=data.daily_number;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(trackingRef);if(confirmedOrder?.id===trackingRef.id)confirmedOrder.daily_number=data.daily_number;}el.innerHTML=renderTrackingStatusCard(data);if(['completed','cancelled'].includes(status)){clearInterval(trackingTimer);trackingTimer=null}}catch(e){document.getElementById('tracking-pill').textContent='Indisponível';el.innerHTML='<div class="tracking-error"><strong>Não foi possível consultar o pedido.</strong><p>'+esc(e.message)+'</p></div>'}}
+async function refreshTracking(){if(!trackingRef||!checkoutSb)return;const el=document.getElementById('tracking-status');try{const {data,error}=await checkoutSb.rpc('menux_track_order',{p_order_id:trackingRef.id,p_token:trackingRef.token});if(error)throw error;if(!data)throw Error('Pedido não encontrado');const status=data.status;if(status==='completed')window.menuxAutoReview?.(trackingRef,data);if(data.daily_number!=null){trackingRef.daily_number=data.daily_number;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(trackingRef);if(confirmedOrder?.id===trackingRef.id)confirmedOrder.daily_number=data.daily_number;}el.innerHTML=renderTrackingStatusCard(data);if(['completed','cancelled'].includes(status)){clearInterval(trackingTimer);trackingTimer=null}}catch(e){document.getElementById('tracking-pill').textContent='Indisponível';el.innerHTML='<div class="tracking-error"><strong>Não foi possível consultar o pedido.</strong><p>'+esc(e.message)+'</p></div>'}}
 function openTracking(ref){if(!ref?.id||!ref?.token)return;trackingRef=ref;document.getElementById('tracking-number').textContent='Pedido '+menuxDisplayNumber(ref);document.getElementById('tracking-pill').textContent='Consultando...';trackingModal.hidden=false;menuxTrackingViewport();trackingModal.querySelector('.tracking-box').scrollTop=0;trackingModal.scrollTop=0;refreshTracking();clearInterval(trackingTimer);trackingTimer=setInterval(()=>{if(!trackingModal.hidden&&document.visibilityState==='visible')refreshTracking()},10000)}
 document.getElementById('open-tracking').onclick=()=>openTracking({id:confirmedOrder?.id,token:confirmedOrder?.tracking_token});
 document.getElementById('tracking-close').onclick=()=>{trackingModal.hidden=true;clearInterval(trackingTimer)};
@@ -1234,17 +1234,27 @@ document.addEventListener('click',async event=>{
 (()=>{
  let ref=null;
  const modal=document.getElementById('menux-review-modal'),form=document.getElementById('menux-review-form');
- const close=()=>{modal.hidden=true};
+ const reviewSeen=new Set();
+ const reviewKey=id=>'menux:review-prompt:'+id;
+ function wasSeen(id){try{return reviewSeen.has(id)||!!localStorage.getItem(reviewKey(id))}catch{return reviewSeen.has(id)}}
+ function markSeen(id){if(!id)return;reviewSeen.add(id);try{localStorage.setItem(reviewKey(id),'1')}catch{}}
+ const close=()=>{markSeen(form.dataset.reviewOrder||ref?.id);modal.hidden=true};
  modal.style.zIndex='10050';
  document.getElementById('menux-review-close').onclick=close;
  modal.addEventListener('click',e=>{if(e.target===modal)close()});
  function eligible(){return typeof trackingRef!=='undefined'&&trackingRef?.id&&trackingRef?.token}
- function open(){if(!eligible())return;ref={id:trackingRef.id,token:trackingRef.token};document.getElementById('menux-review-feedback').textContent='';modal.hidden=false}
+ function openFor(order){if(!order?.id||!order?.token||!modal.hidden)return false;ref={id:order.id,token:order.token};delete form.dataset.reviewOrder;delete form.dataset.reviewToken;form.reset();const submit=form.querySelector('[type="submit"]');submit.disabled=false;submit.textContent='Enviar avaliação';document.getElementById('menux-review-feedback').textContent='';modal.hidden=false;return true}
+ function open(){if(eligible())openFor(trackingRef)}
+ window.menuxAutoReview=(order,data)=>{if(!order?.id||!order?.token||wasSeen(order.id)||data?.reviewed===true||data?.has_review===true||document.visibilityState!=='visible')return;if(!modal.hidden)return;if(openFor(order))markSeen(order.id)};
+ let reviewChecking=false;
+ async function checkCompletedReview(){if(reviewChecking||document.visibilityState!=='visible'||!modal.hidden||!checkoutSb)return;const order=shortcutOrder;if(!order?.id||!order?.token||wasSeen(order.id))return;if(!trackingModal.hidden&&trackingRef?.id===order.id&&trackingTimer)return;reviewChecking=true;try{const {data,error}=await checkoutSb.rpc('menux_track_order',{p_order_id:order.id,p_token:order.token});if(!error&&data?.status==='completed'&&shortcutOrder?.id===order.id)window.menuxAutoReview(order,data)}catch(e){}finally{reviewChecking=false}}
+ setInterval(checkCompletedReview,5000);
+ document.addEventListener('visibilitychange',checkCompletedReview);
  const button=document.createElement('button');button.type='button';button.id='menux-review-open';button.textContent='⭐ Avaliar minha experiência';button.className='checkout-primary';button.style.cssText='width:100%;margin-top:12px';button.hidden=true;button.onclick=open;
  const tracking=document.getElementById('tracking-modal');const box=tracking?.querySelector('.tracking-box');box?.appendChild(button);
  const observer=new MutationObserver(()=>{button.hidden=!eligible()||tracking.hidden});
  if(tracking)observer.observe(tracking,{attributes:true,attributeFilter:['hidden']});
- // O formulário só abre por iniciativa do cliente, após ele acompanhar o pedido.
+ // Abre manualmente em qualquer etapa ou automaticamente ao concluir.
  form.onsubmit=async e=>{
   e.preventDefault();const stars=Number(document.getElementById('menux-review-stars').value);
   const feedback=document.getElementById('menux-review-feedback');
@@ -1255,9 +1265,10 @@ document.addEventListener('click',async event=>{
    if(typeof checkoutSb==='undefined'||!checkoutSb)throw Error('Conexão indisponível.');
    const {error}=await checkoutSb.rpc('menux_submit_store_review',{p_order_id:linkedOrder||ref.id,p_token:linkedToken||ref.token,p_rating:stars,p_comment:document.getElementById('menux-review-comment').value.trim()});
    if(error)throw error;
+   markSeen(linkedOrder||ref?.id);
    feedback.textContent='Obrigado! Sua avaliação foi enviada.';
    submit.textContent='Avaliação enviada';
-  }catch(err){feedback.textContent=err.message||'Não foi possível enviar. Tente novamente.';submit.disabled=false}
+  }catch(err){feedback.textContent=err.message||'Não foi possível enviar. Tente novamente.';submit.disabled=false;if(/já foi avaliado/i.test(err.message||''))markSeen(linkedOrder||ref?.id)}
  };
 })();
 </script><script id="menux-review-link">
